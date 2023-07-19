@@ -40,7 +40,7 @@ linux_code = [
      19,   5, 197,   1, 115,  16,  85,  48,  19,   5, 240, 255, 115,  16,   5,  59
 ]
 
-PC = 0x80000000
+Instruction_pointer_register = 0x80000000
 registers = [0] * 32
 
 
@@ -64,11 +64,11 @@ def read_32_bits_from_memory__little_endian(address):
 
 
 def execute_single_CPU_instruction():
-    global PC
+    global Instruction_pointer_register
 
-    print(f"PC: {hex(PC)}")
+    print(f"PC: {hex(Instruction_pointer_register)}")
 
-    instruction = read_32_bits_from_memory__little_endian(PC)
+    instruction = read_32_bits_from_memory__little_endian(Instruction_pointer_register)
 
     opcode = instruction & 0b01111111
 
@@ -79,9 +79,9 @@ def execute_single_CPU_instruction():
 
         immediate_val = get_instruction_hardcoded_number__immediate_j(instruction)
         if rd > 0:
-            registers[rd] = PC + 4
+            registers[rd] = Instruction_pointer_register + 4
 
-        PC = PC + immediate_val
+        Instruction_pointer_register = Instruction_pointer_register + immediate_val
         pass
     else:
         print(f"[ERROR] Instruction not implemented: {hex(instruction)}")
