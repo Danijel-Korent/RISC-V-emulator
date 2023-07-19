@@ -23,17 +23,17 @@
 # ISA Manual          - https://five-embeddev.com/riscv-isa-manual/latest/csr.html
 
 
-import struct
-
-
-def load_32bit_values(filename):
-    with open(filename, 'rb') as f:
-        data = f.read()
-
-    return [struct.unpack('<i', data[i:i+4])[0] for i in range(0, len(data), 4)]
-
-
-image = load_32bit_values('test_image')
+# The first 128 bytes of the Linux kernel code
+linux_code = [
+    111,   0, 192,   5,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+     80,  87,  55,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+      2,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+     82,  73,  83,  67,  86,   0,   0,   0,  82,  83,  67,   5,   0,   0,   0,   0,
+     23,  37,   0,   0,  19,   5, 197, 199, 115,  16,  85,  48, 115,  16,   0,  52,
+    103, 128,   0,   0, 115,   0,  80,  16, 111, 240, 223, 255, 115,  16,  64,  48,
+    115,  16,  64,  52,  15,  16,   0,   0, 239,   0, 128,  10,  23,   5,   0,   0,
+     19,   5, 197,   1, 115,  16,  85,  48,  19,   5, 240, 255, 115,  16,   5,  59
+]
 
 PC = 0x80000000
 registers = [0] * 32
@@ -41,9 +41,8 @@ registers = [0] * 32
 
 def read_memory(address):
     if address >= 0x80000000:
-        addr = address - 0x80000000
-        image_addr = addr >> 2 # addr / 4
-        return image[image_addr]
+        image_addr = address - 0x80000000
+        return linux_code[image_addr]
 
     return 0
 
@@ -86,12 +85,23 @@ def get_instruction_immediate_j(value):
     return val
 
 
+def read_32_bits_from_memory__little_endian(address):
+    byte0 = read_memory(address)
+    byte1 = read_memory(address + 1)
+    byte2 = read_memory(address + 2)
+    byte3 = read_memory(address + 3)
+
+    value = (byte3 << 24) + (byte2 << 16) + (byte1 << 8) + byte0
+
+    return value
+
+
 def CPU_execute_single_step():
     global PC
 
     print(f"PC: {hex(PC)}")
 
-    instruction = read_memory(PC)
+    instruction = read_32_bits_from_memory__little_endian(PC)
 
     opcode = instruction & 0b01111111
 
@@ -145,7 +155,7 @@ def print_J_type_instruction(instruction):
 
 if __name__ == '__main__':
 
-    for i, value_32 in enumerate(image[:25]):
+    for i, value_32 in enumerate(linux_code[:25]):
         print(f"{hex(i*4)}: {hex(value_32)}")
 
     print("\n\n")
