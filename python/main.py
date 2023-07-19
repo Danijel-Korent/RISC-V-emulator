@@ -47,31 +47,34 @@ def read_memory(address):
     return 0
 
 
-def get_instruction_funct3(instruction):
+def get_instruction_subtype__funct3(instruction):
     val = instruction & 0b111000000000000
     val = val >> 12
     return val
 
 
-def get_instruction_rd(instruction):
+def get_instruction_destination__register_rd(instruction):
     val = instruction & 0b000111110000000
     val = val >> 7
     return val
 
 
-def get_instruction_rs1(instruction):
+def get_instruction_source_register__rs1(instruction):
     val = instruction & 0b11111000000000000000
     return val >> 15
 
 
-
-def get_instruction_immediate_i(instruction):
+def get_instruction_hardcoded_number__immediate_i(instruction):
     val = instruction & 0b11111111111000000000000000000000
     val = val >> 20
     return val
 
-def get_instruction_immediate_j(value):
+
+def get_instruction_hardcoded_number__immediate_j(value):
     # Extract bits by applying a mask and shifting
+    # TODO: I will try to make this more readable.
+    #       The encoding of immediate value for (jump) J type of instruction is very messy
+    #       and I actually had to draw a picture/diagram of it to see what is going on here
     bit_31 = (value & (1 << 31)) >> 31
     bits_19_to_12 = (value & (((1 << 8) - 1) << 12)) >> 12
     bit_20 = (value & (1 << 20)) >> 20
@@ -79,9 +82,6 @@ def get_instruction_immediate_j(value):
     bits_24_to_21 = (value & (((1 << 4) - 1) << 21)) >> 21
 
     val = (bit_31 << 20) | (bits_19_to_12 << 12) | (bit_20 << 11) | (bits_30_to_25 << 5) | (bits_24_to_21 << 1)
-    #val = val << 1
-
-    # Rearrange the bits in the order [31|19:12|20|30:25|24:21] and set last bit to 0
     return val
 
 
@@ -96,7 +96,7 @@ def read_32_bits_from_memory__little_endian(address):
     return value
 
 
-def CPU_execute_single_step():
+def execute_single_CPU_instruction():
     global PC
 
     print(f"PC: {hex(PC)}")
@@ -112,9 +112,9 @@ def CPU_execute_single_step():
     if opcode == 0x6f: # jal
         print_J_type_instruction(instruction)
 
-        rd = get_instruction_rd(instruction)
+        rd = get_instruction_destination__register_rd(instruction)
 
-        immediate_val = get_instruction_immediate_j(instruction)
+        immediate_val = get_instruction_hardcoded_number__immediate_j(instruction)
         if rd > 0:
             registers[rd] = PC + 4
 
@@ -128,10 +128,10 @@ def CPU_execute_single_step():
 
 def print_I_type_instruction(instruction):
     opcode = instruction & 0b000000001111111
-    rd = get_instruction_rd(instruction)
-    funct3 = get_instruction_funct3(instruction)
-    rs1 = get_instruction_rs1(instruction)
-    imm = get_instruction_immediate_i(instruction)
+    rd = get_instruction_destination__register_rd(instruction)
+    funct3 = get_instruction_subtype__funct3(instruction)
+    rs1 = get_instruction_source_register__rs1(instruction)
+    imm = get_instruction_hardcoded_number__immediate_i(instruction)
 
     print(f"Parsing I-type values from: {hex(instruction)}")
     print(f"  Opcode: {hex(opcode)}")
@@ -143,8 +143,8 @@ def print_I_type_instruction(instruction):
 
 def print_J_type_instruction(instruction):
     opcode = instruction & 0b000000001111111
-    rd = get_instruction_rd(instruction)
-    imm = get_instruction_immediate_j(instruction)
+    rd = get_instruction_destination__register_rd(instruction)
+    imm = get_instruction_hardcoded_number__immediate_j(instruction)
 
     print(f"Parsing I-type values from: {hex(instruction)}")
     print(f"  Opcode: {hex(opcode)}")
@@ -161,6 +161,6 @@ if __name__ == '__main__':
     print("\n\n")
 
     for x in range(3):
-        CPU_execute_single_step()
+        execute_single_CPU_instruction()
     pass
 
