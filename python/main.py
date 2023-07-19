@@ -1,12 +1,6 @@
 #! /usr/bin/env python3
 
-# Implementing RV32IM (Integer + multiplication/division)
-
-# TODO
-#   - Make a list of instructions to implement
-#       - Make a list of "base" instructions
-#       - Make a list of I instructions
-#       - Make a list of M instructions
+# Implementing RISC-V CPU emulator for RV32IM instruction set (Integer + multiplication/division)
 
 # DOCU:
 #   - https://itnext.io/risc-v-instruction-set-cheatsheet-70961b4bbe8
@@ -40,10 +34,18 @@ linux_code = [
      19,   5, 197,   1, 115,  16,  85,  48,  19,   5, 240, 255, 115,  16,   5,  59
 ]
 
+# All CPUs have one register that holds the address of the next instruction to execute
+# Here we also set the initial instruction address. Normal system would have ROM/flash memory (with initial bootloader)
+# mapped into this address. We have at this address (small chunk of) Linux kernel code
 Instruction_pointer_register = 0x80000000
-registers = [0] * 32
+
+# An array of registers
+# RISC-V has 32 integer registers
+integer_registers = [0] * 32
 
 
+# Return one byte value at specified address
+# Currently RAM is not implemented at all, only the Linux kernel code at 0x80000000
 def read_memory(address):
     if address >= 0x80000000:
         image_addr = address - 0x80000000
@@ -79,7 +81,7 @@ def execute_single_CPU_instruction():
 
         immediate_val = get_instruction_hardcoded_number__immediate_j(instruction)
         if rd > 0:
-            registers[rd] = Instruction_pointer_register + 4
+            integer_registers[rd] = Instruction_pointer_register + 4
 
         Instruction_pointer_register = Instruction_pointer_register + immediate_val
         pass
