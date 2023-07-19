@@ -72,10 +72,6 @@ def execute_single_CPU_instruction():
 
     opcode = instruction & 0b01111111
 
-    #print(f"Opcode: {hex(opcode)}")
-
-    #print_I_type_instruction(instruction)
-
     if opcode == 0x6f: # jal
         print_J_type_instruction(instruction)
 
@@ -89,7 +85,7 @@ def execute_single_CPU_instruction():
         pass
     else:
         print(f"[ERROR] Instruction not implemented: {hex(instruction)}")
-        return
+        quit()
     pass
 
 
@@ -121,7 +117,7 @@ def print_J_type_instruction(instruction):
 
 
 def emulate_cpu():
-    for x in range(3):
+    while True:
         execute_single_CPU_instruction()
     pass
 
