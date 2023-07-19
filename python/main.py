@@ -120,14 +120,11 @@ def print_J_type_instruction(instruction):
     pass
 
 
-if __name__ == '__main__':
-
-    for i, value_32 in enumerate(linux_code[:25]):
-        print(f"{hex(i*4)}: {hex(value_32)}")
-
-    print("\n\n")
-
+def emulate_cpu():
     for x in range(3):
         execute_single_CPU_instruction()
     pass
 
+
+if __name__ == '__main__':
+    emulate_cpu()
