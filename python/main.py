@@ -40,7 +40,7 @@ class CPU_state:
         # All CPUs have one register that holds the address of the next instruction to execute
         # Here we also set the initial instruction address. Normal system would have ROM/flash memory (with initial
         # hardcoded bootloader) mapped into this address. We mapped at this address (a small chunk of) Linux kernel code
-        self.Instruction_pointer_register = 0x80000000
+        self.instruction_pointer_register = 0x80000000
 
         # An array of registers
         # RISC-V has 32 integer registers
@@ -70,9 +70,9 @@ def read_32_bits_from_memory__little_endian(address):
 def execute_single_CPU_instruction(cpu_state):
     global Instruction_pointer_register
 
-    print(f"PC: {hex(cpu_state.Instruction_pointer_register)}")
+    print(f"PC: {hex(cpu_state.instruction_pointer_register)}")
 
-    instruction = read_32_bits_from_memory__little_endian(cpu_state.Instruction_pointer_register)
+    instruction = read_32_bits_from_memory__little_endian(cpu_state.instruction_pointer_register)
 
     opcode = instruction & 0b01111111
 
@@ -82,9 +82,9 @@ def execute_single_CPU_instruction(cpu_state):
         rd = get_instruction_destination__register_rd(instruction)
 
         immediate_val = get_instruction_hardcoded_number__immediate_j(instruction)
-        cpu_state.integer_registers[rd] = cpu_state.Instruction_pointer_register + 4
+        cpu_state.integer_registers[rd] = cpu_state.instruction_pointer_register + 4
 
-        cpu_state.Instruction_pointer_register = cpu_state.Instruction_pointer_register + immediate_val
+        cpu_state.instruction_pointer_register = cpu_state.instruction_pointer_register + immediate_val
         pass
     else:
         print(f"[ERROR] Instruction not implemented: {hex(instruction)}")
