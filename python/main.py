@@ -34,15 +34,17 @@ linux_code = [
      19,   5, 197,   1, 115,  16,  85,  48,  19,   5, 240, 255, 115,  16,   5,  59
 ]
 
-# All CPUs have one register that holds the address of the next instruction to execute
-# Here we also set the initial instruction address. Normal system would have ROM/flash memory (with initial bootloader)
-# mapped into this address. We have at this address (small chunk of) Linux kernel code
-Instruction_pointer_register = 0x80000000
 
-# An array of registers
-# RISC-V has 32 integer registers
-integer_registers = [0] * 32
+class CPU_state:
+    def __init__(self):
+        # All CPUs have one register that holds the address of the next instruction to execute
+        # Here we also set the initial instruction address. Normal system would have ROM/flash memory (with initial
+        # hardcoded bootloader) mapped into this address. We mapped at this address (a small chunk of) Linux kernel code
+        self.Instruction_pointer_register = 0x80000000
 
+        # An array of registers
+        # RISC-V has 32 integer registers
+        self.integer_registers = [0] * 32
 
 # Return one byte value at specified address
 # Currently RAM is not implemented at all, only the Linux kernel code at 0x80000000
@@ -65,12 +67,12 @@ def read_32_bits_from_memory__little_endian(address):
     return value
 
 
-def execute_single_CPU_instruction():
+def execute_single_CPU_instruction(cpu_state):
     global Instruction_pointer_register
 
-    print(f"PC: {hex(Instruction_pointer_register)}")
+    print(f"PC: {hex(cpu_state.Instruction_pointer_register)}")
 
-    instruction = read_32_bits_from_memory__little_endian(Instruction_pointer_register)
+    instruction = read_32_bits_from_memory__little_endian(cpu_state.Instruction_pointer_register)
 
     opcode = instruction & 0b01111111
 
@@ -80,10 +82,9 @@ def execute_single_CPU_instruction():
         rd = get_instruction_destination__register_rd(instruction)
 
         immediate_val = get_instruction_hardcoded_number__immediate_j(instruction)
-        if rd > 0:
-            integer_registers[rd] = Instruction_pointer_register + 4
+        cpu_state.integer_registers[rd] = cpu_state.Instruction_pointer_register + 4
 
-        Instruction_pointer_register = Instruction_pointer_register + immediate_val
+        cpu_state.Instruction_pointer_register = cpu_state.Instruction_pointer_register + immediate_val
         pass
     else:
         print(f"[ERROR] Instruction not implemented: {hex(instruction)}")
@@ -111,7 +112,7 @@ def print_J_type_instruction(instruction):
     rd = get_instruction_destination__register_rd(instruction)
     imm = get_instruction_hardcoded_number__immediate_j(instruction)
 
-    print(f"Parsing I-type values from: {hex(instruction)}")
+    print(f"Parsing I-type values from instruction: {hex(instruction)}")
     print(f"  Opcode: {hex(opcode)}")
     print(f"  rd:     {hex(rd)}")
     print(f"  imm:    {hex(imm)} \n")
@@ -119,8 +120,10 @@ def print_J_type_instruction(instruction):
 
 
 def emulate_cpu():
+
+    cpu_state = CPU_state()
     while True:
-        execute_single_CPU_instruction()
+        execute_single_CPU_instruction(cpu_state)
     pass
 
 
