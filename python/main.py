@@ -46,33 +46,43 @@ class CPU_state:
         # RISC-V has 32 integer registers
         self.integer_registers = [0] * 32
 
-# Return one byte value at specified address
-# Currently RAM is not implemented at all, only the Linux kernel code at 0x80000000
-def read_memory(address):
-    if address >= 0x80000000:
-        image_addr = address - 0x80000000
-        return linux_code[image_addr]
 
-    return 0
+class Memory:
+    def __init__(self, Linux_kernel_code):
+        self.linux_kernel_code = Linux_kernel_code
+
+    # Return value stored at specified address
+    # Currently RAM is not implemented at all, only the Linux kernel code at 0x80000000 is accessible. Everything else
+    # just returns zero.
+    def get_1_byte(self, address):
+        if address >= 0x80000000:
+            image_addr = address - 0x80000000
+            return self.linux_kernel_code[image_addr]
+
+        return 0
+
+    # https://en.wikipedia.org/wiki/Endianness#Overview
+    # When you read byte-by-byte you will get the same value in both little endian (LE) and big endian (BE)
+    # But if you read more than a byte into a register, LE and BE CPUs will put individual bytes into different places
+    # in the register.
+    # Same is for writing a register into memory. In case of 32-bit register (so 4 byte register), LE and BE CPUs will
+    # put individual bytes in register into different places in memory.
+    def get_4_bytes__little_endian(self, address):
+        byte0 = self.get_1_byte(address)
+        byte1 = self.get_1_byte(address + 1)
+        byte2 = self.get_1_byte(address + 2)
+        byte3 = self.get_1_byte(address + 3)
+
+        value = (byte3 << 24) + (byte2 << 16) + (byte1 << 8) + byte0
+
+        return value
 
 
-def read_32_bits_from_memory__little_endian(address):
-    byte0 = read_memory(address)
-    byte1 = read_memory(address + 1)
-    byte2 = read_memory(address + 2)
-    byte3 = read_memory(address + 3)
-
-    value = (byte3 << 24) + (byte2 << 16) + (byte1 << 8) + byte0
-
-    return value
-
-
-def execute_single_CPU_instruction(cpu_state):
-    global Instruction_pointer_register
+def execute_single_CPU_instruction(cpu_state, memory):
 
     print(f"PC: {hex(cpu_state.instruction_pointer_register)}")
 
-    instruction = read_32_bits_from_memory__little_endian(cpu_state.instruction_pointer_register)
+    instruction = memory.get_4_bytes__little_endian(cpu_state.instruction_pointer_register)
 
     opcode = instruction & 0b01111111
 
@@ -122,8 +132,10 @@ def print_J_type_instruction(instruction):
 def emulate_cpu():
 
     cpu_state = CPU_state()
+    memory = Memory(linux_code)
+
     while True:
-        execute_single_CPU_instruction(cpu_state)
+        execute_single_CPU_instruction(cpu_state, memory)
     pass
 
 
