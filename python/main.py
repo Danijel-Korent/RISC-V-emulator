@@ -10,7 +10,7 @@
 
 # QUICK REFERENCE
 #
-# Instuction list     - https://upload.wikimedia.org/wikipedia/commons/f/fe/RV32IMAC_Instruction_Set.svg
+# Instruction list    - https://upload.wikimedia.org/wikipedia/commons/f/fe/RV32IMAC_Instruction_Set.svg
 # Instruction format  - https://miro.medium.com/v2/resize:fit:4800/format:webp/1*Mznpgo4kFWIayagpftLmTg.png
 # Instruction opcodes - https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/notebooks/RISCV/RISCV_CARD.pdf
 # Instruction decoder - https://luplab.gitlab.io/rvcodecjs
@@ -82,11 +82,13 @@ def execute_single_CPU_instruction(cpu_state, memory):
 
     print(f"PC: {hex(cpu_state.instruction_pointer_register)}")
 
+    # Read the instruction from the memory
     instruction = memory.get_4_bytes__little_endian(cpu_state.instruction_pointer_register)
 
+    # Extract the 'operation/instruction' type
     opcode = instruction & 0b01111111
 
-    if opcode == 0x6f: # jal
+    if opcode == 0x6f:  # instruction "jal"
         print_J_type_instruction(instruction)
 
         rd = get_instruction_destination__register_rd(instruction)
@@ -109,7 +111,6 @@ def emulate_cpu():
 
     while True:
         execute_single_CPU_instruction(cpu_state, memory)
-    pass
 
 
 if __name__ == '__main__':
