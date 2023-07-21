@@ -44,7 +44,13 @@ class CPU_state:
 
         # An array of registers
         # RISC-V has 32 integer registers
-        self.integer_registers = [0] * 32
+        # https://en.wikipedia.org/wiki/RISC-V#Register_sets
+        self.integer_registers = [
+                                    0, 0, 0, 0, 0, 0, 0, 0,
+                                    0, 0, 0, 0, 0, 0, 0, 0,
+                                    0, 0, 0, 0, 0, 0, 0, 0,
+                                    0, 0, 0, 0, 0, 0, 0, 0,
+                                ]
 
 
 class Memory:
