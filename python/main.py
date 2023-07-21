@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-# Implementing RISC-V CPU emulator for RV32IM instruction set (Integer + multiplication/division)
+# Implementing RISC-V CPU emulator - only RV32IM instruction set (Integer + multiplication/division)
 
 # DOCU:
 #   - https://itnext.io/risc-v-instruction-set-cheatsheet-70961b4bbe8
@@ -57,9 +57,10 @@ class Memory:
     def __init__(self, Linux_kernel_code):
         self.linux_kernel_code = Linux_kernel_code
 
-    # Return value stored at specified address
-    # Currently RAM is not implemented at all, only the Linux kernel code at 0x80000000 is accessible. Everything else
-    # just returns zero.
+    # Returns a value stored at specified address
+    # WARNING:
+    #   Currently RAM is not implemented at all. Only the Linux kernel code at 0x80000000 is accessible. Everything else
+    #   just returns zero.
     def get_1_byte(self, address):
         if address >= 0x80000000:
             image_addr = address - 0x80000000
