@@ -64,3 +64,7 @@ def print_J_type_instruction(instruction):
     print(f"  imm:    {hex(imm)} \n")
     pass
 
+
+if __name__ == '__main__':
+    print(f"Executing:\n\t{__file__} \n")
+    print("Here we will have tests for functions in this file")
