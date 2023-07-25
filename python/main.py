@@ -68,13 +68,18 @@ class Memory:
 
         return 0
 
-    # https://en.wikipedia.org/wiki/Endianness#Overview
-    # When you read byte-by-byte you will get the same value in both little endian (LE) and big endian (BE)
-    # But if you read more than a byte into a register, LE and BE CPUs will put individual bytes into different places
-    # in the register.
-    # Same is for writing a register into memory. In case of 32-bit register (so 4 byte register), LE and BE CPUs will
-    # put individual bytes in register into different places in memory.
+    # Read 32bits/4bytes starting from specified address
+    # RISC-V starts in little endian mode, therefor we need to read data as little endian order
     def get_4_bytes__little_endian(self, address):
+        # When you read byte-by-byte you will get the same value in both little endian CPU (LE) and big endian CPU (BE)
+        # But if you read more than a byte into a register, LE and BE CPUs will put individual bytes into different
+        # places in the register. It is similar to how some cultures read from left-to-right and some from right-to-left
+        # If we imagine that single byte contains only single digit then following 4-bytes in memory [1,2,3,4] are read
+        # by one CPU as number "1234" while a CPU with opposite endianness will read the same 4 bytes as a number "4321"
+        #
+        # Same is for writing a register into memory. In case of 32-bit (4 byte) register, LE and BE CPUs will
+        # put individual bytes of register into different places in memory.
+        # https://en.wikipedia.org/wiki/Endianness#Overview
         byte0 = self.get_1_byte(address)
         byte1 = self.get_1_byte(address + 1)
         byte2 = self.get_1_byte(address + 2)
