@@ -22,8 +22,8 @@ from instruction_decoder import get_instruction_destination__register_rd, get_in
                                 get_instruction_hardcoded_number__immediate_i, print_J_type_instruction
 
 
-# The first 128 bytes of the Linux kernel code
-linux_code = [
+# The first 128 bytes of the compiled Linux kernel code
+linux_instructions = [
     111,   0, 192,   5,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
      80,  87,  55,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
       2,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
@@ -119,7 +119,7 @@ def execute_single_CPU_instruction(cpu_state, memory):
 def emulate_cpu():
 
     cpu_state = CPU_state()
-    memory = Memory(linux_code)
+    memory = Memory(linux_instructions)
 
     while True:
         execute_single_CPU_instruction(cpu_state, memory)
