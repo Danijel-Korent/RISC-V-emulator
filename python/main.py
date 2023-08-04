@@ -51,7 +51,7 @@ class CPU_state:
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                     0, 0, 0, 0, 0, 0, 0, 0,
-                                ]
+                                 ]
 
 
 class Memory:
@@ -126,5 +126,6 @@ def emulate_cpu():
         execute_single_CPU_instruction(cpu_state, memory)
 
 
+# Main starting point of this program/script
 if __name__ == '__main__':
     emulate_cpu()
