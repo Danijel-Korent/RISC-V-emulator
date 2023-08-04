@@ -1,2 +1,2 @@
 # RISC-V-emulator
-A small exercise to learn RISC-V ISA
+A small exercise to learn RISC-V instruction set
