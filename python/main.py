@@ -2,25 +2,6 @@
 
 # Implementing RISC-V CPU emulator - only RV32IM instruction set (32-bit integer + multiplication/division)
 
-# DOCU:
-#   - https://itnext.io/risc-v-instruction-set-cheatsheet-70961b4bbe8
-#   - https://en.wikipedia.org/wiki/RISC-V#Design
-#   - https://fraserinnovations.com/risc-v/risc-v-instruction-set-explanation/
-#   - https://riscv.org/wp-content/uploads/2017/05/riscv-spec-v2.2.pdf
-
-# QUICK REFERENCE
-#
-# Instruction list    - https://upload.wikimedia.org/wikipedia/commons/f/fe/RV32IMAC_Instruction_Set.svg
-# Instruction format  - https://miro.medium.com/v2/resize:fit:4800/format:webp/1*Mznpgo4kFWIayagpftLmTg.png
-# Instruction opcodes - https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/notebooks/RISCV/RISCV_CARD.pdf
-# Instruction decoder - https://luplab.gitlab.io/rvcodecjs
-# ISA Manual          - https://five-embeddev.com/riscv-isa-manual/latest/csr.html
-
-
-from instruction_decoder import get_instruction_destination__register_rd, get_instruction_source_register__rs1, \
-                                get_instruction_subtype__funct3, get_instruction_hardcoded_number__immediate_j, \
-                                get_instruction_hardcoded_number__immediate_i, print_J_type_instruction
-
 
 # The first 128 bytes of the compiled Linux kernel code. Linux kernel code compiles into instructions and data,
 # so the array contains instructions with some data here and there
@@ -69,52 +50,13 @@ class Memory:
 
         return 0
 
-    # Read 32bits/4bytes starting from specified address
-    # RISC-V starts in little endian mode, therefor we need to read data as little endian order
-    def get_4_bytes__little_endian(self, address):
-        # When you read byte-by-byte you will get the same value in both little endian CPU (LE) and big endian CPU (BE)
-        # But if you read more than a byte into a register, LE and BE CPUs will put individual bytes into different
-        # places in the register. It is similar to how some cultures read from left-to-right and some from right-to-left
-        # If we imagine that single byte contains only single digit then following 4-bytes in memory [1,2,3,4] are read
-        # by one CPU as number "1234" while a CPU with opposite endianness will read the same 4 bytes as a number "4321"
-        #
-        # Same is for writing a register into memory. In case of 32-bit (4 byte) register, LE and BE CPUs will
-        # put individual bytes of register into different places in memory.
-        # https://en.wikipedia.org/wiki/Endianness#Overview
-        byte0 = self.get_1_byte(address)
-        byte1 = self.get_1_byte(address + 1)
-        byte2 = self.get_1_byte(address + 2)
-        byte3 = self.get_1_byte(address + 3)
-
-        value = (byte3 << 24) + (byte2 << 16) + (byte1 << 8) + byte0
-
-        return value
-
 
 def execute_single_CPU_instruction(cpu_state, memory):
 
     print(f"Instruction pointer: {hex(cpu_state.instruction_pointer_register)}")
 
-    # Read the instruction from the memory
-    instruction = memory.get_4_bytes__little_endian(cpu_state.instruction_pointer_register)
-
-    # Extract the 'operation/instruction' type
-    opcode = instruction & 0b01111111
-
-    if opcode == 0x6f:  # instruction "jal"
-        print_J_type_instruction(instruction)
-
-        rd = get_instruction_destination__register_rd(instruction)
-
-        immediate_val = get_instruction_hardcoded_number__immediate_j(instruction)
-        cpu_state.integer_registers[rd] = cpu_state.instruction_pointer_register + 4
-
-        cpu_state.instruction_pointer_register = cpu_state.instruction_pointer_register + immediate_val
-        pass
-    else:
-        print(f"[ERROR] Instruction not implemented: {hex(instruction)}")
-        quit()
-    pass
+    print(f"\n[ERROR] Instruction not implemented")
+    quit()
 
 
 def emulate_cpu():
