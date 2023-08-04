@@ -54,8 +54,8 @@ class CPU_state:
 
 
 class Memory:
-    def __init__(self, Linux_kernel_code):
-        self.linux_kernel_code = Linux_kernel_code
+    def __init__(self, linux_image):
+        self.linux_instructions = linux_image
 
     # Returns a value stored at specified address
     # WARNING:
@@ -64,7 +64,7 @@ class Memory:
     def get_1_byte(self, address):
         if address >= 0x80000000:
             image_addr = address - 0x80000000
-            return self.linux_kernel_code[image_addr]
+            return self.linux_instructions[image_addr]
 
         return 0
 
