@@ -93,7 +93,7 @@ class Memory:
 
 def execute_single_CPU_instruction(cpu_state, memory):
 
-    print(f"PC: {hex(cpu_state.instruction_pointer_register)}")
+    print(f"Instruction pointer: {hex(cpu_state.instruction_pointer_register)}")
 
     # Read the instruction from the memory
     instruction = memory.get_4_bytes__little_endian(cpu_state.instruction_pointer_register)
