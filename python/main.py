@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-# Implementing RISC-V CPU emulator - only RV32IM instruction set (Integer + multiplication/division)
+# Implementing RISC-V CPU emulator - only RV32IM instruction set (32-bit integer + multiplication/division)
 
 # DOCU:
 #   - https://itnext.io/risc-v-instruction-set-cheatsheet-70961b4bbe8
@@ -22,7 +22,8 @@ from instruction_decoder import get_instruction_destination__register_rd, get_in
                                 get_instruction_hardcoded_number__immediate_i, print_J_type_instruction
 
 
-# The first 128 bytes of the compiled Linux kernel code
+# The first 128 bytes of the compiled Linux kernel code. Linux kernel code compiles into instructions and data,
+# so the array contains instructions with some data here and there
 linux_instructions = [
     111,   0, 192,   5,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
      80,  87,  55,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
@@ -39,7 +40,7 @@ class CPU_state:
     def __init__(self):
         # All CPUs have one register that holds the address of the next instruction to execute
         # Here we also set the initial instruction address. Normal system would have ROM/flash memory (with initial
-        # hardcoded bootloader) mapped into this address. We mapped at this address (a small chunk of) Linux kernel code
+        # hardcoded bootloader) mapped into this address. We mapped at this address (a small chunk of) Linux kernel
         self.instruction_pointer_register = 0x80000000
 
         # An array of registers
