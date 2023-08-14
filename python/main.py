@@ -2,6 +2,9 @@
 
 # Implementing RISC-V CPU emulator - only RV32IM instruction set (32-bit integer + multiplication/division)
 
+from instruction_decoder import print_J_type_instruction, get_instruction_destination__register_rd, \
+    get_instruction_hardcoded_number__immediate_j
+
 
 # The first 128 bytes of the compiled Linux kernel code. Linux kernel code compiles into instructions and data,
 # so the array contains instructions with some data here and there
@@ -50,13 +53,62 @@ class Memory:
 
         return 0
 
+    # Read 32bits/4bytes starting from specified address
+    # RISC-V starts in little endian mode, therefor we need to read data as little endian order
+    def get_4_bytes__little_endian(self, address):
+        # When you read byte-by-byte you will get the same value in both little endian CPU (LE) and big endian CPU (BE)
+        # But if you read more than a byte into a register, LE and BE CPUs will put individual bytes into different
+        # places in the register. It is similar to how some cultures read from left-to-right and some from right-to-left
+        # If we imagine that single byte contains only single digit then following 4-bytes in memory [1,2,3,4] are read
+        # by one CPU as number "1234" while a CPU with opposite endianness will read the same 4 bytes as a number "4321"
+        #
+        # Same is for writing a register into memory. In case of 32-bit (4 byte) register, LE and BE CPUs will
+        # put individual bytes of register into different places in memory.
+        # https://en.wikipedia.org/wiki/Endianness#Overview
+        byte0 = self.get_1_byte(address)
+        byte1 = self.get_1_byte(address + 1)
+        byte2 = self.get_1_byte(address + 2)
+        byte3 = self.get_1_byte(address + 3)
+
+        value = (byte3 << 24) + (byte2 << 16) + (byte1 << 8) + byte0
+
+        return value
+
+
+instruction_no_counter = 0
+
 
 def execute_single_CPU_instruction(cpu_state, memory):
+    global instruction_no_counter
 
-    print(f"Instruction pointer: {hex(cpu_state.instruction_pointer_register)}")
+    instruction_no_counter += 1
+    print(f"Instruction no.:     {instruction_no_counter}")
+    print(f"Instruction pointer: 0x{cpu_state.instruction_pointer_register:08x}")
 
-    print(f"\n[ERROR] Instruction not implemented")
-    quit()
+    # Read the instruction from the memory
+    instruction = memory.get_4_bytes__little_endian(cpu_state.instruction_pointer_register)
+
+    print(f"Instruction value:   0x{instruction:08x} \n")
+
+    # Extract the 'operation/instruction' type
+    opcode = instruction & 0b01111111
+
+    if opcode == 0x6f:  # instruction "jal"
+        print_J_type_instruction(instruction)
+
+        rd = get_instruction_destination__register_rd(instruction)
+
+        immediate_val = get_instruction_hardcoded_number__immediate_j(instruction)
+        cpu_state.integer_registers[rd] = cpu_state.instruction_pointer_register + 4
+
+        cpu_state.instruction_pointer_register = cpu_state.instruction_pointer_register + immediate_val
+
+        print(f"Executed instruction -> jal {rd}, {immediate_val}  (Jump and Link)\n")
+        pass
+    else:
+        print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+        quit()
+    pass
 
 
 def emulate_cpu():
