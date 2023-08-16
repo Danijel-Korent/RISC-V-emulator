@@ -36,7 +36,11 @@ class CPU_state:
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                  ]
+    def read_from_CSR_register(self, reg_num):
+        return 0
 
+    def write_to_CSR_register(self, register_num):
+        pass
 
 class Memory:
     def __init__(self, linux_image):
@@ -104,6 +108,9 @@ def execute_single_CPU_instruction(cpu_state, memory):
         cpu_state.instruction_pointer_register = cpu_state.instruction_pointer_register + immediate_val
 
         print(f"Executed instruction -> jal {rd}, {immediate_val}  (Jump and Link)\n")
+        pass
+    elif opcode == 0x73:
+        # TODO
         pass
     else:
         print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
