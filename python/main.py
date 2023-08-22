@@ -40,7 +40,7 @@ class Registers:
         # All CPUs have one register that holds the address of the next instruction to execute
         # Here we also set the initial instruction address. Normal system would have ROM/flash memory (with initial
         # hardcoded bootloader) mapped into this address. We mapped at this address (a small chunk of) Linux kernel
-        self.instruction_pointer_register = 0x80000000
+        self.instruction_pointer = 0x80000000
 
         # An array of registers
         # RISC-V has 32 integer registers
@@ -142,10 +142,10 @@ def execute_single_CPU_instruction(registers, memory):
     print("\n===============================")
     print(f"Instruction no.:     {instruction_no_counter}")
     print("===============================")
-    print(f"Instruction pointer: 0x{registers.instruction_pointer_register:08x}")
+    print(f"Instruction pointer: 0x{registers.instruction_pointer:08x}")
 
     # Read the instruction value from the memory
-    instruction = memory.get_4_bytes__little_endian(registers.instruction_pointer_register)
+    instruction = memory.get_4_bytes__little_endian(registers.instruction_pointer)
 
     print(f"Instruction value:   0x{instruction:08x} \n")
 
@@ -184,10 +184,10 @@ def execute_single_CPU_instruction(registers, memory):
         rd = Instruction_parser.get_destination_register__rd(instruction)
 
         immediate_val = Instruction_parser.get_hardcoded_number__immediate_j(instruction)
-        registers.integer_registers[rd] = registers.instruction_pointer_register + 4
+        registers.integer_registers[rd] = registers.instruction_pointer + 4
 
         # Update instruction pointer to a new value
-        registers.instruction_pointer_register = registers.instruction_pointer_register + immediate_val
+        registers.instruction_pointer = registers.instruction_pointer + immediate_val
 
         print(f"Executed instruction -> jal {rd}, {immediate_val}  (Jump and Link)\n")
         pass
@@ -229,7 +229,7 @@ def execute_single_CPU_instruction(registers, memory):
     # Move "instruction pointer" to the next instruction IF NOT already moved by "jump" or "branch" instruction
     if not instruction_pointer_updated:
         # It increases by 4 bytes because every RISC-V instruction is 32-bit in size. 32 bits == 4 bytes
-        registers.instruction_pointer_register += 4
+        registers.instruction_pointer += 4
     pass
 
 
