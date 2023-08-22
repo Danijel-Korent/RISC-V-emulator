@@ -22,6 +22,22 @@
 class Instruction_parser:
 
     @staticmethod
+    def decode_I_type(instruction):
+        instruction_subtype = Instruction_parser.get_subtype__funct3(instruction)
+        destination_reg     = Instruction_parser.get_destination_register__rd(instruction)
+        source_reg          = Instruction_parser.get_source_register__rs(instruction)
+        immediate_val       = Instruction_parser.get_hardcoded_number__immediate_i(instruction)
+
+        return instruction_subtype, destination_reg, source_reg, immediate_val
+
+    @staticmethod
+    def decode_J_type(instruction):
+        destination_reg = Instruction_parser.get_destination_register__rd(instruction)
+        immediate_val   = Instruction_parser.get_hardcoded_number__immediate_j(instruction)
+
+        return destination_reg, immediate_val
+
+    @staticmethod
     def get_subtype__funct3(instruction):
         val = instruction & 0b111000000000000
         val = val >> 12
@@ -65,19 +81,19 @@ class Instruction_parser:
         rd = Instruction_parser.get_destination_register__rd(instruction)
         imm = Instruction_parser.get_hardcoded_number__immediate_j(instruction)
 
+        destination_reg, immediate_val = Instruction_parser.decode_J_type(instruction)
+
         print(f"Parsing I-type values from instruction: 0x{instruction:08x}")
-        print(f"  Opcode: {hex(opcode)}")
-        print(f"  rd:     {hex(rd)}")
-        print(f"  imm:    {hex(imm)} \n")
+        print(f"  Opcode:           {hex(opcode)}")
+        print(f"  Destination reg.: {hex(destination_reg)}")
+        print(f"  Immediate value:  {hex(immediate_val)} \n")
         pass
 
     @staticmethod
     def print_I_type_instruction(instruction):
         opcode = instruction & 0b000000001111111
-        instruction_subtype = Instruction_parser.get_subtype__funct3(instruction)
-        destination_reg = Instruction_parser.get_destination_register__rd(instruction)
-        source_reg = Instruction_parser.get_source_register__rs(instruction)
-        immediate_val = Instruction_parser.get_hardcoded_number__immediate_i(instruction)
+
+        instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
         print(f"Parsing I-type values from instruction: 0x{instruction:08x}")
         print(f"  Opcode:           {hex(opcode)}")

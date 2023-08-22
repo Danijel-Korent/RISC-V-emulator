@@ -161,12 +161,7 @@ def execute_single_CPU_instruction(registers, memory):
     elif opcode == 0x13:  # Arithmetic/logic instructions with immediate value hardcoded into instruction
         Instruction_parser.print_I_type_instruction(instruction)
 
-        immediate_val = Instruction_parser.get_hardcoded_number__immediate_i(instruction)
-
-        source_reg = Instruction_parser.get_source_register__rs(instruction)
-        destination_reg = Instruction_parser.get_destination_register__rd(instruction)
-
-        instruction_subtype = Instruction_parser.get_subtype__funct3(instruction)
+        instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
         if instruction_subtype == 0x0:  # Instructions 'addi'
             registers.integer_regs[destination_reg] = registers.integer_regs[source_reg] + immediate_val
@@ -181,26 +176,22 @@ def execute_single_CPU_instruction(registers, memory):
         instruction_pointer_updated = True
         Instruction_parser.print_J_type_instruction(instruction)
 
-        rd = Instruction_parser.get_destination_register__rd(instruction)
+        destination_reg, immediate_val = Instruction_parser.decode_J_type(instruction)
 
-        immediate_val = Instruction_parser.get_hardcoded_number__immediate_j(instruction)
-        registers.integer_regs[rd] = registers.instruction_pointer + 4
+        registers.integer_regs[destination_reg] = registers.instruction_pointer + 4
 
         # Update instruction pointer to a new value
         registers.instruction_pointer = registers.instruction_pointer + immediate_val
 
-        print(f"Executed instruction -> jal {rd}, {immediate_val}  (Jump and Link)\n")
+        print(f"Executed instruction -> jal {destination_reg}, {immediate_val}  (Jump and Link)\n")
         pass
     elif opcode == 0x73:  # CSR instructions
         Instruction_parser.print_I_type_instruction(instruction)
 
-        instruction_subtype = Instruction_parser.get_subtype__funct3(instruction)
+        instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
         # In immediate field of the instruction an CSR address value is encoded
-        CSR_address = Instruction_parser.get_hardcoded_number__immediate_i(instruction)
-
-        source_reg      = Instruction_parser.get_source_register__rs(instruction)
-        destination_reg = Instruction_parser.get_destination_register__rd(instruction)
+        CSR_address = immediate_val
 
         if instruction_subtype == 0x1:  # instruction "csrrw"
             registers.integer_regs[destination_reg] = registers.read_from_CSR_register(CSR_address)
