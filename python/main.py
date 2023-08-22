@@ -2,9 +2,7 @@
 
 # Implementing RISC-V CPU emulator - only RV32IM instruction set (32-bit integer + multiplication/division)
 
-from instruction_decoder import print_J_type_instruction, get_instruction_destination_register__rd, \
-    get_instruction_hardcoded_number__immediate_j, print_I_type_instruction, get_instruction_subtype__funct3, \
-    get_instruction_hardcoded_number__immediate_i, get_instruction_source_register__rs
+from instruction_decoder import Instruction_parser
 
 # The first 128 bytes of the compiled Linux kernel code. Linux kernel code compiles into instructions and data,
 # so the array contains instructions with some data here and there
@@ -99,11 +97,11 @@ def execute_single_CPU_instruction(cpu_state, memory):
     opcode = instruction & 0b01111111
 
     if opcode == 0x6f:  # instruction "jal"
-        print_J_type_instruction(instruction)
+        Instruction_parser.print_J_type_instruction(instruction)
 
-        rd = get_instruction_destination_register__rd(instruction)
+        rd = Instruction_parser.get_destination_register__rd(instruction)
 
-        immediate_val = get_instruction_hardcoded_number__immediate_j(instruction)
+        immediate_val = Instruction_parser.get_hardcoded_number__immediate_j(instruction)
         cpu_state.integer_registers[rd] = cpu_state.instruction_pointer_register + 4
 
         cpu_state.instruction_pointer_register = cpu_state.instruction_pointer_register + immediate_val
@@ -111,15 +109,15 @@ def execute_single_CPU_instruction(cpu_state, memory):
         print(f"Executed instruction -> jal {rd}, {immediate_val}  (Jump and Link)\n")
         pass
     elif opcode == 0x73:  # CSR instructions
-        print_I_type_instruction(instruction)
+        Instruction_parser.print_I_type_instruction(instruction)
 
-        instruction_subtype = get_instruction_subtype__funct3(instruction)
+        instruction_subtype = Instruction_parser.get_subtype__funct3(instruction)
 
         # In immediate field of the instruction an CSR address value is encoded
-        CSR_address = get_instruction_hardcoded_number__immediate_i(instruction)
+        CSR_address = Instruction_parser.get_hardcoded_number__immediate_i(instruction)
 
-        source_reg      = get_instruction_source_register__rs(instruction)
-        destination_reg = get_instruction_destination_register__rd(instruction)
+        source_reg      = Instruction_parser.get_source_register__rs(instruction)
+        destination_reg = Instruction_parser.get_destination_register__rd(instruction)
 
         if instruction_subtype == 0x001:  # instruction "csrrw"
             current_CSR_reg_value = cpu_state.read_from_CSR_register(CSR_address)
