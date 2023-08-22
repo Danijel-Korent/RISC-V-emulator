@@ -37,7 +37,9 @@ class CPU_state:
 
     def read_from_CSR_register(self, register_num):
         if register_num == 0x304:
-            print(f"Tried to read CSR[0x{register_num:x}]  (register 'mie') \n")
+            print(f"Tried to read CSR[0x{register_num:x}]  (register 'mie': Machine Interrupt Enable) \n")
+        elif register_num == 0x344:
+            print(f"Tried to read CSR[0x{register_num:x}]  (register 'mip': Machine Interrupt Pending) \n")
         else:
             print(f"[ERROR] Tried to read unknown CSR register -> CSR[0x{register_num:x}] \n")
             exit()
@@ -45,7 +47,9 @@ class CPU_state:
 
     def write_to_CSR_register(self, register_num, value):
         if register_num == 0x304:
-            print(f"Tried to write CSR[0x{register_num:x}] = 0x{value:x}  (register 'mie') \n")
+            print(f"Tried to write CSR[0x{register_num:x}] = 0x{value:x}  (register 'mie': Machine Interrupt Enable) \n")
+        elif register_num == 0x344:
+            print(f"Tried to write CSR[0x{register_num:x}] = 0x{value:x}  (register 'mip': Machine Interrupt Pending) \n")
         else:
             print(f"[ERROR] Tried to write unknown CSR register -> CSR[0x{register_num:x}] = 0x{value:x} \n")
             exit()
