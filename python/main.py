@@ -149,6 +149,25 @@ def execute_single_CPU_instruction(cpu_state, memory):
         # Fence is only relevant for more complex CPU implementations
         print(f"Executed instruction -> fence \n")
         pass
+    elif opcode == 0x13:  # Arithmetic/logic instructions with immediate value hardcoded into instruction
+        Instruction_parser.print_I_type_instruction(instruction)
+
+        immediate_val = Instruction_parser.get_hardcoded_number__immediate_i(instruction)
+
+        source_reg = Instruction_parser.get_source_register__rs(instruction)
+        destination_reg = Instruction_parser.get_destination_register__rd(instruction)
+
+        instruction_subtype = Instruction_parser.get_subtype__funct3(instruction)
+
+        if instruction_subtype == 0x0:  # Instructions 'addi'
+            cpu_state.integer_registers[destination_reg] = cpu_state.integer_registers[source_reg] + immediate_val
+
+            print(f"Executed instruction -> addi x{destination_reg}, x{source_reg}, {immediate_val}  (Add immediate)\n")
+            pass
+        else:
+            print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+            quit()
+        pass
     elif opcode == 0x6f:  # instruction "jal"
         instruction_pointer_updated = True
         Instruction_parser.print_J_type_instruction(instruction)
