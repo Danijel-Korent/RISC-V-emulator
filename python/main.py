@@ -2,9 +2,9 @@
 
 # Implementing RISC-V CPU emulator - only RV32IM instruction set (32-bit integer + multiplication/division)
 
-from instruction_decoder import print_J_type_instruction, get_instruction_destination__register_rd, \
-    get_instruction_hardcoded_number__immediate_j
-
+from instruction_decoder import print_J_type_instruction, get_instruction_destination_register__rd, \
+    get_instruction_hardcoded_number__immediate_j, print_I_type_instruction, get_instruction_subtype__funct3, \
+    get_instruction_hardcoded_number__immediate_i, get_instruction_source_register__rs
 
 # The first 128 bytes of the compiled Linux kernel code. Linux kernel code compiles into instructions and data,
 # so the array contains instructions with some data here and there
@@ -36,6 +36,7 @@ class CPU_state:
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                  ]
+
     def read_from_CSR_register(self, reg_num):
         return 0
 
@@ -100,7 +101,7 @@ def execute_single_CPU_instruction(cpu_state, memory):
     if opcode == 0x6f:  # instruction "jal"
         print_J_type_instruction(instruction)
 
-        rd = get_instruction_destination__register_rd(instruction)
+        rd = get_instruction_destination_register__rd(instruction)
 
         immediate_val = get_instruction_hardcoded_number__immediate_j(instruction)
         cpu_state.integer_registers[rd] = cpu_state.instruction_pointer_register + 4
@@ -109,8 +110,27 @@ def execute_single_CPU_instruction(cpu_state, memory):
 
         print(f"Executed instruction -> jal {rd}, {immediate_val}  (Jump and Link)\n")
         pass
-    elif opcode == 0x73:
-        # TODO
+    elif opcode == 0x73:  # CSR instructions
+        print_I_type_instruction(instruction)
+
+        instruction_subtype = get_instruction_subtype__funct3(instruction)
+
+        # In immediate field of the instruction an CSR address value is encoded
+        CSR_address = get_instruction_hardcoded_number__immediate_i(instruction)
+
+        source_reg      = get_instruction_source_register__rs(instruction)
+        destination_reg = get_instruction_destination_register__rd(instruction)
+
+        if instruction_subtype == 0x001:  # instruction "csrrw"
+            current_CSR_reg_value = cpu_state.read_from_CSR_register(CSR_address)
+            cpu_state.write_to_CSR_register(cpu_state.integer_registers[source_reg])
+            cpu_state.integer_registers[destination_reg] = current_CSR_reg_value
+
+            print(f"Executed instruction -> csrrw {destination_reg}, {CSR_address}, {source_reg}  (Control and Status Register Read-Write)\n")
+            pass
+        else:
+            print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+            quit()
         pass
     else:
         print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")

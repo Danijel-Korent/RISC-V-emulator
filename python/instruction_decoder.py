@@ -20,9 +20,26 @@
 # ISA Manual          - https://five-embeddev.com/riscv-isa-manual/latest/csr.html
 
 
-def get_instruction_destination__register_rd(instruction):
+def get_instruction_subtype__funct3(instruction):
+    val = instruction & 0b111000000000000
+    val = val >> 12
+    return val
+
+
+def get_instruction_source_register__rs(instruction):
+    val = instruction & 0b11111000000000000000
+    return val >> 15
+
+
+def get_instruction_destination_register__rd(instruction):
     val = instruction & 0b000111110000000
     val = val >> 7
+    return val
+
+
+def get_instruction_hardcoded_number__immediate_i(instruction):
+    val = instruction & 0b11111111111000000000000000000000
+    val = val >> 20
     return val
 
 
@@ -43,13 +60,29 @@ def get_instruction_hardcoded_number__immediate_j(value):
 
 def print_J_type_instruction(instruction):
     opcode = instruction & 0b000000001111111
-    rd = get_instruction_destination__register_rd(instruction)
+    rd = get_instruction_destination_register__rd(instruction)
     imm = get_instruction_hardcoded_number__immediate_j(instruction)
 
     print(f"Parsing I-type values from instruction: 0x{instruction:08x}")
     print(f"  Opcode: {hex(opcode)}")
     print(f"  rd:     {hex(rd)}")
     print(f"  imm:    {hex(imm)} \n")
+    pass
+
+
+def print_I_type_instruction(instruction):
+    opcode = instruction & 0b000000001111111
+    instruction_subtype = get_instruction_subtype__funct3(instruction)
+    destination_reg = get_instruction_destination_register__rd(instruction)
+    source_reg = get_instruction_source_register__rs(instruction)
+    immediate_val = get_instruction_hardcoded_number__immediate_i(instruction)
+
+    print(f"Parsing I-type values from instruction: 0x{instruction:08x}")
+    print(f"  Opcode:           {hex(opcode)}")
+    print(f"  Opcode subtype:   {hex(instruction_subtype)}")
+    print(f"  Source reg.:      {hex(source_reg)}")
+    print(f"  Destination reg.: {hex(destination_reg)}")
+    print(f"  Immediate value:  {hex(immediate_val)} \n")
     pass
 
 
