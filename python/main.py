@@ -51,6 +51,18 @@ class CPU_state:
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                  ]
 
+    def print_register_values(self):
+        # just to shorten the variable name
+        reg = self.integer_registers
+
+        for i in range(8):
+            offset = i*4
+            for x in range(4):
+                reg_no = offset + x
+                print(f"x{reg_no:02}: {reg[reg_no]:08x}, ", end='')
+            # just for new line
+            print("")
+
     def read_from_CSR_register(self, register_num):
         if register_num == 0x304:
             print(f"Tried to read CSR[0x{register_num:x}]  (register 'mie': Machine Interrupt Enable) \n")
@@ -116,7 +128,9 @@ def execute_single_CPU_instruction(cpu_state, memory):
 
     instruction_no_counter += 1
 
-    print("===============================")
+    cpu_state.print_register_values()
+
+    print("\n===============================")
     print(f"Instruction no.:     {instruction_no_counter}")
     print("===============================")
     print(f"Instruction pointer: 0x{cpu_state.instruction_pointer_register:08x}")
