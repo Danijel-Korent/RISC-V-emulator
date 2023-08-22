@@ -131,7 +131,11 @@ def execute_single_CPU_instruction(cpu_state, memory):
     # Extract the 'operation/instruction' type
     opcode = instruction & 0b01111111
 
-    if opcode == 0x6f:  # instruction "jal"
+    if opcode == 0x0f:  # Instruction 'fence'
+        # Fence is only relevant for more complex CPU implementations
+        print(f"Executed instruction -> fence) \n")
+        pass
+    elif opcode == 0x6f:  # instruction "jal"
         instruction_pointer_updated = True
         Instruction_parser.print_J_type_instruction(instruction)
 
@@ -166,10 +170,6 @@ def execute_single_CPU_instruction(cpu_state, memory):
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
             quit()
-        pass
-    elif opcode == 0x0f:  # Instruction 'fence'
-        # Fence is only relevant for more complex CPU implementations
-        print(f"Executed instruction -> fence) \n")
         pass
     else:
         print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
