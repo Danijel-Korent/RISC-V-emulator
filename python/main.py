@@ -39,13 +39,15 @@ class CPU_state:
         if register_num == 0x304:
             print(f"Tried to read CSR[0x{register_num:x}]  (register 'mie') \n")
         else:
+            print(f"[ERROR] Tried to read unknown CSR register -> CSR[0x{register_num:x}] \n")
             exit()
         return 0
 
     def write_to_CSR_register(self, register_num, value):
         if register_num == 0x304:
-            print(f"Tried to write CSR[0x{register_num:x}] = {value}  (register 'mie') \n")
+            print(f"Tried to write CSR[0x{register_num:x}] = 0x{value:x}  (register 'mie') \n")
         else:
+            print(f"[ERROR] Tried to write unknown CSR register -> CSR[0x{register_num:x}] = 0x{value:x} \n")
             exit()
         pass
 
@@ -92,11 +94,16 @@ instruction_no_counter = 0
 def execute_single_CPU_instruction(cpu_state, memory):
     global instruction_no_counter
 
+    instruction_pointer_updated = False
+
     instruction_no_counter += 1
+
+    print("===============================")
     print(f"Instruction no.:     {instruction_no_counter}")
+    print("===============================")
     print(f"Instruction pointer: 0x{cpu_state.instruction_pointer_register:08x}")
 
-    # Read the instruction from the memory
+    # Read the instruction value from the memory
     instruction = memory.get_4_bytes__little_endian(cpu_state.instruction_pointer_register)
 
     print(f"Instruction value:   0x{instruction:08x} \n")
@@ -105,6 +112,7 @@ def execute_single_CPU_instruction(cpu_state, memory):
     opcode = instruction & 0b01111111
 
     if opcode == 0x6f:  # instruction "jal"
+        instruction_pointer_updated = True
         Instruction_parser.print_J_type_instruction(instruction)
 
         rd = Instruction_parser.get_destination_register__rd(instruction)
@@ -112,6 +120,7 @@ def execute_single_CPU_instruction(cpu_state, memory):
         immediate_val = Instruction_parser.get_hardcoded_number__immediate_j(instruction)
         cpu_state.integer_registers[rd] = cpu_state.instruction_pointer_register + 4
 
+        # Update instruction pointer to a new value
         cpu_state.instruction_pointer_register = cpu_state.instruction_pointer_register + immediate_val
 
         print(f"Executed instruction -> jal {rd}, {immediate_val}  (Jump and Link)\n")
@@ -141,6 +150,11 @@ def execute_single_CPU_instruction(cpu_state, memory):
     else:
         print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
         quit()
+
+    # Move "instruction pointer" to the next instruction IF NOT already moved by "jump" or "branch" instruction
+    if not instruction_pointer_updated:
+        # It increases by 4 bytes because every RISC-V instruction is 32-bit in size. 32 bits == 4 bytes
+        cpu_state.instruction_pointer_register += 4
     pass
 
 
