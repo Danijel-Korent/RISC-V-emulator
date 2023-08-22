@@ -52,6 +52,8 @@ class CPU_state:
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                  ]
 
+        self.CSR_mscratch = 0
+
     def print_register_values(self):
         # just to shorten the variable name
         reg = self.integer_registers
@@ -67,6 +69,9 @@ class CPU_state:
     def read_from_CSR_register(self, register_num):
         if register_num == 0x304:
             print(f"Tried to read CSR[0x{register_num:x}]  (register 'mie': Machine Interrupt Enable) \n")
+        elif register_num == 0x340:
+            print(f"Tried to read CSR[0x{register_num:x}]  (register 'mscratch': Scratch register) \n")
+            return self.CSR_mscratch
         elif register_num == 0x344:
             print(f"Tried to read CSR[0x{register_num:x}]  (register 'mip': Machine Interrupt Pending) \n")
         else:
@@ -77,6 +82,9 @@ class CPU_state:
     def write_to_CSR_register(self, register_num, value):
         if register_num == 0x304:
             print(f"Tried to write CSR[0x{register_num:x}] = 0x{value:x}  (register 'mie': Machine Interrupt Enable) \n")
+        elif register_num == 0x340:
+            print(f"Tried to write CSR[0x{register_num:x}] = 0x{value:x}  (register 'mscratch': Scratch register) \n")
+            self.CSR_mscratch = value
         elif register_num == 0x344:
             print(f"Tried to write CSR[0x{register_num:x}] = 0x{value:x}  (register 'mip': Machine Interrupt Pending) \n")
         else:
@@ -194,12 +202,21 @@ def execute_single_CPU_instruction(cpu_state, memory):
         source_reg      = Instruction_parser.get_source_register__rs(instruction)
         destination_reg = Instruction_parser.get_destination_register__rd(instruction)
 
-        if instruction_subtype == 0x001:  # instruction "csrrw"
-            current_CSR_reg_value = cpu_state.read_from_CSR_register(CSR_address)
+        if instruction_subtype == 0x1:  # instruction "csrrw"
+            cpu_state.integer_registers[destination_reg] = cpu_state.read_from_CSR_register(CSR_address)
             cpu_state.write_to_CSR_register(CSR_address, cpu_state.integer_registers[source_reg])
-            cpu_state.integer_registers[destination_reg] = current_CSR_reg_value
 
             print(f"Executed instruction -> csrrw {destination_reg}, {CSR_address}, {source_reg}  (Control and Status Register Read-Write)\n")
+            pass
+        elif instruction_subtype == 0x5:  # instruction "csrrwi"
+            # Immediate values is in this case encoded into bit field that
+            # usually holds source register number (RS bit field)
+            immediate_val = source_reg
+
+            cpu_state.integer_registers[destination_reg] = cpu_state.read_from_CSR_register(CSR_address)
+            cpu_state.write_to_CSR_register(CSR_address, immediate_val)
+
+            print(f"Executed instruction -> csrrwi {destination_reg}, {CSR_address}, {immediate_val}  (Control and Status Register Read-Write Immediate)\n")
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
