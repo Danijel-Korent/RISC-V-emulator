@@ -45,7 +45,7 @@ class Registers:
         # An array of registers
         # RISC-V has 32 integer registers
         # https://en.wikipedia.org/wiki/RISC-V#Register_sets
-        self.integer_registers = [
+        self.integer_regs = [
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                     0, 0, 0, 0, 0, 0, 0, 0,
@@ -56,7 +56,7 @@ class Registers:
 
     def print_register_values(self):
         # just to shorten the variable name
-        reg = self.integer_registers
+        reg = self.integer_regs
 
         for i in range(8):
             offset = i*4
@@ -169,7 +169,7 @@ def execute_single_CPU_instruction(registers, memory):
         instruction_subtype = Instruction_parser.get_subtype__funct3(instruction)
 
         if instruction_subtype == 0x0:  # Instructions 'addi'
-            registers.integer_registers[destination_reg] = registers.integer_registers[source_reg] + immediate_val
+            registers.integer_regs[destination_reg] = registers.integer_regs[source_reg] + immediate_val
 
             print(f"Executed instruction -> addi x{destination_reg}, x{source_reg}, {immediate_val}  (Add immediate)\n")
             pass
@@ -184,7 +184,7 @@ def execute_single_CPU_instruction(registers, memory):
         rd = Instruction_parser.get_destination_register__rd(instruction)
 
         immediate_val = Instruction_parser.get_hardcoded_number__immediate_j(instruction)
-        registers.integer_registers[rd] = registers.instruction_pointer + 4
+        registers.integer_regs[rd] = registers.instruction_pointer + 4
 
         # Update instruction pointer to a new value
         registers.instruction_pointer = registers.instruction_pointer + immediate_val
@@ -203,8 +203,8 @@ def execute_single_CPU_instruction(registers, memory):
         destination_reg = Instruction_parser.get_destination_register__rd(instruction)
 
         if instruction_subtype == 0x1:  # instruction "csrrw"
-            registers.integer_registers[destination_reg] = registers.read_from_CSR_register(CSR_address)
-            registers.write_to_CSR_register(CSR_address, registers.integer_registers[source_reg])
+            registers.integer_regs[destination_reg] = registers.read_from_CSR_register(CSR_address)
+            registers.write_to_CSR_register(CSR_address, registers.integer_regs[source_reg])
 
             print(f"Executed instruction -> csrrw {destination_reg}, {CSR_address}, {source_reg}  (Control and Status Register Read-Write)\n")
             pass
@@ -213,7 +213,7 @@ def execute_single_CPU_instruction(registers, memory):
             # usually holds source register number (RS bit field)
             immediate_val = source_reg
 
-            registers.integer_registers[destination_reg] = registers.read_from_CSR_register(CSR_address)
+            registers.integer_regs[destination_reg] = registers.read_from_CSR_register(CSR_address)
             registers.write_to_CSR_register(CSR_address, immediate_val)
 
             print(f"Executed instruction -> csrrwi {destination_reg}, {CSR_address}, {immediate_val}  (Control and Status Register Read-Write Immediate)\n")
