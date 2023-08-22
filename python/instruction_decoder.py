@@ -1,4 +1,25 @@
 
+# DOCU:
+#   - https://itnext.io/risc-v-instruction-set-cheatsheet-70961b4bbe8
+#   - https://en.wikipedia.org/wiki/RISC-V#Design
+#   - https://fraserinnovations.com/risc-v/risc-v-instruction-set-explanation/
+#   - https://book.rvemu.app/instruction-set/01-rv64i.html
+#   - https://riscv.org/wp-content/uploads/2017/05/riscv-spec-v2.2.pdf
+
+# QUICK REFERENCE
+#
+# RISC-V Reference card (formats, opcodes, lists, registers)
+#
+#   - https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/notebooks/RISCV/RISCV_CARD.pdf
+#   - https://book.rvemu.app/img/2-1-1.png
+#
+# Instruction list    - https://upload.wikimedia.org/wikipedia/commons/f/fe/RV32IMAC_Instruction_Set.svg
+# Instruction format  - https://miro.medium.com/v2/resize:fit:4800/format:webp/1*Mznpgo4kFWIayagpftLmTg.png
+# Instruction opcodes - https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/notebooks/RISCV/RISCV_CARD.pdf
+# Instruction decoder - https://luplab.gitlab.io/rvcodecjs
+# ISA Manual          - https://five-embeddev.com/riscv-isa-manual/latest/csr.html
+
+
 def get_instruction_destination__register_rd(instruction):
     val = instruction & 0b000111110000000
     val = val >> 7
