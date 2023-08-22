@@ -35,10 +35,18 @@ class CPU_state:
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                  ]
 
-    def read_from_CSR_register(self, reg_num):
+    def read_from_CSR_register(self, register_num):
+        if register_num == 0x304:
+            print(f"Tried to read CSR[0x{register_num:x}]  (register 'mie') \n")
+        else:
+            exit()
         return 0
 
-    def write_to_CSR_register(self, register_num):
+    def write_to_CSR_register(self, register_num, value):
+        if register_num == 0x304:
+            print(f"Tried to write CSR[0x{register_num:x}] = {value}  (register 'mie') \n")
+        else:
+            exit()
         pass
 
 class Memory:
@@ -121,7 +129,7 @@ def execute_single_CPU_instruction(cpu_state, memory):
 
         if instruction_subtype == 0x001:  # instruction "csrrw"
             current_CSR_reg_value = cpu_state.read_from_CSR_register(CSR_address)
-            cpu_state.write_to_CSR_register(cpu_state.integer_registers[source_reg])
+            cpu_state.write_to_CSR_register(CSR_address, cpu_state.integer_registers[source_reg])
             cpu_state.integer_registers[destination_reg] = current_CSR_reg_value
 
             print(f"Executed instruction -> csrrw {destination_reg}, {CSR_address}, {source_reg}  (Control and Status Register Read-Write)\n")
