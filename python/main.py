@@ -35,7 +35,7 @@ linux_instructions = [
 ]
 
 
-class CPU_state:
+class Registers:
     def __init__(self):
         # All CPUs have one register that holds the address of the next instruction to execute
         # Here we also set the initial instruction address. Normal system would have ROM/flash memory (with initial
@@ -132,20 +132,20 @@ class Memory:
 instruction_no_counter = 0
 
 
-def execute_single_CPU_instruction(cpu_state, memory):
+def execute_single_CPU_instruction(registers, memory):
     global instruction_no_counter
 
     instruction_no_counter += 1
 
-    cpu_state.print_register_values()
+    registers.print_register_values()
 
     print("\n===============================")
     print(f"Instruction no.:     {instruction_no_counter}")
     print("===============================")
-    print(f"Instruction pointer: 0x{cpu_state.instruction_pointer_register:08x}")
+    print(f"Instruction pointer: 0x{registers.instruction_pointer_register:08x}")
 
     # Read the instruction value from the memory
-    instruction = memory.get_4_bytes__little_endian(cpu_state.instruction_pointer_register)
+    instruction = memory.get_4_bytes__little_endian(registers.instruction_pointer_register)
 
     print(f"Instruction value:   0x{instruction:08x} \n")
 
@@ -169,7 +169,7 @@ def execute_single_CPU_instruction(cpu_state, memory):
         instruction_subtype = Instruction_parser.get_subtype__funct3(instruction)
 
         if instruction_subtype == 0x0:  # Instructions 'addi'
-            cpu_state.integer_registers[destination_reg] = cpu_state.integer_registers[source_reg] + immediate_val
+            registers.integer_registers[destination_reg] = registers.integer_registers[source_reg] + immediate_val
 
             print(f"Executed instruction -> addi x{destination_reg}, x{source_reg}, {immediate_val}  (Add immediate)\n")
             pass
@@ -184,10 +184,10 @@ def execute_single_CPU_instruction(cpu_state, memory):
         rd = Instruction_parser.get_destination_register__rd(instruction)
 
         immediate_val = Instruction_parser.get_hardcoded_number__immediate_j(instruction)
-        cpu_state.integer_registers[rd] = cpu_state.instruction_pointer_register + 4
+        registers.integer_registers[rd] = registers.instruction_pointer_register + 4
 
         # Update instruction pointer to a new value
-        cpu_state.instruction_pointer_register = cpu_state.instruction_pointer_register + immediate_val
+        registers.instruction_pointer_register = registers.instruction_pointer_register + immediate_val
 
         print(f"Executed instruction -> jal {rd}, {immediate_val}  (Jump and Link)\n")
         pass
@@ -203,8 +203,8 @@ def execute_single_CPU_instruction(cpu_state, memory):
         destination_reg = Instruction_parser.get_destination_register__rd(instruction)
 
         if instruction_subtype == 0x1:  # instruction "csrrw"
-            cpu_state.integer_registers[destination_reg] = cpu_state.read_from_CSR_register(CSR_address)
-            cpu_state.write_to_CSR_register(CSR_address, cpu_state.integer_registers[source_reg])
+            registers.integer_registers[destination_reg] = registers.read_from_CSR_register(CSR_address)
+            registers.write_to_CSR_register(CSR_address, registers.integer_registers[source_reg])
 
             print(f"Executed instruction -> csrrw {destination_reg}, {CSR_address}, {source_reg}  (Control and Status Register Read-Write)\n")
             pass
@@ -213,8 +213,8 @@ def execute_single_CPU_instruction(cpu_state, memory):
             # usually holds source register number (RS bit field)
             immediate_val = source_reg
 
-            cpu_state.integer_registers[destination_reg] = cpu_state.read_from_CSR_register(CSR_address)
-            cpu_state.write_to_CSR_register(CSR_address, immediate_val)
+            registers.integer_registers[destination_reg] = registers.read_from_CSR_register(CSR_address)
+            registers.write_to_CSR_register(CSR_address, immediate_val)
 
             print(f"Executed instruction -> csrrwi {destination_reg}, {CSR_address}, {immediate_val}  (Control and Status Register Read-Write Immediate)\n")
             pass
@@ -229,17 +229,17 @@ def execute_single_CPU_instruction(cpu_state, memory):
     # Move "instruction pointer" to the next instruction IF NOT already moved by "jump" or "branch" instruction
     if not instruction_pointer_updated:
         # It increases by 4 bytes because every RISC-V instruction is 32-bit in size. 32 bits == 4 bytes
-        cpu_state.instruction_pointer_register += 4
+        registers.instruction_pointer_register += 4
     pass
 
 
 def emulate_cpu():
 
-    cpu_state = CPU_state()
+    registers = Registers()
     memory = Memory(linux_instructions)
 
     while True:
-        execute_single_CPU_instruction(cpu_state, memory)
+        execute_single_CPU_instruction(registers, memory)
 
 
 # Main starting point of this program/script
