@@ -114,8 +114,6 @@ instruction_no_counter = 0
 def execute_single_CPU_instruction(cpu_state, memory):
     global instruction_no_counter
 
-    instruction_pointer_updated = False
-
     instruction_no_counter += 1
 
     print("===============================")
@@ -131,9 +129,11 @@ def execute_single_CPU_instruction(cpu_state, memory):
     # Extract the 'operation/instruction' type
     opcode = instruction & 0b01111111
 
+    instruction_pointer_updated = False
+
     if opcode == 0x0f:  # Instruction 'fence'
         # Fence is only relevant for more complex CPU implementations
-        print(f"Executed instruction -> fence) \n")
+        print(f"Executed instruction -> fence \n")
         pass
     elif opcode == 0x6f:  # instruction "jal"
         instruction_pointer_updated = True
