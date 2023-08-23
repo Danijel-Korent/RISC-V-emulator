@@ -46,18 +46,18 @@ class Instruction_parser:
 
     @staticmethod
     def get_subtype__funct3(instruction):
-        val = instruction & 0b111000000000000
+        val = instruction & 0b00000000000000000111000000000000
         val = val >> 12
         return val
 
     @staticmethod
     def get_source_register__rs(instruction):
-        val = instruction & 0b11111000000000000000
+        val = instruction & 0b00000000000011111000000000000000
         return val >> 15
 
     @staticmethod
     def get_destination_register__rd(instruction):
-        val = instruction & 0b000111110000000
+        val = instruction & 0b00000000000000000000111110000000
         val = val >> 7
         return val
 
@@ -90,7 +90,7 @@ class Instruction_parser:
 
     @staticmethod
     def print_J_type_instruction(instruction):
-        opcode = instruction & 0b000000001111111
+        opcode = instruction & 0b00000000000000000000000001111111
         rd = Instruction_parser.get_destination_register__rd(instruction)
         imm = Instruction_parser.get_hardcoded_number__immediate_j(instruction)
 
@@ -104,7 +104,7 @@ class Instruction_parser:
 
     @staticmethod
     def print_I_type_instruction(instruction):
-        opcode = instruction & 0b000000001111111
+        opcode = instruction & 0b00000000000000000000000001111111
 
         instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
