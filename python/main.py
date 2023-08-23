@@ -14,18 +14,19 @@ def execute_single_CPU_instruction(registers, memory):
 
     instruction_no_counter += 1
 
+    # Print informational data
     registers.print_register_values()
-
     print("\n===============================")
     print(f"Instruction no.:     {instruction_no_counter}")
     print("===============================")
     print(f"Instruction pointer: 0x{registers.instruction_pointer:08x}")
 
-    # Read the instruction value from the memory
+    # Fetch the instruction number/value from the memory
     instruction = memory.get_4_bytes__little_endian(registers.instruction_pointer)
 
     print(f"Instruction value:   0x{instruction:08x} \n")
 
+    # Execute the instruction
     instruction_pointer_updated = execute_instruction(registers, memory, instruction)
 
     # Move "instruction pointer" to the next instruction IF NOT already moved by "jump" or "branch" instruction
