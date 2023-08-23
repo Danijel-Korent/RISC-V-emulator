@@ -63,14 +63,14 @@ class Instruction_parser:
 
     @staticmethod
     def get_hardcoded_number__immediate_i(instruction):
-        val = instruction & 0b11111111111100000000000000000000
-        val = val >> 20
+        # val = instruction & 0b11111111111100000000000000000000 <- Unnecessary
+        val = instruction >> 20
         return val
 
     @staticmethod
     def get_hardcoded_number__immediate_u(instruction):
-        val = instruction & 0b11111111111111111111000000000000
-        val = val >> 12
+        # val = instruction & 0b11111111111111111111000000000000 <- Unnecessary
+        val = instruction >> 12
         return val
 
     @staticmethod
