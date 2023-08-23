@@ -154,16 +154,21 @@ def execute_single_CPU_instruction(registers, memory):
 
     instruction_pointer_updated = False
 
-    if opcode == 0x0f:  # Instruction 'fence'
+    # --- Instruction 'FENCE' ---
+    if opcode == 0x0f:
         # Fence is only relevant for more complex CPU implementations
-        print(f"Executed instruction -> fence \n")
+        print(f"Ignored instruction -> fence \n")
         pass
-    elif opcode == 0x13:  # Arithmetic/logic instructions with immediate value hardcoded into instruction
+
+    # --- Arithmetic/Logic instructions with immediate ---
+    elif opcode == 0x13:
+        # Arithmetic/logic instructions with immediate value hardcoded into instruction
         Instruction_parser.print_I_type_instruction(instruction)
 
         instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
-        if instruction_subtype == 0x0:  # Instructions 'addi'
+        # --- Instruction 'ADDI' ---
+        if instruction_subtype == 0x0:
             registers.integer_regs[destination_reg] = registers.integer_regs[source_reg] + immediate_val
 
             print(f"Executed instruction -> addi x{destination_reg}, x{source_reg}, {immediate_val}  (Add immediate)\n")
@@ -172,7 +177,9 @@ def execute_single_CPU_instruction(registers, memory):
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
             quit()
         pass
-    elif opcode == 0x6f:  # instruction "jal"
+
+    # --- instruction "JAL" ---
+    elif opcode == 0x6f:
         instruction_pointer_updated = True
         Instruction_parser.print_J_type_instruction(instruction)
 
@@ -185,7 +192,9 @@ def execute_single_CPU_instruction(registers, memory):
 
         print(f"Executed instruction -> jal {destination_reg}, {immediate_val}  (Jump and Link)\n")
         pass
-    elif opcode == 0x73:  # CSR instructions
+
+    # --- CSR instructions ---
+    elif opcode == 0x73:
         Instruction_parser.print_I_type_instruction(instruction)
 
         instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
@@ -193,13 +202,16 @@ def execute_single_CPU_instruction(registers, memory):
         # In immediate field of the instruction an CSR address value is encoded
         CSR_address = immediate_val
 
-        if instruction_subtype == 0x1:  # instruction "csrrw"
+        # --- Instruction "CSRRW" ---
+        if instruction_subtype == 0x1:
             registers.integer_regs[destination_reg] = registers.read_from_CSR_register(CSR_address)
             registers.write_to_CSR_register(CSR_address, registers.integer_regs[source_reg])
 
             print(f"Executed instruction -> csrrw {destination_reg}, {CSR_address}, {source_reg}  (Control and Status Register Read-Write)\n")
             pass
-        elif instruction_subtype == 0x5:  # instruction "csrrwi"
+
+        # --- Instruction "CSRRWI" ---
+        elif instruction_subtype == 0x5:
             # Immediate values is in this case encoded into bit field that
             # usually holds source register number (RS bit field)
             immediate_val = source_reg
