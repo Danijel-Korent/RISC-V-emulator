@@ -9,22 +9,7 @@ from registers import Registers
 instruction_no_counter = 0
 
 
-def execute_single_CPU_instruction(registers, memory):
-    global instruction_no_counter
-
-    instruction_no_counter += 1
-
-    registers.print_register_values()
-
-    print("\n===============================")
-    print(f"Instruction no.:     {instruction_no_counter}")
-    print("===============================")
-    print(f"Instruction pointer: 0x{registers.instruction_pointer:08x}")
-
-    # Read the instruction value from the memory
-    instruction = memory.get_4_bytes__little_endian(registers.instruction_pointer)
-
-    print(f"Instruction value:   0x{instruction:08x} \n")
+def execute_instruction(registers, memory, instruction):
 
     # Extract the 'operation/instruction' type
     opcode = instruction & 0b01111111
@@ -105,6 +90,28 @@ def execute_single_CPU_instruction(registers, memory):
     else:
         print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
         quit()
+
+    return instruction_pointer_updated
+
+
+def execute_single_CPU_instruction(registers, memory):
+    global instruction_no_counter
+
+    instruction_no_counter += 1
+
+    registers.print_register_values()
+
+    print("\n===============================")
+    print(f"Instruction no.:     {instruction_no_counter}")
+    print("===============================")
+    print(f"Instruction pointer: 0x{registers.instruction_pointer:08x}")
+
+    # Read the instruction value from the memory
+    instruction = memory.get_4_bytes__little_endian(registers.instruction_pointer)
+
+    print(f"Instruction value:   0x{instruction:08x} \n")
+
+    instruction_pointer_updated = execute_instruction(registers, memory, instruction)
 
     # Move "instruction pointer" to the next instruction IF NOT already moved by "jump" or "branch" instruction
     if not instruction_pointer_updated:
