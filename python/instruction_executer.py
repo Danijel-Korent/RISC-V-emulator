@@ -32,6 +32,16 @@ def execute_instruction(registers, memory, instruction):
             quit()
         pass
 
+    # --- instruction "AUIPC" ---
+    elif opcode == 0x17:
+
+        destination_reg, immediate_val = Instruction_parser.decode_U_type(instruction)
+
+        registers.integer_regs[destination_reg] = registers.instruction_pointer + (immediate_val << 12)
+
+        print(f"Executed instruction -> auipc x{destination_reg}, {immediate_val}  (Add Upper Immediate to PC)\n")
+        pass
+
     # --- instruction "JALR" ---
     elif opcode == 0x67:
         Instruction_parser.print_I_type_instruction(instruction)
@@ -49,7 +59,6 @@ def execute_instruction(registers, memory, instruction):
         instruction_pointer_updated = True
 
         print(f"Executed instruction -> jalr x{destination_reg}, x{source_reg} + {immediate_val}  (Jump and Link Register)\n")
-        #quit()
         pass
 
     # --- instruction "JAL" ---

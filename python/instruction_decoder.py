@@ -38,6 +38,13 @@ class Instruction_parser:
         return destination_reg, immediate_val
 
     @staticmethod
+    def decode_U_type(instruction):
+        destination_reg = Instruction_parser.get_destination_register__rd(instruction)
+        immediate_val   = Instruction_parser.get_hardcoded_number__immediate_u(instruction)
+
+        return destination_reg, immediate_val
+
+    @staticmethod
     def get_subtype__funct3(instruction):
         val = instruction & 0b111000000000000
         val = val >> 12
@@ -58,6 +65,12 @@ class Instruction_parser:
     def get_hardcoded_number__immediate_i(instruction):
         val = instruction & 0b11111111111000000000000000000000
         val = val >> 20
+        return val
+
+    @staticmethod
+    def get_hardcoded_number__immediate_u(instruction):
+        val = instruction & 0b11111111111111111111000000000000
+        val = val >> 12
         return val
 
     @staticmethod
