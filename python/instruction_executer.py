@@ -130,6 +130,19 @@ def execute_instruction(registers, memory, instruction):
             print(f"Executed instruction -> csrrw x{destination_reg}, {CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Set)\n")
             pass
 
+        # --- Instruction "CSRRC" ---
+        elif instruction_subtype == 0x3:
+            old_value = registers.read_from_CSR_register(CSR_address)
+            source_reg_value = registers.integer_regs[source_reg]
+
+            new_value = old_value & (~source_reg_value)
+
+            registers.integer_regs[destination_reg] = old_value
+            registers.write_to_CSR_register(CSR_address, new_value)
+
+            print(f"Executed instruction -> csrrc x{destination_reg}, {CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Clear)\n")
+            pass
+
         # --- Instruction "CSRRWI" ---
         elif instruction_subtype == 0x5:
             # Immediate values is in this case encoded into bit field that

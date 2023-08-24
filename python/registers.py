@@ -40,7 +40,10 @@ class Registers:
     def read_from_CSR_register(self, register_num):
         ret_val = 0
 
-        if register_num == 0x304:
+        if register_num == 0x300:
+            register_short_name = "mstatus"
+            register_long_name = "Machine status register"
+        elif register_num == 0x304:
             register_short_name = "mie"
             register_long_name = "Machine Interrupt Enable"
         elif register_num == 0x305:
@@ -72,7 +75,10 @@ class Registers:
         return ret_val
 
     def write_to_CSR_register(self, register_num, new_value):
-        if register_num == 0x304:
+        if register_num == 0x300:
+            register_short_name = "mstatus"
+            register_long_name = "Machine status register"
+        elif register_num == 0x304:
             register_short_name = "mie"
             register_long_name = "Machine Interrupt Enable"
         elif register_num == 0x305:
