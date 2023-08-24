@@ -60,6 +60,10 @@ class Registers:
         elif register_num == 0x3b0:
             register_short_name = "pmpaddr0"
             register_long_name = "Physical memory protection address register"
+        elif register_num == 0xF14:
+            register_short_name = "mhartid"
+            register_long_name = "Hardware thread ID"
+            ret_val = 0  # Number returned by original C emulator
         else:
             print(f"[ERROR] Tried to read unknown CSR register -> CSR[0x{register_num:x}]")
             exit()
@@ -88,6 +92,9 @@ class Registers:
         elif register_num == 0x3b0:
             register_short_name = "pmpaddr0"
             register_long_name = "Physical memory protection address register"
+        elif register_num == 0xF14:
+            register_short_name = "mhartid"
+            register_long_name = "Hardware thread ID"
         else:
             print(f"[ERROR] Tried to write unknown CSR register -> CSR[0x{register_num:x}] = 0x{new_value:x} \n")
             exit()

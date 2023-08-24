@@ -102,7 +102,20 @@ def execute_instruction(registers, memory, instruction):
             registers.integer_regs[destination_reg] = registers.read_from_CSR_register(CSR_address)
             registers.write_to_CSR_register(CSR_address, registers.integer_regs[source_reg])
 
-            print(f"Executed instruction -> csrrw x{destination_reg}, {CSR_address}, x{source_reg}  (Control and Status Register Read-Write)\n")
+            print(f"Executed instruction -> csrrw x{destination_reg}, {CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Write)\n")
+            pass
+
+        # --- Instruction "CSRRS" ---
+        elif instruction_subtype == 0x2:
+            old_value = registers.read_from_CSR_register(CSR_address)
+            source_reg_value = registers.integer_regs[source_reg]
+
+            new_value = old_value | source_reg_value
+
+            registers.integer_regs[destination_reg] = old_value
+            registers.write_to_CSR_register(CSR_address, new_value)
+
+            print(f"Executed instruction -> csrrw x{destination_reg}, {CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Set)\n")
             pass
 
         # --- Instruction "CSRRWI" ---
@@ -114,7 +127,7 @@ def execute_instruction(registers, memory, instruction):
             registers.integer_regs[destination_reg] = registers.read_from_CSR_register(CSR_address)
             registers.write_to_CSR_register(CSR_address, immediate_val)
 
-            print(f"Executed instruction -> csrrwi x{destination_reg}, {CSR_address}, {immediate_val}  (Control and Status Register Read-Write Immediate)\n")
+            print(f"Executed instruction -> csrrwi x{destination_reg}, {CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Write Immediate)\n")
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
