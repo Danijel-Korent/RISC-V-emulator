@@ -32,27 +32,39 @@ class Registers:
             print("")
 
     def read_from_CSR_register(self, register_num):
+        ret_val = 0
+
         if register_num == 0x304:
-            print(f"Tried to read CSR[0x{register_num:x}]  (register 'mie': Machine Interrupt Enable) \n")
+            register_short_name = "mie"
+            register_long_name = "Machine Interrupt Enable"
         elif register_num == 0x340:
-            print(f"Tried to read CSR[0x{register_num:x}]  (register 'mscratch': Scratch register) \n")
-            return self.CSR_mscratch
+            register_short_name = "mscratch"
+            register_long_name = "Scratch register"
+            ret_val = self.CSR_mscratch
         elif register_num == 0x344:
-            print(f"Tried to read CSR[0x{register_num:x}]  (register 'mip': Machine Interrupt Pending) \n")
+            register_short_name = "mip"
+            register_long_name = "Machine Interrupt Pending"
         else:
-            print(f"[ERROR] Tried to read unknown CSR register -> CSR[0x{register_num:x}] \n")
+            print(f"[ERROR] Tried to read unknown CSR register -> CSR[0x{register_num:x}]")
             exit()
-        return 0
+
+        print(f"Read  CSR[0x{register_num:x}], old value = {ret_val:08x} (register '{register_short_name}': {register_long_name})")
+        return ret_val
 
     def write_to_CSR_register(self, register_num, value):
         if register_num == 0x304:
-            print(f"Tried to write CSR[0x{register_num:x}] = 0x{value:x}  (register 'mie': Machine Interrupt Enable) \n")
+            register_short_name = "mie"
+            register_long_name = "Machine Interrupt Enable"
         elif register_num == 0x340:
-            print(f"Tried to write CSR[0x{register_num:x}] = 0x{value:x}  (register 'mscratch': Scratch register) \n")
+            register_short_name = "mscratch"
+            register_long_name = "Scratch register"
             self.CSR_mscratch = value
         elif register_num == 0x344:
-            print(f"Tried to write CSR[0x{register_num:x}] = 0x{value:x}  (register 'mip': Machine Interrupt Pending) \n")
+            register_short_name = "mip"
+            register_long_name = "Machine Interrupt Pending"
         else:
             print(f"[ERROR] Tried to write unknown CSR register -> CSR[0x{register_num:x}] = 0x{value:x} \n")
             exit()
+
+        print(f"Write CSR[0x{register_num:x}], new value = {value:08x} (register '{register_short_name}': {register_long_name})\n")
         pass
