@@ -21,18 +21,25 @@ def execute_single_CPU_instruction(registers, memory):
     print("===============================")
     print(f"Instruction pointer: 0x{registers.instruction_pointer:08x}")
 
-    # Fetch the instruction number/value from the memory
+    # Fetch
     instruction = memory.get_4_bytes__little_endian(registers.instruction_pointer)
 
     print(f"Instruction value:   0x{instruction:08x} \n")
 
-    # Execute the instruction
+    # Execute
     instruction_pointer_updated = execute_instruction(registers, memory, instruction)
 
     # Move "instruction pointer" to the next instruction IF NOT already moved by "jump" or "branch" instruction
     if not instruction_pointer_updated:
         # It increases by 4 bytes because every RISC-V instruction is 32-bit in size. 32 bits == 4 bytes
         registers.instruction_pointer += 4
+
+
+    # In RISC-V, register x0 is hardwired to zero, and cannot be changed
+    # To implement this we use following hack to reset register x0 to zero after every instruction execution
+    # Otherwise we would need to create functions for reading/writing to integer registers just like
+    # we do for CSR registers
+    registers.integer_regs[0] = 0
     pass
 
 
