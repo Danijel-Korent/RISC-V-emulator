@@ -55,6 +55,16 @@ def execute_instruction(registers, memory, instruction):
         print(f"Executed instruction -> auipc x{destination_reg}, {immediate_val}  (Add Upper Immediate to PC)\n")
         pass
 
+    # --- instruction "LUI" ---
+    elif opcode == 0x37:
+
+        destination_reg, immediate_val = Instruction_parser.decode_U_type(instruction)
+
+        registers.integer_regs[destination_reg] = (immediate_val << 12)
+
+        print(f"Executed instruction -> lui x{destination_reg}, {immediate_val}  (Load Upper Immediate)\n")
+        pass
+
     # --- instruction "JALR" ---
     elif opcode == 0x67:
         Instruction_parser.print_I_type_instruction(instruction)
