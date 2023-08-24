@@ -54,6 +54,12 @@ class Registers:
         elif register_num == 0x344:
             register_short_name = "mip"
             register_long_name = "Machine Interrupt Pending"
+        elif register_num == 0x3a0:
+            register_short_name = "pmpcfg0"
+            register_long_name = "Physical memory protection configuration"
+        elif register_num == 0x3b0:
+            register_short_name = "pmpaddr0"
+            register_long_name = "Physical memory protection address register"
         else:
             print(f"[ERROR] Tried to read unknown CSR register -> CSR[0x{register_num:x}]")
             exit()
@@ -76,6 +82,12 @@ class Registers:
         elif register_num == 0x344:
             register_short_name = "mip"
             register_long_name = "Machine Interrupt Pending"
+        elif register_num == 0x3a0:
+            register_short_name = "pmpcfg0"
+            register_long_name = "Physical memory protection configuration"
+        elif register_num == 0x3b0:
+            register_short_name = "pmpaddr0"
+            register_long_name = "Physical memory protection address register"
         else:
             print(f"[ERROR] Tried to write unknown CSR register -> CSR[0x{register_num:x}] = 0x{new_value:x} \n")
             exit()
