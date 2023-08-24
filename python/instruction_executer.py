@@ -23,7 +23,15 @@ def execute_instruction(registers, memory, instruction):
 
         # --- Instruction 'ADDI' ---
         if instruction_subtype == 0x0:
-            registers.integer_regs[destination_reg] = registers.integer_regs[source_reg] + immediate_val
+
+            # The first bit (MSB) tells if the values is negative or not
+            # If the first bit of the value is set to 1, then the values is negative, encoded as Two's_complement
+            # https://en.wikipedia.org/wiki/Two's_complement
+            if (immediate_val & 0b100000000000) == 0:
+                registers.integer_regs[destination_reg] = registers.integer_regs[source_reg] + immediate_val
+            else:
+                immediate_val = (~immediate_val & 0xFFF) + 1
+                registers.integer_regs[destination_reg] = registers.integer_regs[source_reg] - immediate_val
 
             print(f"Executed instruction -> addi x{destination_reg}, x{source_reg}, {immediate_val}  (Add immediate)\n")
             pass
