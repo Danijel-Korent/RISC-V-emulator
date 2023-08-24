@@ -33,6 +33,9 @@ def execute_instruction(registers, memory, instruction):
                 immediate_val = (~immediate_val & 0xFFF) + 1
                 registers.integer_regs[destination_reg] = registers.integer_regs[source_reg] - immediate_val
 
+            # Shorten the register value to 32 bits if it's longer than that after add/sub
+            registers.integer_regs[destination_reg] = registers.integer_regs[destination_reg] & 0xFFFFFFFF
+
             print(f"Executed instruction -> addi x{destination_reg}, x{source_reg}, {immediate_val}  (Add immediate)\n")
             pass
         else:
