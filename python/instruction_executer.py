@@ -23,6 +23,7 @@ def execute_instruction(registers, memory, instruction):
 
         # --- Instruction 'ADDI' ---
         if instruction_subtype == 0x0:
+            sign = ""
 
             # The first bit (MSB) tells if the values is negative or not
             # If the first bit of the value is set to 1, then the values is negative, encoded as Two's_complement
@@ -32,11 +33,12 @@ def execute_instruction(registers, memory, instruction):
             else:
                 immediate_val = (~immediate_val & 0xFFF) + 1
                 registers.integer_regs[destination_reg] = registers.integer_regs[source_reg] - immediate_val
+                sign = "-"
 
             # Shorten the register value to 32 bits if it's longer than that after add/sub
             registers.integer_regs[destination_reg] = registers.integer_regs[destination_reg] & 0xFFFFFFFF
 
-            print(f"Executed instruction -> addi x{destination_reg}, x{source_reg}, {immediate_val}  (Add immediate)\n")
+            print(f"Executed instruction -> addi x{destination_reg}, x{source_reg}, {sign}{immediate_val}  (Add immediate)\n")
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
