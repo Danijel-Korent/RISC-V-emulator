@@ -32,6 +32,10 @@ class Instruction_parser:
 
     @staticmethod
     def decode_J_type(instruction):
+        #                   imm[20]      imm[10:1]                imm[11]       imm[19:12]           rd (dest reg)                 opcode
+        # Instruction bit no. | 31 | 30 29 28 27 26 25 24 23 22 21 | 20 | 19 18 17 16 15 14 13 12 | 11 10 09 08 07 | 06 05 04 03 02 01 00
+        # Immediate   bit no. | 20 | 10 09 08 07 06 05 04 03 02 01 | 11 | 19 18 17 16 15 14 13 12 | rd rd rd rd rd | op op op op op op op
+
         destination_reg = Instruction_parser.get_destination_register__rd(instruction)
         immediate_val   = Instruction_parser.get_hardcoded_number__immediate_j(instruction)
 
@@ -46,6 +50,10 @@ class Instruction_parser:
 
     @staticmethod
     def decode_B_type(instruction):
+        #                    imm[12]        imm[10:5]            rs2              rs1          funct3     imm[4:1]   imm[11]              opcode
+        # Instruction bit no. |  31   | 30 29 28 27 26 25 | 24 23 22 21 20 | 19 18 17 16 15 | 14 13 12 | 11 10 09 08 | 07 | 06 05 04 03 02 01 00
+        # Immediate   bit no. |  12   | 10 09 08 07 06 05 | s2 s2 s2 s2 s2 | s1 s1 s1 s1 s1 | f3 f3 f3 | 04 03 02 01 | 11 | op op op op op op op
+
         instruction_subtype = Instruction_parser.get_subtype__funct3(instruction)
         source_reg_1        = Instruction_parser.get_source_register__rs1(instruction)
         source_reg_2        = Instruction_parser.get_source_register__rs2(instruction)
@@ -90,12 +98,14 @@ class Instruction_parser:
     @staticmethod
     def get_hardcoded_number__immediate_j(instruction):
         # Bits Instruction -> Immediate
-        # Instruction bit no. 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00
-        # Immediate   bit no. 20 10 09 08 07 06 05 04 03 02 01 11 19 18 17 16 15 14 13 12 rd rd rd rd rd op op op op op op op
+        #                   imm[20]      imm[10:1]                imm[11]       imm[19:12]           rd (dest reg)                 opcode
+        # Instruction bit no. | 31 | 30 29 28 27 26 25 24 23 22 21 | 20 | 19 18 17 16 15 14 13 12 | 11 10 09 08 07 | 06 05 04 03 02 01 00
+        # Immediate   bit no. | 20 | 10 09 08 07 06 05 04 03 02 01 | 11 | 19 18 17 16 15 14 13 12 | rd rd rd rd rd | op op op op op op op
 
         # Bits Immediate -> Instruction
-        # Immediate   bit no. 20 19 18 17 16 15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00
-        # Instruction bit no. 31 19 18 17 16 15 14 13 12 20 30 29 28 27 26 25 24 23 22 21 n/a
+        #                   imm[20]         imm[19:12]       imm[11]          imm[10:1]             Hardcoded to zero
+        # Immediate   bit no. | 20 | 19 18 17 16 15 14 13 12 | 11 | 10 09 08 07 06 05 04 03 02 01 | 00
+        # Instruction bit no. | 31 | 19 18 17 16 15 14 13 12 | 20 | 30 29 28 27 26 25 24 23 22 21 | n/a
 
         instruction_bits_31_31 = instruction & 0b10000000000000000000000000000000
         instruction_bits_30_21 = instruction & 0b01111111111000000000000000000000
@@ -116,12 +126,14 @@ class Instruction_parser:
     def get_hardcoded_number__immediate_b(instruction):
 
         # Bits Instruction -> Immediate
-        # Instruction bit no. 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00
-        # Immediate   bit no. 12 10 09 08 07 06 05 s2 s2 s2 s2 s2 s1 s1 s1 s1 s1 f3 f3 f3 04 03 02 01 11 op op op op op op op
+        #                    imm[12]        imm[10:5]            rs2              rs1          funct3     imm[4:1]   imm[11]              opcode
+        # Instruction bit no. |  31   | 30 29 28 27 26 25 | 24 23 22 21 20 | 19 18 17 16 15 | 14 13 12 | 11 10 09 08 | 07 | 06 05 04 03 02 01 00
+        # Immediate   bit no. |  12   | 10 09 08 07 06 05 | s2 s2 s2 s2 s2 | s1 s1 s1 s1 s1 | f3 f3 f3 | 04 03 02 01 | 11 | op op op op op op op
 
         # Bits Immediate -> Instruction
-        # Immediate   bit no. 12 11 10 09 08 07 06 05 04 03 02 01 00
-        # Instruction bit no. 31 07 30 29 28 27 26 25 11 10 09 08 n/a
+        #                    imm[12]  imm[11]    imm[10:5]         imm[4:1]    Hardcoded to zero
+        # Immediate   bit no. |  12   | 11 | 10 09 08 07 06 05 | 04 03 02 01 | 00
+        # Instruction bit no. |  31   | 07 | 30 29 28 27 26 25 | 11 10 09 08 | n/a
 
         instruction_bits_31_31 = instruction & 0b10000000000000000000000000000000
         instruction_bits_30_25 = instruction & 0b01111110000000000000000000000000
