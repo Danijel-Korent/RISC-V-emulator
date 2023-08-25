@@ -89,17 +89,27 @@ class Instruction_parser:
 
     @staticmethod
     def get_hardcoded_number__immediate_j(instruction):
-        # Extract bits by applying a mask and shifting
-        # TODO: I will try to make this more readable.
-        #       The encoding of immediate value for (jump) J type of instruction is very messy
-        #       and I actually had to draw a picture/diagram of it to see what is going on here
-        bit_31 = (instruction & (1 << 31)) >> 31
-        bits_19_to_12 = (instruction & (((1 << 8) - 1) << 12)) >> 12
-        bit_20 = (instruction & (1 << 20)) >> 20
-        bits_30_to_25 = (instruction & (((1 << 6) - 1) << 25)) >> 25
-        bits_24_to_21 = (instruction & (((1 << 4) - 1) << 21)) >> 21
+        # Bits Instruction -> Immediate
+        # Instruction bit no. 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00
+        # Immediate   bit no. 20 10 09 08 07 06 05 04 03 02 01 11 19 18 17 16 15 14 13 12 rd rd rd rd rd op op op op op op op
 
-        val = (bit_31 << 20) | (bits_19_to_12 << 12) | (bit_20 << 11) | (bits_30_to_25 << 5) | (bits_24_to_21 << 1)
+        # Bits Immediate -> Instruction
+        # Immediate   bit no. 20 19 18 17 16 15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00
+        # Instruction bit no. 31 19 18 17 16 15 14 13 12 20 30 29 28 27 26 25 24 23 22 21 n/a
+
+        instruction_bits_31_31 = instruction & 0b10000000000000000000000000000000
+        instruction_bits_30_21 = instruction & 0b01111111111000000000000000000000
+        instruction_bits_20_20 = instruction & 0b00000000000100000000000000000000
+        instruction_bits_19_12 = instruction & 0b00000000000011111111000000000000
+
+        immediate_bits_20_20 = instruction_bits_31_31 >> 11
+        immediate_bits_19_12 = instruction_bits_19_12
+        immediate_bits_11_11 = instruction_bits_20_20 >> 9
+        immediate_bits_10_01 = instruction_bits_30_21 >> 20
+        immediate_bits_00_00 = 0
+
+        val = immediate_bits_20_20 | immediate_bits_19_12 | immediate_bits_11_11 | immediate_bits_10_01 | immediate_bits_00_00
+
         return val
 
     @staticmethod
@@ -113,17 +123,18 @@ class Instruction_parser:
         # Immediate   bit no. 12 11 10 09 08 07 06 05 04 03 02 01 00
         # Instruction bit no. 31 07 30 29 28 27 26 25 11 10 09 08 n/a
 
-        instruction_bits_07_07 = instruction & 0b00000000000000000000000010000000
-        instruction_bits_11_08 = instruction & 0b00000000000000000000111100000000
-        instruction_bits_30_25 = instruction & 0b01111110000000000000000000000000
         instruction_bits_31_31 = instruction & 0b10000000000000000000000000000000
+        instruction_bits_30_25 = instruction & 0b01111110000000000000000000000000
+        instruction_bits_11_08 = instruction & 0b00000000000000000000111100000000
+        instruction_bits_07_07 = instruction & 0b00000000000000000000000010000000
 
-        immediate_bits_04_01 = instruction_bits_11_08 >> 7
-        immediate_bits_10_05 = instruction_bits_30_25 >> 20
-        immediate_bits_11_11 = instruction_bits_07_07 << 4
         immediate_bits_12_12 = instruction_bits_31_31 >> 19
+        immediate_bits_11_11 = instruction_bits_07_07 << 4
+        immediate_bits_10_05 = instruction_bits_30_25 >> 20
+        immediate_bits_04_01 = instruction_bits_11_08 >> 7
+        immediate_bits_00_00 = 0
 
-        val = immediate_bits_12_12 | immediate_bits_11_11 | immediate_bits_10_05 | immediate_bits_04_01
+        val = immediate_bits_12_12 | immediate_bits_11_11 | immediate_bits_10_05 | immediate_bits_04_01 | immediate_bits_00_00
 
         return val
 
