@@ -65,6 +65,42 @@ def execute_instruction(registers, memory, instruction):
         print(f"Executed instruction -> lui x{destination_reg}, {immediate_val}  (Load Upper Immediate)\n")
         pass
 
+    # --- Branch instructions ---
+    elif opcode == 0x63:
+
+        instruction_subtype, source_reg_1, source_reg_2, immediate_val = Instruction_parser.decode_B_type(instruction)
+
+        source_reg_1_value = registers.integer_regs[source_reg_1]
+        source_reg_2_value = registers.integer_regs[source_reg_2]
+
+        def interpret_as_32_bit_signed_value(signed_value):
+            ret_val = signed_value
+
+            if signed_value & 0x80000000 != 0:
+                ret_val = -((~signed_value & 0xFFFFFFFF) + 1)
+
+            return ret_val
+
+        source_reg_1_value = interpret_as_32_bit_signed_value(source_reg_1_value)
+        source_reg_2_value = interpret_as_32_bit_signed_value(source_reg_2_value)
+
+        # The 12-bit B-immediate encodes SIGNED offsets in MULTIPLES of 2, and is added to the
+        # current instruction pointer value. The conditional branch range is ±4 KiB.
+        jump_offset = interpret_as_32_bit_signed_value(immediate_val)
+
+        # --- instruction "BGE" ---
+        if instruction_subtype == 0x5:
+
+            if source_reg_1_value >= source_reg_2_value:
+                registers.instruction_pointer = registers.instruction_pointer + jump_offset
+                instruction_pointer_updated = True
+
+            print(f"Executed instruction -> bge x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Greater than or Equal)\n")
+        else:
+            print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+            quit()
+        pass
+
     # --- instruction "JALR" ---
     elif opcode == 0x67:
         Instruction_parser.print_I_type_instruction(instruction)
