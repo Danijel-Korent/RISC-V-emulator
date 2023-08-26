@@ -1,9 +1,9 @@
 #! /usr/bin/env python3
 
-# Implementing RISC-V CPU emulator - only RV32IM instruction set (32-bit integer + multiplication/division)
+# Implementing RISC-V CPU emulator - only RV32IMA instruction set (32-bit integer + multiplication/division + atomics)
 
 from instruction_executer import execute_instruction
-from memory import Memory, linux_instructions
+from memory import Memory
 from registers import Registers
 
 instruction_no_counter = 0
@@ -46,7 +46,9 @@ def execute_single_CPU_instruction(registers, memory):
 def emulate_cpu():
 
     registers = Registers()
-    memory = Memory(linux_instructions)
+
+    # The emulator will have 64MB of RAM, with the content of the Linux image placed at the beginning of RAM
+    memory = Memory(linux_image_path='Linux_image_6_1_14_RV32IMA_NoMMU', RAM_size=64*1024*1024)
 
     while True:
         execute_single_CPU_instruction(registers, memory)
