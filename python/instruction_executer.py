@@ -98,12 +98,32 @@ def execute_instruction(registers, memory, instruction):
         source_reg_1_value = interpret_as_32_bit_signed_value(source_reg_1_value)
         source_reg_2_value = interpret_as_32_bit_signed_value(source_reg_2_value)
 
+        def interpret_as_12_bit_signed_value(signed_value):
+            ret_val = signed_value
+
+            if signed_value & 0x00000800 != 0:
+                ret_val = -((~signed_value & 0x00000FFF) + 1)
+
+            return ret_val
+
+        source_reg_1_value = interpret_as_32_bit_signed_value(source_reg_1_value)
+        source_reg_2_value = interpret_as_32_bit_signed_value(source_reg_2_value)
+
         # The 12-bit B-immediate encodes SIGNED offsets in MULTIPLES of 2, and is added to the
         # current instruction pointer value. The conditional branch range is ±4 KiB.
-        jump_offset = interpret_as_32_bit_signed_value(immediate_val)
+        jump_offset = interpret_as_12_bit_signed_value(immediate_val)
+
+        # --- instruction "BLT" ---
+        if instruction_subtype == 0x4:
+
+            if source_reg_1_value < source_reg_2_value:
+                registers.instruction_pointer = registers.instruction_pointer + jump_offset
+                instruction_pointer_updated = True
+
+            print(f"Executed instruction -> blt x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Less than)\n")
 
         # --- instruction "BGE" ---
-        if instruction_subtype == 0x5:
+        elif instruction_subtype == 0x5:
 
             if source_reg_1_value >= source_reg_2_value:
                 registers.instruction_pointer = registers.instruction_pointer + jump_offset
