@@ -55,6 +55,20 @@ def execute_instruction(registers, memory, instruction):
         print(f"Executed instruction -> auipc x{destination_reg}, {immediate_val}  (Add Upper Immediate to PC)\n")
         pass
 
+    # --- instruction "SW" ---
+    elif opcode == 0x23:
+
+        instruction_subtype, source_reg_1, source_reg_2, immediate_val = Instruction_parser.decode_S_type(instruction)
+
+        address = registers.integer_regs[source_reg_1] + immediate_val
+        value_to_write = registers.integer_regs[source_reg_2]
+
+        memory.write_1_byte(address, value_to_write)
+
+        print(f"Executed instruction -> sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Word)\n")
+        # quit()
+        pass
+
     # --- instruction "LUI" ---
     elif opcode == 0x37:
 

@@ -33,7 +33,17 @@ linux_instructions = [
 
 class Memory:
     def __init__(self, linux_image):
-        self.linux_instructions = linux_image
+
+        Linux_bytes = bytearray(linux_image)
+        RAM_bytes = bytearray([0] * (64*1024*1024 - len(Linux_bytes)))
+
+        self.RAM = bytearray()
+
+        # Beginning of RAM is filled with Linux
+        self.RAM.extend(Linux_bytes)
+
+        # The rest of RAM is just 64MB - sizeof(linux_image) of empty space
+        self.RAM.extend(RAM_bytes)
 
     # Returns a value stored at specified address
     # WARNING:
@@ -41,10 +51,18 @@ class Memory:
     #   just returns zero.
     def get_1_byte(self, address):
         if address >= 0x80000000:
-            image_addr = address - 0x80000000
-            return self.linux_instructions[image_addr]
+            RAM_addr = address - 0x80000000
+            return self.RAM[RAM_addr]
 
         return 0
+
+    def write_1_byte(self, address, value):
+        if address >= 0x80000000:
+            RAM_addr = address - 0x80000000
+            self.RAM[RAM_addr] = value
+        else:
+            print("[ERROR] RAM: trying to write to unimplemented address")
+            quit()
 
     # Read 32bits/4bytes starting from specified address
     # RISC-V starts in little endian mode, therefor we need to read data as little endian order
