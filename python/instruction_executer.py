@@ -1,7 +1,7 @@
 from instruction_decoder import Instruction_parser
 
 
-def execute_instruction(registers, memory, instruction):
+def execute_instruction(registers, memory, instruction, logger):
 
     # Extract the 'operation/instruction' type
     opcode = instruction & 0b01111111
@@ -11,13 +11,13 @@ def execute_instruction(registers, memory, instruction):
     # --- Instruction 'FENCE' ---
     if opcode == 0x0f:
         # Fence is only relevant for more complex CPU implementations
-        print(f"Ignored instruction -> fence \n")
+        logger.register_executed_instruction(f"Ignored instruction -> fence \n")
         pass
 
     # --- Arithmetic/Logic instructions with immediate ---
     elif opcode == 0x13:
         # Arithmetic/logic instructions with immediate value hardcoded into instruction
-        Instruction_parser.print_I_type_instruction(instruction)
+        # Instruction_parser.print_I_type_instruction(instruction)
 
         instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
@@ -38,7 +38,7 @@ def execute_instruction(registers, memory, instruction):
             # Shorten the register value to 32 bits if it's longer than that after add/sub
             registers.integer_regs[destination_reg] = registers.integer_regs[destination_reg] & 0xFFFFFFFF
 
-            print(f"Executed instruction -> addi x{destination_reg}, x{source_reg}, {sign}{immediate_val}  (Add immediate)\n")
+            logger.register_executed_instruction(f"Executed instruction -> addi x{destination_reg}, x{source_reg}, {sign}{immediate_val}  (Add immediate)\n")
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
@@ -52,7 +52,7 @@ def execute_instruction(registers, memory, instruction):
 
         registers.integer_regs[destination_reg] = registers.instruction_pointer + (immediate_val << 12)
 
-        print(f"Executed instruction -> auipc x{destination_reg}, {immediate_val}  (Add Upper Immediate to PC)\n")
+        logger.register_executed_instruction(f"Executed instruction -> auipc x{destination_reg}, {immediate_val}  (Add Upper Immediate to PC)\n")
         pass
 
     # --- instruction "SW" ---
@@ -65,8 +65,7 @@ def execute_instruction(registers, memory, instruction):
 
         memory.write_1_byte(address, value_to_write)
 
-        print(f"Executed instruction -> sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Word)\n")
-        quit()
+        logger.register_executed_instruction(f"Executed instruction -> sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Word)\n")
         pass
 
     # --- instruction "LUI" ---
@@ -76,7 +75,7 @@ def execute_instruction(registers, memory, instruction):
 
         registers.integer_regs[destination_reg] = (immediate_val << 12)
 
-        print(f"Executed instruction -> lui x{destination_reg}, {immediate_val}  (Load Upper Immediate)\n")
+        logger.register_executed_instruction(f"Executed instruction -> lui x{destination_reg}, {immediate_val}  (Load Upper Immediate)\n")
         pass
 
     # --- Branch instructions ---
@@ -120,7 +119,7 @@ def execute_instruction(registers, memory, instruction):
                 registers.instruction_pointer = registers.instruction_pointer + jump_offset
                 instruction_pointer_updated = True
 
-            print(f"Executed instruction -> blt x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Less than)\n")
+            logger.register_executed_instruction(f"Executed instruction -> blt x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Less than)\n")
 
         # --- instruction "BGE" ---
         elif instruction_subtype == 0x5:
@@ -129,7 +128,7 @@ def execute_instruction(registers, memory, instruction):
                 registers.instruction_pointer = registers.instruction_pointer + jump_offset
                 instruction_pointer_updated = True
 
-            print(f"Executed instruction -> bge x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Greater than or Equal)\n")
+            logger.register_executed_instruction(f"Executed instruction -> bge x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Greater than or Equal)\n")
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
             quit()
@@ -137,7 +136,7 @@ def execute_instruction(registers, memory, instruction):
 
     # --- instruction "JALR" ---
     elif opcode == 0x67:
-        Instruction_parser.print_I_type_instruction(instruction)
+        # Instruction_parser.print_I_type_instruction(instruction)
 
         instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
@@ -151,12 +150,12 @@ def execute_instruction(registers, memory, instruction):
 
         instruction_pointer_updated = True
 
-        print(f"Executed instruction -> jalr x{destination_reg}, x{source_reg} + {immediate_val}  (Jump and Link Register)\n")
+        logger.register_executed_instruction(f"Executed instruction -> jalr x{destination_reg}, x{source_reg} + {immediate_val}  (Jump and Link Register)\n")
         pass
 
     # --- instruction "JAL" ---
     elif opcode == 0x6f:
-        Instruction_parser.print_J_type_instruction(instruction)
+        # Instruction_parser.print_J_type_instruction(instruction)
 
         destination_reg, immediate_val = Instruction_parser.decode_J_type(instruction)
 
@@ -167,12 +166,12 @@ def execute_instruction(registers, memory, instruction):
 
         instruction_pointer_updated = True
 
-        print(f"Executed instruction -> jal x{destination_reg}, {immediate_val}  (Jump and Link)\n")
+        logger.register_executed_instruction(f"Executed instruction -> jal x{destination_reg}, {immediate_val}  (Jump and Link)\n")
         pass
 
     # --- CSR instructions ---
     elif opcode == 0x73:
-        Instruction_parser.print_I_type_instruction(instruction)
+        # Instruction_parser.print_I_type_instruction(instruction)
 
         instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
@@ -184,7 +183,7 @@ def execute_instruction(registers, memory, instruction):
             registers.integer_regs[destination_reg] = registers.read_from_CSR_register(CSR_address)
             registers.write_to_CSR_register(CSR_address, registers.integer_regs[source_reg])
 
-            print(f"Executed instruction -> csrrw x{destination_reg}, {CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Write)\n")
+            logger.register_executed_instruction(f"Executed instruction -> csrrw x{destination_reg}, {CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Write)\n")
             pass
 
         # --- Instruction "CSRRS" ---
@@ -197,7 +196,7 @@ def execute_instruction(registers, memory, instruction):
             registers.integer_regs[destination_reg] = old_value
             registers.write_to_CSR_register(CSR_address, new_value)
 
-            print(f"Executed instruction -> csrrw x{destination_reg}, {CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Set)\n")
+            logger.register_executed_instruction(f"Executed instruction -> csrrw x{destination_reg}, {CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Set)\n")
             pass
 
         # --- Instruction "CSRRC" ---
@@ -210,7 +209,7 @@ def execute_instruction(registers, memory, instruction):
             registers.integer_regs[destination_reg] = old_value
             registers.write_to_CSR_register(CSR_address, new_value)
 
-            print(f"Executed instruction -> csrrc x{destination_reg}, {CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Clear)\n")
+            logger.register_executed_instruction(f"Executed instruction -> csrrc x{destination_reg}, {CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Clear)\n")
             pass
 
         # --- Instruction "CSRRWI" ---
@@ -222,7 +221,7 @@ def execute_instruction(registers, memory, instruction):
             registers.integer_regs[destination_reg] = registers.read_from_CSR_register(CSR_address)
             registers.write_to_CSR_register(CSR_address, immediate_val)
 
-            print(f"Executed instruction -> csrrwi x{destination_reg}, {CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Write Immediate)\n")
+            logger.register_executed_instruction(f"Executed instruction -> csrrwi x{destination_reg}, {CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Write Immediate)\n")
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
