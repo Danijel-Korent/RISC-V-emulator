@@ -8,6 +8,9 @@ from registers import Registers
 
 instruction_no_counter = 0
 
+LINUX_IMAGE_PATH = 'Linux_kernel_image/Linux_image_6_1_14_RV32IMA_NoMMU'
+RAM_SIZE = 100*1024*1024
+
 
 def execute_single_CPU_instruction(registers, memory):
     global instruction_no_counter
@@ -48,7 +51,7 @@ def emulate_cpu():
     registers = Registers()
 
     # The emulator will have 64MB of RAM, with the content of the Linux image placed at the beginning of RAM
-    memory = Memory(linux_image_path='Linux_image_6_1_14_RV32IMA_NoMMU', RAM_size=64*1024*1024)
+    memory = Memory(LINUX_IMAGE_PATH, RAM_SIZE)
 
     while True:
         execute_single_CPU_instruction(registers, memory)

@@ -66,7 +66,7 @@ def execute_instruction(registers, memory, instruction):
         memory.write_1_byte(address, value_to_write)
 
         print(f"Executed instruction -> sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Word)\n")
-        # quit()
+        quit()
         pass
 
     # --- instruction "LUI" ---
