@@ -140,13 +140,14 @@ def execute_instruction(registers, memory, instruction, logger):
 
         instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
-        # instruction address -> destination_register
-        registers.integer_regs[destination_reg] = registers.instruction_pointer
-
         # Calculate new instruction address and update the instruction_pointer
         # jarl instruction calculates new instruction address by adding together
         # immediate value and value from source register
         registers.instruction_pointer = registers.integer_regs[source_reg] + immediate_val
+
+        # instruction address -> destination_register
+        # Destination register must be updated last, in case source_reg and destination_reg are the same
+        registers.integer_regs[destination_reg] = registers.instruction_pointer
 
         instruction_pointer_updated = True
 

@@ -36,7 +36,7 @@ def execute_single_CPU_instruction(registers, memory, logger):
 
 def emulate_cpu():
 
-    logger = Emulator_logger(start_traceout_at_instruction_no=112049)
+    logger = Emulator_logger(start_traceout_at_instruction_no=112059)
 
     registers = Registers()
 
