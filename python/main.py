@@ -10,6 +10,10 @@ from registers import Registers
 LINUX_IMAGE_PATH = 'Linux_kernel_image/Linux_image_6_1_14_RV32IMA_NoMMU'
 RAM_SIZE = 100*1024*1024
 
+START_TRACEOUT_AT_INSTRUCTION_NO = 112059
+LOGGER_SHORT_REPORT = False
+#LOGGER_SHORT_REPORT = True
+
 
 def execute_single_CPU_instruction(registers, memory, logger):
 
@@ -36,7 +40,7 @@ def execute_single_CPU_instruction(registers, memory, logger):
 
 def emulate_cpu():
 
-    logger = Emulator_logger(start_traceout_at_instruction_no=112059)
+    logger = Emulator_logger(START_TRACEOUT_AT_INSTRUCTION_NO, LOGGER_SHORT_REPORT)
 
     registers = Registers()
 
