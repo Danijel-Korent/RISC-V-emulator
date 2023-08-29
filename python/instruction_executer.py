@@ -142,14 +142,21 @@ def execute_instruction(registers, memory, instruction, logger):
 
         instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
-        # Calculate new instruction address and update the instruction_pointer
-        # jarl instruction calculates new instruction address by adding together
-        # immediate value and value from source register
-        registers.instruction_pointer = registers.integer_regs[source_reg] + immediate_val
+        # Calculate the address of the next instruction in memory after the location of "jal(r)"
+        # This is the "link" part of the instruction, and is usually used (after jumping into functions/procedures)
+        # to jump back and continue execution of code physically after the location of "jal(r)" instruction
+        address_of_next_instruction = registers.instruction_pointer + 4
 
-        # instruction address -> destination_register
-        # Destination register must be updated last, in case source_reg and destination_reg are the same
-        registers.integer_regs[destination_reg] = registers.instruction_pointer
+        # Calculate new instruction address and update the instruction_pointer
+        # This is the "jump" part of the instruction
+        # jalr instruction calculates new instruction address by adding together
+        # immediate value and value from source register
+        jump_address = registers.integer_regs[source_reg] + immediate_val
+
+        registers.instruction_pointer = jump_address
+
+        # Destination register must be updated last, in case the instruction uses the same reg as source and destination
+        registers.integer_regs[destination_reg] = address_of_next_instruction
 
         instruction_pointer_updated = True
 
@@ -162,10 +169,19 @@ def execute_instruction(registers, memory, instruction, logger):
 
         destination_reg, immediate_val = Instruction_parser.decode_J_type(instruction)
 
-        registers.integer_regs[destination_reg] = registers.instruction_pointer + 4
+        # Calculate the address of the next instruction in memory after the location of "jal(r)"
+        # This is the "link" part of the instruction, and is usually used (after jumping into functions/procedures)
+        # to jump back and continue execution of code physically after the location of "jal(r)" instruction
+        address_of_next_instruction = registers.instruction_pointer + 4
 
-        # Update instruction pointer to a new value
-        registers.instruction_pointer = registers.instruction_pointer + immediate_val
+        # Calculate new instruction address and update the instruction_pointer
+        # This is the "jump" part of the instruction
+        # jal instruction calculates new instruction address by adding together
+        # current instruction pointer and the immediate value
+        jump_address = registers.instruction_pointer + immediate_val
+
+        registers.instruction_pointer = jump_address
+        registers.integer_regs[destination_reg] = address_of_next_instruction
 
         instruction_pointer_updated = True
 
