@@ -1,3 +1,4 @@
+from helper_functions import interpret_as_32_bit_signed_value, interpret_as_12_bit_signed_value
 from instruction_decoder import Instruction_parser
 
 
@@ -8,8 +9,28 @@ def execute_instruction(registers, memory, instruction, logger):
 
     instruction_pointer_updated = False
 
+    # --- Instruction 'LW' ---
+    if opcode == 0x03:
+        instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
+
+        if instruction_subtype == 0x02:
+            base_address = registers.integer_regs[source_reg]
+            offset = interpret_as_12_bit_signed_value(immediate_val)
+
+            address = base_address + offset
+
+            value = memory.get_4_bytes__little_endian(address)
+
+            registers.integer_regs[destination_reg] = value
+
+            logger.register_executed_instruction(f"Executed instruction -> lw x{destination_reg}, {immediate_val}(x{source_reg})  (Load Word)\n")
+        else:
+            print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+            quit()
+        pass
+
     # --- Instruction 'FENCE' ---
-    if opcode == 0x0f:
+    elif opcode == 0x0f:
         # Fence is only relevant for more complex CPU implementations
         logger.register_executed_instruction(f"Ignored instruction -> fence \n")
         pass
@@ -85,25 +106,6 @@ def execute_instruction(registers, memory, instruction, logger):
 
         source_reg_1_value = registers.integer_regs[source_reg_1]
         source_reg_2_value = registers.integer_regs[source_reg_2]
-
-        def interpret_as_32_bit_signed_value(signed_value):
-            ret_val = signed_value
-
-            if signed_value & 0x80000000 != 0:
-                ret_val = -((~signed_value & 0xFFFFFFFF) + 1)
-
-            return ret_val
-
-        source_reg_1_value = interpret_as_32_bit_signed_value(source_reg_1_value)
-        source_reg_2_value = interpret_as_32_bit_signed_value(source_reg_2_value)
-
-        def interpret_as_12_bit_signed_value(signed_value):
-            ret_val = signed_value
-
-            if signed_value & 0x00000800 != 0:
-                ret_val = -((~signed_value & 0x00000FFF) + 1)
-
-            return ret_val
 
         source_reg_1_value = interpret_as_32_bit_signed_value(source_reg_1_value)
         source_reg_2_value = interpret_as_32_bit_signed_value(source_reg_2_value)
