@@ -24,12 +24,17 @@ class Registers:
         # just to shorten the variable name
         reg = self.integer_regs
 
+        register_ABI_name = ["000", "ra ", "sp ", "gp ", "tp ", "t00", "t01", "t02",
+                             "fp ", "s01", "a00", "a01", "a02", "a03", "a04", "a05",
+                             "a06", "a07", "s02", "s03", "s04", "s05", "s06", "s07",
+                             "s08", "s09", "s10", "s11", "t03", "t04", "t05", "t06"]
+
         # Print all integer registers
         for i in range(8):
             offset = i*4
             for x in range(4):
                 reg_no = offset + x
-                print(f"x{reg_no:02}: {reg[reg_no]:08x}, ", end='')
+                print(f"x{reg_no:02},{register_ABI_name[reg_no]}: {reg[reg_no]:08x}   ", end='')
             # just for new line
             print("")
 
