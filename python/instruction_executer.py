@@ -110,8 +110,8 @@ def execute_instruction(registers, memory, instruction, logger):
         source_reg_1_value = registers.integer_regs[source_reg_1]
         source_reg_2_value = registers.integer_regs[source_reg_2]
 
-        source_reg_1_value = interpret_as_32_bit_signed_value(source_reg_1_value)
-        source_reg_2_value = interpret_as_32_bit_signed_value(source_reg_2_value)
+        source_reg_1_value_signed = interpret_as_32_bit_signed_value(source_reg_1_value)
+        source_reg_2_value_signed = interpret_as_32_bit_signed_value(source_reg_2_value)
 
         # The 12-bit B-immediate encodes SIGNED offsets in MULTIPLES of 2, and is added to the
         # current instruction pointer value. The conditional branch range is ±4 KiB.
@@ -120,7 +120,7 @@ def execute_instruction(registers, memory, instruction, logger):
         # --- instruction "BLT" ---
         if instruction_subtype == 0x4:
 
-            if source_reg_1_value < source_reg_2_value:
+            if source_reg_1_value_signed < source_reg_2_value_signed:
                 registers.instruction_pointer = registers.instruction_pointer + jump_offset
                 instruction_pointer_updated = True
 
@@ -129,11 +129,21 @@ def execute_instruction(registers, memory, instruction, logger):
         # --- instruction "BGE" ---
         elif instruction_subtype == 0x5:
 
-            if source_reg_1_value >= source_reg_2_value:
+            if source_reg_1_value_signed >= source_reg_2_value_signed:
                 registers.instruction_pointer = registers.instruction_pointer + jump_offset
                 instruction_pointer_updated = True
 
             logger.register_executed_instruction(f"bge x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Greater than or Equal)")
+
+        # --- instruction "BGEU" ---
+        elif instruction_subtype == 0x7:
+
+            if source_reg_1_value >= source_reg_2_value:
+                registers.instruction_pointer = registers.instruction_pointer + jump_offset
+                instruction_pointer_updated = True
+
+            logger.register_executed_instruction(f"bge x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Greater than or Equal - Unsigned)")
+
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
             quit()
