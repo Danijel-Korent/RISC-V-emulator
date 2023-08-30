@@ -116,7 +116,7 @@ class Instruction_parser:
         # Immediate   bit no. | 20 | 10 09 08 07 06 05 04 03 02 01 | 11 | 19 18 17 16 15 14 13 12 | rd rd rd rd rd | op op op op op op op
 
         # Bits Immediate -> Instruction
-        #                   imm[20]         imm[19:12]       imm[11]          imm[10:1]             Hardcoded to zero
+        #                   imm[20]         imm[19:12]       imm[11]          imm[10:1]             Always zero
         # Immediate   bit no. | 20 | 19 18 17 16 15 14 13 12 | 11 | 10 09 08 07 06 05 04 03 02 01 | 00  |
         # Instruction bit no. | 31 | 19 18 17 16 15 14 13 12 | 20 | 30 29 28 27 26 25 24 23 22 21 | n/a |
 
@@ -144,7 +144,7 @@ class Instruction_parser:
         # Immediate   bit no. |  12   | 10 09 08 07 06 05 | s2 s2 s2 s2 s2 | s1 s1 s1 s1 s1 | f3 f3 f3 | 04 03 02 01 | 11 | op op op op op op op
 
         # Bits Immediate -> Instruction
-        #                    imm[12]  imm[11]    imm[10:5]         imm[4:1]    Hardcoded to zero
+        #                    imm[12]  imm[11]    imm[10:5]         imm[4:1]    Always zero
         # Immediate   bit no. |  12   | 11 | 10 09 08 07 06 05 | 04 03 02 01 | 00  |
         # Instruction bit no. |  31   | 07 | 30 29 28 27 26 25 | 11 10 09 08 | n/a |
 

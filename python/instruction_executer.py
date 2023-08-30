@@ -1,4 +1,5 @@
-from helper_functions import interpret_as_32_bit_signed_value, interpret_as_12_bit_signed_value
+from helper_functions import interpret_as_32_bit_signed_value, interpret_as_12_bit_signed_value, \
+    interpret_as_21_bit_signed_value
 from instruction_decoder import Instruction_parser
 
 
@@ -142,6 +143,9 @@ def execute_instruction(registers, memory, instruction, logger):
 
         instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
+        # for this instruction the immediate is a signed value
+        immediate_val = interpret_as_12_bit_signed_value(immediate_val)
+
         # Calculate the address of the next instruction in memory after the location of "jal(r)"
         # This is the "link" part of the instruction, and is usually used (after jumping into functions/procedures)
         # to jump back and continue execution of code physically after the location of "jal(r)" instruction
@@ -168,6 +172,9 @@ def execute_instruction(registers, memory, instruction, logger):
         # Instruction_parser.print_J_type_instruction(instruction)
 
         destination_reg, immediate_val = Instruction_parser.decode_J_type(instruction)
+
+        # for this instruction the immediate is a signed value
+        immediate_val = interpret_as_21_bit_signed_value(immediate_val)
 
         # Calculate the address of the next instruction in memory after the location of "jal(r)"
         # This is the "link" part of the instruction, and is usually used (after jumping into functions/procedures)
