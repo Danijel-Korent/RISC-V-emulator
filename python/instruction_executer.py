@@ -14,6 +14,9 @@ def execute_instruction(registers, memory, instruction, logger):
     if opcode == 0x03:
         instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
+        # Immediate is a signed value for all 'load' instructions
+        immediate_val = interpret_as_12_bit_signed_value(immediate_val)
+
         if instruction_subtype == 0x02:
             base_address = registers.integer_regs[source_reg]
             offset = interpret_as_12_bit_signed_value(immediate_val)
@@ -84,11 +87,16 @@ def execute_instruction(registers, memory, instruction, logger):
 
         instruction_subtype, source_reg_1, source_reg_2, immediate_val = Instruction_parser.decode_S_type(instruction)
 
+        # Immediate is a signed value for all 'store' instructions
+        immediate_val = interpret_as_12_bit_signed_value(immediate_val)
+
         address = registers.integer_regs[source_reg_1] + immediate_val
         value_to_write = registers.integer_regs[source_reg_2]
 
         if instruction_subtype == 0x0:
             memory.write_1_byte(address, value_to_write & 0xFF)
+
+            logger.register_executed_instruction(f"sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Byte)")
             pass
         elif instruction_subtype == 0x2:
             memory.write_4_bytes__little_endian(address, value_to_write)
