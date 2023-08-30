@@ -84,12 +84,16 @@ def execute_instruction(registers, memory, instruction, logger):
 
         instruction_subtype, source_reg_1, source_reg_2, immediate_val = Instruction_parser.decode_S_type(instruction)
 
-        address = registers.integer_regs[source_reg_1] + immediate_val
-        value_to_write = registers.integer_regs[source_reg_2]
+        if instruction_subtype == 0x2:
+            address = registers.integer_regs[source_reg_1] + immediate_val
+            value_to_write = registers.integer_regs[source_reg_2]
 
-        memory.write_4_bytes__little_endian(address, value_to_write)
+            memory.write_4_bytes__little_endian(address, value_to_write)
 
-        logger.register_executed_instruction(f"sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Word)")
+            logger.register_executed_instruction(f"sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Word)")
+        else:
+            print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+            quit()
         pass
 
     # --- instruction "LUI" ---
