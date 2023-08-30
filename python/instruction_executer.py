@@ -252,7 +252,7 @@ def execute_instruction(registers, memory, instruction, logger):
 
         # --- Instruction "CSRRWI" ---
         elif instruction_subtype == 0x5:
-            # Immediate values is in this case encoded into bit field that
+            # Immediate value is in this case encoded into bit field that
             # usually holds source register number (RS bit field)
             immediate_val = source_reg
 
@@ -260,6 +260,22 @@ def execute_instruction(registers, memory, instruction, logger):
             registers.write_to_CSR_register(CSR_address, immediate_val)
 
             logger.register_executed_instruction(f"csrrwi x{destination_reg}, {CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Write Immediate)")
+            pass
+
+        # --- Instruction "CSRRCI" ---
+        elif instruction_subtype == 0x7:
+            # Immediate value is in this case encoded into bit field that
+            # usually holds source register number (RS bit field)
+            immediate_val = source_reg
+
+            old_value = registers.read_from_CSR_register(CSR_address)
+
+            new_value = old_value & (~immediate_val)
+
+            registers.integer_regs[destination_reg] = old_value
+            registers.write_to_CSR_register(CSR_address, new_value)
+
+            logger.register_executed_instruction(f"csrrci x{destination_reg}, {CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Clear immediate)")
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
