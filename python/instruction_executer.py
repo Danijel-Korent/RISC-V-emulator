@@ -1,5 +1,5 @@
 from helper_functions import interpret_as_32_bit_signed_value, interpret_as_12_bit_signed_value, \
-    interpret_as_21_bit_signed_value
+    interpret_as_20_bit_signed_value, interpret_as_21_bit_signed_value
 from instruction_decoder import Instruction_parser
 
 
@@ -71,6 +71,8 @@ def execute_instruction(registers, memory, instruction, logger):
     elif opcode == 0x17:
 
         destination_reg, immediate_val = Instruction_parser.decode_U_type(instruction)
+
+        immediate_val = interpret_as_20_bit_signed_value(immediate_val)
 
         registers.integer_regs[destination_reg] = registers.instruction_pointer + (immediate_val << 12)
 
