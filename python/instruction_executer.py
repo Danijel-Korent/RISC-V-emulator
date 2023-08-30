@@ -85,7 +85,7 @@ def execute_instruction(registers, memory, instruction, logger):
         address = registers.integer_regs[source_reg_1] + immediate_val
         value_to_write = registers.integer_regs[source_reg_2]
 
-        memory.write_1_byte(address, value_to_write)
+        memory.write_4_bytes__little_endian(address, value_to_write)
 
         logger.register_executed_instruction(f"sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Word)")
         pass

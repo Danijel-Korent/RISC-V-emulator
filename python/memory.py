@@ -52,6 +52,20 @@ class Memory:
 
         return value
 
+    def write_4_bytes__little_endian(self, address, value):
+        # Break the 32-bit value into individual bytes
+        byte0 = value & 0xFF
+        byte1 = (value >> 8) & 0xFF
+        byte2 = (value >> 16) & 0xFF
+        byte3 = (value >> 24) & 0xFF
+
+        # Write each byte to memory in little-endian order
+        self.write_1_byte(address, byte0)
+        self.write_1_byte(address + 1, byte1)
+        self.write_1_byte(address + 2, byte2)
+        self.write_1_byte(address + 3, byte3)
+        pass
+
 
 if __name__ == '__main__':
     print(f"\nExecuting:\n\t{__file__} \n")
