@@ -53,6 +53,7 @@ def execute_instruction(registers, memory, instruction, logger):
             # The first bit (MSB) tells if the values is negative or not
             # If the first bit of the value is set to 1, then the values is negative, encoded as Two's_complement
             # https://en.wikipedia.org/wiki/Two's_complement
+            # TODO: Just replace with helper functions
             if (immediate_val & 0b100000000000) == 0:
                 registers.integer_regs[destination_reg] = registers.integer_regs[source_reg] + immediate_val
             else:
@@ -64,6 +65,20 @@ def execute_instruction(registers, memory, instruction, logger):
             registers.integer_regs[destination_reg] = registers.integer_regs[destination_reg] & 0xFFFFFFFF
 
             logger.register_executed_instruction(f"addi x{destination_reg}, x{source_reg}, {sign}{immediate_val}  (Add immediate)")
+            pass
+        # --- Instruction 'SLLI' ---
+        elif instruction_subtype == 0x1:
+            # There are only 32 bits in registers so the valid immediate values are up to 2**5
+            if immediate_val & 0x111111100000 != 0:
+                print(f"[ERROR] SLLI: Invalid instruction encoding !!")
+                quit()
+
+            value_to_be_shifted = registers.integer_regs[source_reg]
+            shift_amount = immediate_val
+
+            registers.integer_regs[destination_reg] = value_to_be_shifted << shift_amount
+
+            logger.register_executed_instruction(f"slli x{destination_reg}, x{source_reg}, {immediate_val}  (Shift Left Logical - Immediate)")
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
