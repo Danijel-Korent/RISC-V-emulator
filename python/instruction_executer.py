@@ -1,5 +1,5 @@
 from helper_functions import interpret_as_32_bit_signed_value, interpret_as_12_bit_signed_value, \
-    interpret_as_20_bit_signed_value, interpret_as_21_bit_signed_value
+    interpret_as_20_bit_signed_value, interpret_as_21_bit_signed_value, convert_to_32_bit_unsigned_value
 from instruction_decoder import Instruction_parser
 
 
@@ -102,6 +102,33 @@ def execute_instruction(registers, memory, instruction, logger):
             memory.write_4_bytes__little_endian(address, value_to_write)
 
             logger.register_executed_instruction(f"sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Word)")
+            pass
+        else:
+            print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+            quit()
+        pass
+
+    # --- Arithmetic/Logic instructions - registers only ---
+    elif opcode == 0x33:
+        instruction_subtype_f3, instruction_subtype_f7, source_reg_1, source_reg_2, destination_reg = Instruction_parser.decode_R_type(instruction)
+
+        source_reg_1_val = registers.integer_regs[source_reg_1]
+        source_reg_2_val = registers.integer_regs[source_reg_2]
+
+        if instruction_subtype_f7 == 0x1:
+
+            # --- instruction "DIV" ---
+            if instruction_subtype_f3 == 0x4:
+                dividend = interpret_as_32_bit_signed_value(source_reg_1_val)
+                divisor  = interpret_as_32_bit_signed_value(source_reg_2_val)
+
+                result = dividend // divisor
+
+                registers.integer_regs[destination_reg] = convert_to_32_bit_unsigned_value(result)
+                pass
+            else:
+                print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+                quit()
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")

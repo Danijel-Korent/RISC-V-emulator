@@ -1,3 +1,4 @@
+import ctypes
 
 
 def interpret_as_32_bit_signed_value(signed_value):
@@ -35,3 +36,5 @@ def interpret_as_12_bit_signed_value(signed_value):
 
     return ret_val
 
+def convert_to_32_bit_unsigned_value(value):
+    return ctypes.c_uint32(value).value
