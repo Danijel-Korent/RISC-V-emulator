@@ -115,7 +115,24 @@ def execute_instruction(registers, memory, instruction, logger):
         source_reg_1_val = registers.integer_regs[source_reg_1]
         source_reg_2_val = registers.integer_regs[source_reg_2]
 
-        if instruction_subtype_f7 == 0x1:
+        if instruction_subtype_f7 == 0x0:
+
+            # --- instruction "SLL" ---
+            if instruction_subtype_f3 == 0x1:
+                value_to_be_shifted = source_reg_1_val
+                shift_amount = source_reg_2_val
+
+                registers.integer_regs[destination_reg] = value_to_be_shifted << shift_amount
+
+                logger.register_executed_instruction(f"sll x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Shift Left Logical)")
+                pass
+            else:
+                print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+                quit()
+            pass
+
+        # --- RV32M Multiply Extension ---
+        elif instruction_subtype_f7 == 0x1:
 
             # --- instruction "DIV" ---
             if instruction_subtype_f3 == 0x4:
@@ -128,7 +145,7 @@ def execute_instruction(registers, memory, instruction, logger):
 
                 registers.integer_regs[destination_reg] = convert_to_32_bit_unsigned_value(result)
 
-                logger.register_executed_instruction(f"div x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Signed Division )")
+                logger.register_executed_instruction(f"div x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Signed Division)")
                 pass
             else:
                 print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
