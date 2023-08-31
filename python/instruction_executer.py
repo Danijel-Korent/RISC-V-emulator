@@ -122,9 +122,13 @@ def execute_instruction(registers, memory, instruction, logger):
                 dividend = interpret_as_32_bit_signed_value(source_reg_1_val)
                 divisor  = interpret_as_32_bit_signed_value(source_reg_2_val)
 
+                # TODO1: Handle division by zero
+                # TODO2: Handle signed overflow
                 result = dividend // divisor
 
                 registers.integer_regs[destination_reg] = convert_to_32_bit_unsigned_value(result)
+
+                logger.register_executed_instruction(f"div x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Signed Division )")
                 pass
             else:
                 print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
