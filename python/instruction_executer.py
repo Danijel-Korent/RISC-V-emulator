@@ -233,7 +233,6 @@ def execute_instruction(registers, memory, instruction, logger):
                 logger.register_executed_instruction(f"slt x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Set Less Than - Unsigned)")
                 pass
 
-
             # --- instruction "XOR" ---
             elif instruction_subtype_f3 == 4:
 
@@ -242,6 +241,16 @@ def execute_instruction(registers, memory, instruction, logger):
                 registers.integer_regs[destination_reg] = result
 
                 logger.register_executed_instruction(f"xor x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Bitwise XOR)")
+                pass
+
+            # --- instruction "OR" ---
+            elif instruction_subtype_f3 == 6:
+
+                result = source_reg_1_val | source_reg_2_val
+
+                registers.integer_regs[destination_reg] = result
+
+                logger.register_executed_instruction(f"or x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Bitwise OR)")
                 pass
 
             # --- instruction "AND" ---
