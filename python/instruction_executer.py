@@ -144,8 +144,18 @@ def execute_instruction(registers, memory, instruction, logger):
             # Store encoded value into separate variable to be less confusing
             encoded_value = immediate_val & 0b00000000111111
 
+            # --- Instruction 'SRLI' ---
+            if shift_instruction_type == 0x00:
+
+                result = source_reg_value >> encoded_value
+
+                registers.integer_regs[destination_reg] = result
+
+                logger.register_executed_instruction(f"srli x{destination_reg}, x{source_reg}, {encoded_value}  (Shift Right Logical - Immediate)")
+                pass
+
             # --- Instruction 'SRAI' ---
-            if shift_instruction_type == 0x20:
+            elif shift_instruction_type == 0x20:
                 source_reg_value = interpret_as_32_bit_signed_value(source_reg_value)
 
                 # Python's shift operator is arithmetic shift operator so it should automatically sign-extend the value
@@ -154,6 +164,8 @@ def execute_instruction(registers, memory, instruction, logger):
                 registers.integer_regs[destination_reg] = result & 0xFFFFFFFF
 
                 logger.register_executed_instruction(f"srai x{destination_reg}, x{source_reg}, {encoded_value}  (Shift Right Arithmeticly - Immediate)")
+                pass
+
             else:
                 print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
                 quit()
