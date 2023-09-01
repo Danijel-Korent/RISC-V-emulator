@@ -94,6 +94,19 @@ def execute_instruction(registers, memory, instruction, logger):
             logger.register_executed_instruction(f"slli x{destination_reg}, x{source_reg}, {immediate_val}  (Shift Left Logical - Immediate)")
             pass
 
+        # --- instruction "SLTIU" ---
+        elif instruction_subtype == 3:
+
+            if source_reg_value < immediate_val:
+                result = 1
+            else:
+                result = 0
+
+            registers.integer_regs[destination_reg] = result
+
+            logger.register_executed_instruction(f"sltiu x{destination_reg}, x{source_reg}, {immediate_val}  (Set Less Than - Immediate Unsigned)")
+            pass
+
         # --- Instruction 'ANDI' ---
         elif instruction_subtype == 7:
 
@@ -230,7 +243,7 @@ def execute_instruction(registers, memory, instruction, logger):
 
                 registers.integer_regs[destination_reg] = result
 
-                logger.register_executed_instruction(f"slt x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Set Less Than - Unsigned)")
+                logger.register_executed_instruction(f"sltu x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Set Less Than - Unsigned)")
                 pass
 
             # --- instruction "XOR" ---
