@@ -10,24 +10,34 @@ def execute_instruction(registers, memory, instruction, logger):
 
     instruction_pointer_updated = False
 
-    # --- Instruction 'LW' ---
+    # --- 'Load' instructions ---
     if opcode == 0x03:
         instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
         # Immediate is a signed value for all 'load' instructions
         immediate_val = interpret_as_12_bit_signed_value(immediate_val)
 
+        base_address = registers.integer_regs[source_reg]
+        offset = immediate_val
+
+        address = base_address + offset
+
+        # --- Instruction 'LW' ---
         if instruction_subtype == 0x02:
-            base_address = registers.integer_regs[source_reg]
-            offset = interpret_as_12_bit_signed_value(immediate_val)
-
-            address = base_address + offset
-
             value = memory.get_4_bytes__little_endian(address)
 
             registers.integer_regs[destination_reg] = value
 
             logger.register_executed_instruction(f"lw x{destination_reg}, {immediate_val}(x{source_reg})  (Load Word)")
+
+        # --- Instruction 'LBU' ---
+        elif instruction_subtype == 0x04:
+            value = memory.get_1_byte(address)
+
+            registers.integer_regs[destination_reg] = value
+
+            logger.register_executed_instruction(f"lbu x{destination_reg}, {immediate_val}(x{source_reg})  (Load Byte - Unsigned)")
+            pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
             quit()
