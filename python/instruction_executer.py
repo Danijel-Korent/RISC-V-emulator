@@ -237,8 +237,22 @@ def execute_instruction(registers, memory, instruction, logger):
         # --- RV32M Multiply Extension ---
         elif instruction_subtype_f7 == 0x1:
 
+            # --- instruction "MUL" ---
+            if instruction_subtype_f3 == 0:
+                source_reg_1_val = interpret_as_32_bit_signed_value(source_reg_1_val)
+                source_reg_2_val  = interpret_as_32_bit_signed_value(source_reg_2_val)
+
+                result = source_reg_1_val * source_reg_2_val
+
+                # Shorten the result to 32-bits
+                result = result & 0xFFFFFFFF
+
+                registers.integer_regs[destination_reg] = result
+
+                logger.register_executed_instruction(f"mul x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Signed Multiplication )")
+
             # --- instruction "DIV" ---
-            if instruction_subtype_f3 == 0x4:
+            elif instruction_subtype_f3 == 4:
                 dividend = interpret_as_32_bit_signed_value(source_reg_1_val)
                 divisor  = interpret_as_32_bit_signed_value(source_reg_2_val)
 
@@ -246,6 +260,7 @@ def execute_instruction(registers, memory, instruction, logger):
                 # TODO2: Handle signed overflow
                 result = dividend // divisor
 
+                # TODO: Could I just replace convert_to_32_bit_unsigned_value() with (result & 0xFFFFFFFF)??
                 registers.integer_regs[destination_reg] = convert_to_32_bit_unsigned_value(result)
 
                 logger.register_executed_instruction(f"div x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Signed Division)")
