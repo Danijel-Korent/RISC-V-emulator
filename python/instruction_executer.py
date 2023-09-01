@@ -130,6 +130,14 @@ def execute_instruction(registers, memory, instruction, logger):
             logger.register_executed_instruction(f"sltiu x{destination_reg}, x{source_reg}, {immediate_val}  (Set Less Than - Immediate Unsigned)")
             pass
 
+        # --- Instruction 'XORI' ---
+        elif instruction_subtype == 4:
+
+            registers.integer_regs[destination_reg] = source_reg_value ^ immediate_val
+
+            logger.register_executed_instruction(f"xori x{destination_reg}, x{source_reg}, {immediate_val}  (bitwise XOR - Immediate)")
+            pass
+
         # Instructions 'SRLI' and 'SRAI'
         elif instruction_subtype == 5:
             # For 'SRLI' and 'SRAI' the "immediate value filed" actually consists of two encoded fields - type and value
