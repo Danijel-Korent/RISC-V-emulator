@@ -132,8 +132,20 @@ def execute_instruction(registers, memory, instruction, logger):
 
         if instruction_subtype_f7 == 0x0:
 
+            # --- instruction "ADD" ---
+            if instruction_subtype_f3 == 0x0:
+                result = source_reg_1_val + source_reg_2_val
+
+                # Make sure that the result is limited to only first 32 bits of the value
+                result = result & 0xFFFFFFFF
+
+                registers.integer_regs[destination_reg] = result
+
+                logger.register_executed_instruction(f"add x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (addition)")
+                pass
+
             # --- instruction "SLL" ---
-            if instruction_subtype_f3 == 0x1:
+            elif instruction_subtype_f3 == 0x1:
                 value_to_be_shifted = source_reg_1_val
                 shift_amount = source_reg_2_val
 
