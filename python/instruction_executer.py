@@ -264,8 +264,17 @@ def execute_instruction(registers, memory, instruction, logger):
         # current instruction pointer value. The conditional branch range is ±4 KiB.
         jump_offset = interpret_as_12_bit_signed_value(immediate_val)
 
+        # --- instruction "BEQ" ---
+        if instruction_subtype == 0x0:
+
+            if source_reg_1_value_signed == source_reg_2_value_signed:
+                registers.instruction_pointer = registers.instruction_pointer + jump_offset
+                instruction_pointer_updated = True
+
+            logger.register_executed_instruction(f"beq x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if EQual")
+
         # --- instruction "BNE" ---
-        if instruction_subtype == 0x1:
+        elif instruction_subtype == 0x1:
 
             if source_reg_1_value_signed != source_reg_2_value_signed:
                 registers.instruction_pointer = registers.instruction_pointer + jump_offset
