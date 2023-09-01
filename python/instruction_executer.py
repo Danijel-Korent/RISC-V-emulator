@@ -254,7 +254,7 @@ def execute_instruction(registers, memory, instruction, logger):
             # --- instruction "MUL" ---
             if instruction_subtype_f3 == 0:
                 source_reg_1_val = interpret_as_32_bit_signed_value(source_reg_1_val)
-                source_reg_2_val  = interpret_as_32_bit_signed_value(source_reg_2_val)
+                source_reg_2_val = interpret_as_32_bit_signed_value(source_reg_2_val)
 
                 result = source_reg_1_val * source_reg_2_val
 
@@ -264,6 +264,19 @@ def execute_instruction(registers, memory, instruction, logger):
                 registers.integer_regs[destination_reg] = result
 
                 logger.register_executed_instruction(f"mul x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Signed Multiplication )")
+
+            # --- instruction "MULHU" ---
+            elif instruction_subtype_f3 == 3:
+                result = source_reg_1_val * source_reg_2_val
+
+                # Multiplication of two 32-bit numbers can result in a much larger number.
+                # Get only the bits higher than 32 bits (0xFFFFFFFF00000000)
+                result = result >> 32
+
+                registers.integer_regs[destination_reg] = result
+
+                logger.register_executed_instruction(f"mulhu x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Unsigned Multiplication - Higher-order bits)")
+
 
             # --- instruction "DIV" ---
             elif instruction_subtype_f3 == 4:
