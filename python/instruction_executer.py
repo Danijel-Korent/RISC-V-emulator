@@ -365,7 +365,7 @@ def execute_instruction(registers, memory, instruction, logger):
         jump_offset = interpret_as_12_bit_signed_value(immediate_val)
 
         # --- instruction "BEQ" ---
-        if instruction_subtype == 0x0:
+        if instruction_subtype == 0:
 
             if source_reg_1_value_signed == source_reg_2_value_signed:
                 registers.instruction_pointer = registers.instruction_pointer + jump_offset
@@ -374,7 +374,7 @@ def execute_instruction(registers, memory, instruction, logger):
             logger.register_executed_instruction(f"beq x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if EQual")
 
         # --- instruction "BNE" ---
-        elif instruction_subtype == 0x1:
+        elif instruction_subtype == 1:
 
             if source_reg_1_value_signed != source_reg_2_value_signed:
                 registers.instruction_pointer = registers.instruction_pointer + jump_offset
@@ -383,7 +383,7 @@ def execute_instruction(registers, memory, instruction, logger):
             logger.register_executed_instruction(f"bne x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Not Equal)")
 
         # --- instruction "BLT" ---
-        elif instruction_subtype == 0x4:
+        elif instruction_subtype == 4:
 
             if source_reg_1_value_signed < source_reg_2_value_signed:
                 registers.instruction_pointer = registers.instruction_pointer + jump_offset
@@ -392,7 +392,7 @@ def execute_instruction(registers, memory, instruction, logger):
             logger.register_executed_instruction(f"blt x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Less Than)")
 
         # --- instruction "BGE" ---
-        elif instruction_subtype == 0x5:
+        elif instruction_subtype == 5:
 
             if source_reg_1_value_signed >= source_reg_2_value_signed:
                 registers.instruction_pointer = registers.instruction_pointer + jump_offset
@@ -400,8 +400,17 @@ def execute_instruction(registers, memory, instruction, logger):
 
             logger.register_executed_instruction(f"bge x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Greater than or Equal)")
 
+        # --- instruction "BLTU" ---
+        elif instruction_subtype == 6:
+
+            if source_reg_1_value < source_reg_2_value:
+                registers.instruction_pointer = registers.instruction_pointer + jump_offset
+                instruction_pointer_updated = True
+
+            logger.register_executed_instruction(f"bltu x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Less Than - Unsigned)")
+
         # --- instruction "BGEU" ---
-        elif instruction_subtype == 0x7:
+        elif instruction_subtype == 7:
 
             if source_reg_1_value >= source_reg_2_value:
                 registers.instruction_pointer = registers.instruction_pointer + jump_offset
