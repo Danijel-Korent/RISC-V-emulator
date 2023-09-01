@@ -207,7 +207,7 @@ def execute_instruction(registers, memory, instruction, logger):
 
                 registers.integer_regs[destination_reg] = result
 
-                logger.register_executed_instruction(f"add x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (addition)")
+                logger.register_executed_instruction(f"add x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Addition)")
                 pass
 
             # --- instruction "SLL" ---
@@ -269,6 +269,25 @@ def execute_instruction(registers, memory, instruction, logger):
                 print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
                 quit()
             pass
+
+        elif instruction_subtype_f7 == 0x20:
+
+            # --- instruction "SUB" ---
+            if instruction_subtype_f3 == 0x0:
+                result = source_reg_1_val - source_reg_2_val
+
+                # Make sure that the result is limited to only first 32 bits of the value
+                result = result & 0xFFFFFFFF
+
+                registers.integer_regs[destination_reg] = result
+
+                logger.register_executed_instruction(f"sub x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Subtraction )")
+                pass
+            else:
+                print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+                quit()
+            pass
+
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
             quit()
