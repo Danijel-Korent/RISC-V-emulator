@@ -66,6 +66,7 @@ def execute_instruction(registers, memory, instruction, logger):
 
             logger.register_executed_instruction(f"addi x{destination_reg}, x{source_reg}, {sign}{immediate_val}  (Add immediate)")
             pass
+
         # --- Instruction 'SLLI' ---
         elif instruction_subtype == 0x1:
             # There are only 32 bits in registers so the valid immediate values are up to 2**5
@@ -97,7 +98,7 @@ def execute_instruction(registers, memory, instruction, logger):
         logger.register_executed_instruction(f"auipc x{destination_reg}, {immediate_val}  (Add Upper Immediate to PC)")
         pass
 
-    # --- instruction "SW" ---
+    # --- 'Store' instructions ---
     elif opcode == 0x23:
 
         instruction_subtype, source_reg_1, source_reg_2, immediate_val = Instruction_parser.decode_S_type(instruction)
@@ -108,11 +109,14 @@ def execute_instruction(registers, memory, instruction, logger):
         address = registers.integer_regs[source_reg_1] + immediate_val
         value_to_write = registers.integer_regs[source_reg_2]
 
+        # --- instruction "SB" ---
         if instruction_subtype == 0x0:
             memory.write_1_byte(address, value_to_write & 0xFF)
 
             logger.register_executed_instruction(f"sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Byte)")
             pass
+
+        # --- instruction "SW" ---
         elif instruction_subtype == 0x2:
             memory.write_4_bytes__little_endian(address, value_to_write)
 
@@ -183,6 +187,16 @@ def execute_instruction(registers, memory, instruction, logger):
                 registers.integer_regs[destination_reg] = value_to_be_shifted << shift_amount
 
                 logger.register_executed_instruction(f"sll x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Shift Left Logical)")
+                pass
+
+            # --- instruction "AND" ---
+            elif instruction_subtype_f3 == 0x7:
+
+                result = source_reg_1_val & source_reg_2_val
+
+                registers.integer_regs[destination_reg] = result
+
+                logger.register_executed_instruction(f"and x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Bitwise AND)")
                 pass
             else:
                 print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
