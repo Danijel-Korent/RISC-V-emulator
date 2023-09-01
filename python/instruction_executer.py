@@ -309,7 +309,12 @@ def execute_instruction(registers, memory, instruction, logger):
                 value_to_be_shifted = source_reg_1_val
                 shift_amount = source_reg_2_val
 
-                registers.integer_regs[destination_reg] = value_to_be_shifted << shift_amount
+                result = value_to_be_shifted << shift_amount
+
+                # Make sure that the result is limited to only first 32 bits of the value
+                result = result & 0xFFFFFFFF
+
+                registers.integer_regs[destination_reg] = result
 
                 logger.register_executed_instruction(f"sll x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Shift Left Logical)")
                 pass
