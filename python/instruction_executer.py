@@ -136,12 +136,23 @@ def execute_instruction(registers, memory, instruction, logger):
 
         if instruction_subtype_f3 == 0x2:
 
-            # --- instruction "AMO_OR.W" ---
-            if instruction_subtype_f5 == 0x08:
+            # destination_reg <-- memory(source_reg_1_val)
+            old_value_in_memory = memory.get_4_bytes__little_endian(address=source_reg_1_val)
+            registers.integer_regs[destination_reg] = old_value_in_memory
 
-                # destination_reg <-- memory(source_reg_1_val)
-                old_value_in_memory = memory.get_4_bytes__little_endian(address=source_reg_1_val)
-                registers.integer_regs[destination_reg] = old_value_in_memory
+            # --- instruction "AMO_ADD.W" ---
+            if instruction_subtype_f5 == 0x00:
+
+                new_value_in_memory = old_value_in_memory + source_reg_2_val
+                new_value_in_memory = new_value_in_memory & 0xFFFFFFFF # Shorten the value to 32 bits if it's longer than that
+
+                memory.write_4_bytes__little_endian(address=source_reg_1_val, value=new_value_in_memory)
+
+                logger.register_executed_instruction(f"amoadd.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Atomic ADD)")
+                pass
+
+            # --- instruction "AMO_OR.W" ---
+            elif instruction_subtype_f5 == 0x08:
 
                 # memory(source_reg_1_val) <-- memory(source_reg_1_val) | source_reg_2_val
                 new_value_in_memory = old_value_in_memory | source_reg_2_val
