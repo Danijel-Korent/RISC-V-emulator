@@ -130,6 +130,35 @@ def execute_instruction(registers, memory, instruction, logger):
             logger.register_executed_instruction(f"sltiu x{destination_reg}, x{source_reg}, {immediate_val}  (Set Less Than - Immediate Unsigned)")
             pass
 
+        # Instructions 'SRLI' and 'SRAI'
+        elif instruction_subtype == 5:
+            # For 'SRLI' and 'SRAI' the "immediate value filed" actually consists of two encoded fields - type and value
+
+            #                      Shift instruction type     encoded value
+            # Immediate bit no. |  12 11 10 09 08 07 06 05 | 04 03 02 01 00
+            #                   |  ty ty ty ty ty ty ty ty | im im im im im
+
+            # Shift the immediate to get the shift instruction type
+            shift_instruction_type = immediate_val >> 5
+
+            # Store encoded value into separate variable to be less confusing
+            encoded_value = immediate_val & 0b00000000111111
+
+            # --- Instruction 'SRAI' ---
+            if shift_instruction_type == 0x20:
+                source_reg_value = interpret_as_32_bit_signed_value(source_reg_value)
+
+                # Python's shift operator is arithmetic shift operator so it should automatically sign-extend the value
+                result = source_reg_value >> encoded_value
+
+                registers.integer_regs[destination_reg] = result & 0xFFFFFFFF
+
+                logger.register_executed_instruction(f"srai x{destination_reg}, x{source_reg}, {encoded_value}  (Shift Right Arithmeticly - Immediate)")
+            else:
+                print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+                quit()
+            pass
+
         # --- Instruction 'ORI' ---
         elif instruction_subtype == 6:
 
