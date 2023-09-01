@@ -22,16 +22,39 @@ def execute_instruction(registers, memory, instruction, logger):
 
         address = base_address + offset
 
+        # --- Instruction 'LB' ---
+        if instruction_subtype == 0:
+            value = memory.get_1_byte(address)
+
+            # SIGN-EXTEND THE BYTE
+            # If the last (8th) bit of the byte is set to '1', it means that the value is negative (if we interpreted it
+            # as signed value)
+            # When loading this 8-bit long byte into a 32-bit long register, ff we want to keep that value as negative
+            # number (and as the same negative value) we need to extend '1's to all additional bits
+            # For example:
+            #   1111 is -1 as a 4-bit value. But as a 8-bit value 00001111 it is 15 when we interpret it as signed value
+            #   If we want to keep -1 when expanding 4-bit value into 8-bit space, we need to add '1's -> 11111111
+            if value & 0b10000000 != 0:
+                value = value | 0xFFFFFF00
+                print("[TEST] Instruction 'LB' - check sign extension")
+                quit()
+
+            registers.integer_regs[destination_reg] = value
+
+            logger.register_executed_instruction(f"lb x{destination_reg}, {immediate_val}(x{source_reg})  (Load Byte - With sign extension)")
+            pass
+
         # --- Instruction 'LW' ---
-        if instruction_subtype == 0x02:
+        elif instruction_subtype == 2:
             value = memory.get_4_bytes__little_endian(address)
 
             registers.integer_regs[destination_reg] = value
 
             logger.register_executed_instruction(f"lw x{destination_reg}, {immediate_val}(x{source_reg})  (Load Word)")
+            pass
 
         # --- Instruction 'LBU' ---
-        elif instruction_subtype == 0x04:
+        elif instruction_subtype == 4:
             value = memory.get_1_byte(address)
 
             registers.integer_regs[destination_reg] = value
