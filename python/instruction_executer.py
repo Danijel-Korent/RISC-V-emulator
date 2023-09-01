@@ -130,6 +130,14 @@ def execute_instruction(registers, memory, instruction, logger):
             logger.register_executed_instruction(f"sltiu x{destination_reg}, x{source_reg}, {immediate_val}  (Set Less Than - Immediate Unsigned)")
             pass
 
+        # --- Instruction 'ORI' ---
+        elif instruction_subtype == 6:
+
+            registers.integer_regs[destination_reg] = source_reg_value | immediate_val
+
+            logger.register_executed_instruction(f"ori x{destination_reg}, x{source_reg}, {immediate_val}  (bitwise OR - Immediate)")
+            pass
+
         # --- Instruction 'ANDI' ---
         elif instruction_subtype == 7:
 
@@ -137,6 +145,7 @@ def execute_instruction(registers, memory, instruction, logger):
 
             logger.register_executed_instruction(f"andi x{destination_reg}, x{source_reg}, {immediate_val}  (bitwise AND - Immediate)")
             pass
+
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
             quit()
