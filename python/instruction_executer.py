@@ -220,6 +220,20 @@ def execute_instruction(registers, memory, instruction, logger):
                 logger.register_executed_instruction(f"sll x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Shift Left Logical)")
                 pass
 
+            # --- instruction "SLTU" ---
+            elif instruction_subtype_f3 == 0x3:
+
+                if source_reg_1_val < source_reg_2_val:
+                    result = 1
+                else:
+                    result = 0
+
+                registers.integer_regs[destination_reg] = result
+
+                logger.register_executed_instruction(f"slt x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Set Less Than - Unsigned)")
+                pass
+
+
             # --- instruction "AND" ---
             elif instruction_subtype_f3 == 0x7:
 
