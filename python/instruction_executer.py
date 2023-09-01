@@ -235,7 +235,7 @@ def execute_instruction(registers, memory, instruction, logger):
 
         registers.integer_regs[destination_reg] = (immediate_val << 12)
 
-        logger.register_executed_instruction(f"lui x{destination_reg}, {immediate_val}  (Load Upper Immediate)")
+        logger.register_executed_instruction(f"lui x{destination_reg}, {interpret_as_20_bit_signed_value(immediate_val)}  (Load Upper Immediate)")
         pass
 
     # --- Branch instructions ---
@@ -253,14 +253,23 @@ def execute_instruction(registers, memory, instruction, logger):
         # current instruction pointer value. The conditional branch range is ±4 KiB.
         jump_offset = interpret_as_12_bit_signed_value(immediate_val)
 
+        # --- instruction "BNE" ---
+        if instruction_subtype == 0x1:
+
+            if source_reg_1_value_signed != source_reg_2_value_signed:
+                registers.instruction_pointer = registers.instruction_pointer + jump_offset
+                instruction_pointer_updated = True
+
+            logger.register_executed_instruction(f"bne x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Not Equal)")
+
         # --- instruction "BLT" ---
-        if instruction_subtype == 0x4:
+        elif instruction_subtype == 0x4:
 
             if source_reg_1_value_signed < source_reg_2_value_signed:
                 registers.instruction_pointer = registers.instruction_pointer + jump_offset
                 instruction_pointer_updated = True
 
-            logger.register_executed_instruction(f"blt x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Less than)")
+            logger.register_executed_instruction(f"blt x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if Less Than)")
 
         # --- instruction "BGE" ---
         elif instruction_subtype == 0x5:
