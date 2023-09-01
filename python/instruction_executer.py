@@ -199,7 +199,7 @@ def execute_instruction(registers, memory, instruction, logger):
         if instruction_subtype_f7 == 0x0:
 
             # --- instruction "ADD" ---
-            if instruction_subtype_f3 == 0x0:
+            if instruction_subtype_f3 == 0:
                 result = source_reg_1_val + source_reg_2_val
 
                 # Make sure that the result is limited to only first 32 bits of the value
@@ -211,7 +211,7 @@ def execute_instruction(registers, memory, instruction, logger):
                 pass
 
             # --- instruction "SLL" ---
-            elif instruction_subtype_f3 == 0x1:
+            elif instruction_subtype_f3 == 1:
                 value_to_be_shifted = source_reg_1_val
                 shift_amount = source_reg_2_val
 
@@ -221,7 +221,7 @@ def execute_instruction(registers, memory, instruction, logger):
                 pass
 
             # --- instruction "SLTU" ---
-            elif instruction_subtype_f3 == 0x3:
+            elif instruction_subtype_f3 == 3:
 
                 if source_reg_1_val < source_reg_2_val:
                     result = 1
@@ -234,8 +234,18 @@ def execute_instruction(registers, memory, instruction, logger):
                 pass
 
 
+            # --- instruction "XOR" ---
+            elif instruction_subtype_f3 == 4:
+
+                result = source_reg_1_val ^ source_reg_2_val
+
+                registers.integer_regs[destination_reg] = result
+
+                logger.register_executed_instruction(f"xor x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Bitwise XOR)")
+                pass
+
             # --- instruction "AND" ---
-            elif instruction_subtype_f3 == 0x7:
+            elif instruction_subtype_f3 == 7:
 
                 result = source_reg_1_val & source_reg_2_val
 
