@@ -96,9 +96,32 @@ class Instruction_parser:
         return instruction_subtype_f3, instruction_subtype_f7, source_reg_1, source_reg_2, destination_reg
 
     @staticmethod
+    def decode_R_type_atomic(instruction):
+        #                             funct5                   rs2              rs1          funct3          rd                       opcode
+        # Instruction bit no. |  31 30 29 28 27 | 26 25 | 24 23 22 21 20 | 19 18 17 16 15 | 14 13 12 | 11 10 09 08 07 | 06 05 04 03 02 01 00
+        #                     |  f5 f5 f5 f5 f5 | aq rl | s2 s2 s2 s2 s2 | s1 s1 s1 s1 s1 | f3 f3 f3 | rd rd rd rd rd | op op op op op op op
+
+        instruction_subtype_f3 = Instruction_parser.get_subtype__funct3(instruction)
+        instruction_subtype_f5 = Instruction_parser.get_subtype__funct5(instruction)
+        source_reg_1        = Instruction_parser.get_source_register__rs1(instruction)
+        source_reg_2        = Instruction_parser.get_source_register__rs2(instruction)
+        destination_reg     = Instruction_parser.get_destination_register__rd(instruction)
+
+        # NOTE: We don't parse and use 'aq' and 'rl' bits as their role is for ordering of memory operations. We ignore
+        #       them for the same reason we ignore 'fence' - our emulated CPU is too simple for this to matter
+
+        return instruction_subtype_f3, instruction_subtype_f5, source_reg_1, source_reg_2, destination_reg
+
+    @staticmethod
     def get_subtype__funct3(instruction):
         val = instruction & 0b00000000000000000111000000000000
         val = val >> 12
+        return val
+
+    @staticmethod
+    def get_subtype__funct5(instruction):
+        #val = instruction & 0b11111000000000000000000000000000
+        val = instruction >> 27
         return val
 
     @staticmethod

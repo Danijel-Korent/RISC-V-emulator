@@ -123,6 +123,37 @@ def execute_instruction(registers, memory, instruction, logger):
             quit()
         pass
 
+    # --- RV32A Atomic instructions ---
+    elif opcode == 0x2f:
+        instruction_subtype_f3, instruction_subtype_f5, source_reg_1, source_reg_2, destination_reg = Instruction_parser.decode_R_type_atomic(instruction)
+
+        source_reg_1_val = registers.integer_regs[source_reg_1]
+        source_reg_2_val = registers.integer_regs[source_reg_2]
+
+        if instruction_subtype_f3 == 0x2:
+
+            # --- instruction "AMO_OR.W" ---
+            if instruction_subtype_f5 == 0x08:
+
+                # destination_reg <-- memory(source_reg_1_val)
+                old_value_in_memory = memory.get_4_bytes__little_endian(address=source_reg_1_val)
+                registers.integer_regs[destination_reg] = old_value_in_memory
+
+                # memory(source_reg_1_val) <-- memory(source_reg_1_val) | source_reg_2_val
+                new_value_in_memory = old_value_in_memory | source_reg_2_val
+                memory.write_4_bytes__little_endian(address=source_reg_1_val, value=new_value_in_memory)
+
+                logger.register_executed_instruction(f"amoor.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Atomic OR)")
+                pass
+            else:
+                print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+                quit()
+            pass
+        else:
+            print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+            quit()
+        pass
+
     # --- Arithmetic/Logic instructions - registers only ---
     elif opcode == 0x33:
         instruction_subtype_f3, instruction_subtype_f7, source_reg_1, source_reg_2, destination_reg = Instruction_parser.decode_R_type(instruction)
