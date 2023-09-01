@@ -56,8 +56,10 @@ def execute_instruction(registers, memory, instruction, logger):
 
         instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
+        source_reg_value = registers.integer_regs[source_reg]
+
         # --- Instruction 'ADDI' ---
-        if instruction_subtype == 0x0:
+        if instruction_subtype == 0:
             sign = ""
 
             # The first bit (MSB) tells if the values is negative or not
@@ -65,10 +67,10 @@ def execute_instruction(registers, memory, instruction, logger):
             # https://en.wikipedia.org/wiki/Two's_complement
             # TODO: Just replace with helper functions
             if (immediate_val & 0b100000000000) == 0:
-                registers.integer_regs[destination_reg] = registers.integer_regs[source_reg] + immediate_val
+                registers.integer_regs[destination_reg] = source_reg_value + immediate_val
             else:
                 immediate_val = (~immediate_val & 0xFFF) + 1
-                registers.integer_regs[destination_reg] = registers.integer_regs[source_reg] - immediate_val
+                registers.integer_regs[destination_reg] = source_reg_value - immediate_val
                 sign = "-"
 
             # Shorten the register value to 32 bits if it's longer than that after add/sub
@@ -78,18 +80,26 @@ def execute_instruction(registers, memory, instruction, logger):
             pass
 
         # --- Instruction 'SLLI' ---
-        elif instruction_subtype == 0x1:
+        elif instruction_subtype == 1:
             # There are only 32 bits in registers so the valid immediate values are up to 2**5
             if immediate_val & 0x111111100000 != 0:
                 print(f"[ERROR] SLLI: Invalid instruction encoding !!")
                 quit()
 
-            value_to_be_shifted = registers.integer_regs[source_reg]
+            value_to_be_shifted = source_reg_value
             shift_amount = immediate_val
 
             registers.integer_regs[destination_reg] = value_to_be_shifted << shift_amount
 
             logger.register_executed_instruction(f"slli x{destination_reg}, x{source_reg}, {immediate_val}  (Shift Left Logical - Immediate)")
+            pass
+
+        # --- Instruction 'ANDI' ---
+        elif instruction_subtype == 7:
+
+            registers.integer_regs[destination_reg] = source_reg_value & immediate_val
+
+            logger.register_executed_instruction(f"andi x{destination_reg}, x{source_reg}, {immediate_val}  (bitwise AND - Immediate)")
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
