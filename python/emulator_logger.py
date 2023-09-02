@@ -14,7 +14,7 @@ class Emulator_logger:
 
         if self.instruction_counter >= self.start_traceout_at_instruction_no :
             if self.short_report:
-                print(f"PC: {registers.instruction_pointer:08x} [{instruction_value:08x}]", end="")
+                print(f"({self.instruction_counter})  PC: {registers.instruction_pointer:08x} [{instruction_value:08x}]", end="")
                 pass
             else:
                 # Print informational data

@@ -66,6 +66,16 @@ class Memory:
         self.write_1_byte(address + 3, byte3)
         pass
 
+    def write_2_bytes__little_endian(self, address, value):
+        # Break the 16-bit value into individual bytes
+        byte0 = value & 0xFF
+        byte1 = (value >> 8) & 0xFF
+
+        # Write each byte into memory in little-endian order
+        self.write_1_byte(address, byte0)
+        self.write_1_byte(address + 1, byte1)
+        pass
+
 
 if __name__ == '__main__':
     print(f"\nExecuting:\n\t{__file__} \n")

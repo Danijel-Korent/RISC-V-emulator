@@ -42,7 +42,7 @@ def execute_instruction(registers, memory, instruction, logger):
 
             registers.integer_regs[destination_reg] = value
 
-            logger.register_executed_instruction(f"lb x{destination_reg}, {immediate_val}(x{source_reg})  (Load Byte - With sign extension)")
+            logger.register_executed_instruction(f"lb x{destination_reg}, {immediate_val}(x{source_reg})  (Load Byte, 8-bit - With sign extension)")
             pass
 
         # --- Instruction 'LW' ---
@@ -51,7 +51,7 @@ def execute_instruction(registers, memory, instruction, logger):
 
             registers.integer_regs[destination_reg] = value
 
-            logger.register_executed_instruction(f"lw x{destination_reg}, {immediate_val}(x{source_reg})  (Load Word)")
+            logger.register_executed_instruction(f"lw x{destination_reg}, {immediate_val}(x{source_reg})  (Load Word, 32-bit)")
             pass
 
         # --- Instruction 'LBU' ---
@@ -60,7 +60,7 @@ def execute_instruction(registers, memory, instruction, logger):
 
             registers.integer_regs[destination_reg] = value
 
-            logger.register_executed_instruction(f"lbu x{destination_reg}, {immediate_val}(x{source_reg})  (Load Byte - Unsigned)")
+            logger.register_executed_instruction(f"lbu x{destination_reg}, {immediate_val}(x{source_reg})  (Load Byte, 8-bit - Unsigned)")
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
@@ -252,14 +252,21 @@ def execute_instruction(registers, memory, instruction, logger):
         if instruction_subtype == 0x0:
             memory.write_1_byte(address, value_to_write & 0xFF)
 
-            logger.register_executed_instruction(f"sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Byte)")
+            logger.register_executed_instruction(f"sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Byte, 8-bit)")
+            pass
+
+        # --- instruction "SH" ---
+        elif instruction_subtype == 0x1:
+            memory.write_2_bytes__little_endian(address, value_to_write)
+
+            logger.register_executed_instruction(f"sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Half-word, 16-bit)")
             pass
 
         # --- instruction "SW" ---
         elif instruction_subtype == 0x2:
             memory.write_4_bytes__little_endian(address, value_to_write)
 
-            logger.register_executed_instruction(f"sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Word)")
+            logger.register_executed_instruction(f"sw x{source_reg_2}, {immediate_val}(x{source_reg_1})  (Store Word, 32-bit)")
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
