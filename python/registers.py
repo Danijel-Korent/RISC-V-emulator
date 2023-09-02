@@ -17,8 +17,12 @@ class Registers:
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                  ]
 
+        # CSR registers
         self.CSR_mscratch = 0
         self.CSR_mtvec = 0
+
+        # Internal implementation details, not directly visible/exposed via CPU instructions
+        self.atomic_load_reserved__address = 0
 
     def print_register_values(self):
         # just to shorten the variable name

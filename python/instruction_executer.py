@@ -265,6 +265,40 @@ def execute_instruction(registers, memory, instruction, logger):
                 logger.register_executed_instruction(f"amoadd.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Atomic ADD)")
                 pass
 
+            # --- instruction "LD.W" ---
+            elif instruction_subtype_f5 == 0x02:
+
+                address_to_load = registers.integer_regs[source_reg_1]
+
+                value_at_address = memory.get_4_bytes__little_endian(address_to_load)
+
+                registers.atomic_load_reserved__address = address_to_load
+
+                registers.integer_regs[destination_reg] = value_at_address
+
+                logger.register_executed_instruction(f"ld.w x{destination_reg}, x{source_reg_1}  (Load Reserved - Atomic)")
+                pass
+
+            # --- instruction "SC.W" ---
+            elif instruction_subtype_f5 == 0x03:
+
+                address_to_store = registers.integer_regs[source_reg_1]
+
+                if address_to_store == registers.atomic_load_reserved__address:
+                    condition_result = 0
+
+                    value_to_store = registers.integer_regs[source_reg_2]
+
+                    memory.write_4_bytes__little_endian(address_to_store, value_to_store)
+                else:
+                    condition_result = 1
+
+                registers.atomic_load_reserved__address = -1
+                registers.integer_regs[destination_reg] = condition_result
+
+                logger.register_executed_instruction(f"sc.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Store Conditional - Atomic)")
+                pass
+
             # --- instruction "AMO_OR.W" ---
             elif instruction_subtype_f5 == 0x08:
 
@@ -470,7 +504,7 @@ def execute_instruction(registers, memory, instruction, logger):
                 registers.instruction_pointer = registers.instruction_pointer + jump_offset
                 instruction_pointer_updated = True
 
-            logger.register_executed_instruction(f"beq x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if EQual")
+            logger.register_executed_instruction(f"beq x{source_reg_1}, x{source_reg_2}, {immediate_val}  (Branch if EQual)")
 
         # --- instruction "BNE" ---
         elif instruction_subtype == 1:
