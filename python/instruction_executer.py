@@ -401,6 +401,19 @@ def execute_instruction(registers, memory, instruction, logger):
                 logger.register_executed_instruction(f"xor x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Bitwise XOR)")
                 pass
 
+            # --- instruction "SRL" ---
+            elif instruction_subtype_f3 == 5:
+
+                value_to_be_shifted = source_reg_1_val
+                shift_amount = source_reg_2_val
+
+                result = value_to_be_shifted >> shift_amount
+
+                registers.integer_regs[destination_reg] = result
+
+                logger.register_executed_instruction(f"srl x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Shift Right Logical)")
+                pass
+
             # --- instruction "OR" ---
             elif instruction_subtype_f3 == 6:
 
