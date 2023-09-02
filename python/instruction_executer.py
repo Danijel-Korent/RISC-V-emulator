@@ -1,5 +1,6 @@
 from helper_functions import interpret_as_32_bit_signed_value, interpret_as_12_bit_signed_value, \
-    interpret_as_20_bit_signed_value, interpret_as_21_bit_signed_value, convert_to_32_bit_unsigned_value
+    interpret_as_20_bit_signed_value, interpret_as_21_bit_signed_value, convert_to_32_bit_unsigned_value, \
+    sign_extend_12_bit_value
 from instruction_decoder import Instruction_parser
 
 
@@ -133,7 +134,19 @@ def execute_instruction(registers, memory, instruction, logger):
         # --- Instruction 'XORI' ---
         elif instruction_subtype == 4:
 
-            registers.integer_regs[destination_reg] = source_reg_value ^ immediate_val
+            # SIGN-EXTEND THE IMMEDIATE
+            # If the last (12th) bit of the immediate is set to '1', it means that the value is negative (if we
+            # interpreted it as signed value)
+            # When loading this 12-bit long value into a 32-bit long register, we want to keep that value as negative
+            # number (and as the exactly same negative value) we need to extend '1's to all additional bits
+            # For example:
+            #   1111 is -1 as a 4-bit value. But as a 8-bit value 00001111 it is 15 when we interpret it as signed value
+            #   If we want to keep -1 when expanding 4-bit value into 8-bit space, we need to add '1's -> 11111111
+            immediate_val = sign_extend_12_bit_value(immediate_val)
+
+            result = source_reg_value ^ immediate_val
+
+            registers.integer_regs[destination_reg] = result
 
             logger.register_executed_instruction(f"xori x{destination_reg}, x{source_reg}, {immediate_val}  (bitwise XOR - Immediate)")
             pass
@@ -182,7 +195,13 @@ def execute_instruction(registers, memory, instruction, logger):
         # --- Instruction 'ORI' ---
         elif instruction_subtype == 6:
 
-            registers.integer_regs[destination_reg] = source_reg_value | immediate_val
+            # This instruction interprets 12-bit immediate as signed value. Before making the logic operation on 32-bit
+            # register, we need to "sign extend" the immediate to 32-bit length
+            immediate_val = sign_extend_12_bit_value(immediate_val)
+
+            result = source_reg_value | immediate_val
+
+            registers.integer_regs[destination_reg] = result
 
             logger.register_executed_instruction(f"ori x{destination_reg}, x{source_reg}, {immediate_val}  (bitwise OR - Immediate)")
             pass
@@ -190,7 +209,13 @@ def execute_instruction(registers, memory, instruction, logger):
         # --- Instruction 'ANDI' ---
         elif instruction_subtype == 7:
 
-            registers.integer_regs[destination_reg] = source_reg_value & immediate_val
+            # This instruction interprets 12-bit immediate as signed value. Before making the logic operation on 32-bit
+            # register, we need to "sign extend" the immediate to 32-bit length
+            immediate_val = sign_extend_12_bit_value(immediate_val)
+
+            result = source_reg_value & immediate_val
+
+            registers.integer_regs[destination_reg] = result
 
             logger.register_executed_instruction(f"andi x{destination_reg}, x{source_reg}, {immediate_val}  (bitwise AND - Immediate)")
             pass
