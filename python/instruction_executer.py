@@ -474,7 +474,6 @@ def execute_instruction(registers, memory, instruction, logger):
 
                 logger.register_executed_instruction(f"mulhu x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Unsigned Multiplication - Higher-order bits)")
 
-
             # --- instruction "DIV" ---
             elif instruction_subtype_f3 == 4:
                 dividend = interpret_as_32_bit_signed_value(source_reg_1_val)
@@ -488,6 +487,20 @@ def execute_instruction(registers, memory, instruction, logger):
                 registers.integer_regs[destination_reg] = convert_to_32_bit_unsigned_value(result)
 
                 logger.register_executed_instruction(f"div x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Signed Division)")
+                pass
+
+            # --- instruction "DIVU" ---
+            elif instruction_subtype_f3 == 5:
+                dividend = source_reg_1_val
+                divisor  = source_reg_2_val
+
+                # TODO1: Handle division by zero
+                result = dividend // divisor
+
+                # TODO: Could I just replace convert_to_32_bit_unsigned_value() with (result & 0xFFFFFFFF)??
+                registers.integer_regs[destination_reg] = result
+
+                logger.register_executed_instruction(f"divu x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Usigned Division)")
                 pass
             else:
                 print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
