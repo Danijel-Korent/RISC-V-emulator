@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+from device_uart_8250 import Device_UART_8250
 from emulator_logger import Emulator_logger
 # Implementing RISC-V CPU emulator - only RV32IMA instruction set (32-bit integer + multiplication/division + atomics)
 
@@ -48,7 +49,9 @@ def emulate_cpu():
 
     registers.integer_regs[11] = START_ADDRESS_OF_RAM + device_tree_address
 
-    memory = Memory(Linux_image_binary, device_tree_binary, device_tree_address, RAM_SIZE)
+    device_UART_8250 = Device_UART_8250(logger)
+
+    memory = Memory(Linux_image_binary, device_tree_binary, device_tree_address, RAM_SIZE, device_UART_8250)
 
     while True:
         execute_single_CPU_instruction(registers, memory, logger)

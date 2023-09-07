@@ -1,7 +1,10 @@
-from config import START_ADDRESS_OF_RAM
+from config import *
 
 class Memory:
-    def __init__(self, linux_image_binary, device_tree_binary, device_tree_address, RAM_size):
+    # TODO: Separate class Memory and class Address_Space
+    #   - linux_image_binary, device_tree_binary, device_tree_address will go into class Memory
+    #   - class Memory and devices will be passed into class Address_Space
+    def __init__(self, linux_image_binary, device_tree_binary, device_tree_address, RAM_size, device_UART):
 
         self.RAM = bytearray()
 
@@ -15,19 +18,31 @@ class Memory:
         # TODO: Make this more readable
         self.RAM[device_tree_address:device_tree_address + len(device_tree_binary)] = device_tree_binary
 
+        self.device_UART = device_UART
+
     # Returns a value stored at specified address
     def get_1_byte(self, address):
-        if address >= START_ADDRESS_OF_RAM:
+        if START_ADDRESS_OF_RAM <= address <= START_ADDRESS_OF_RAM + RAM_SIZE:
             RAM_addr = address - START_ADDRESS_OF_RAM
             return self.RAM[RAM_addr]
+
+        elif START_ADDRESS_OF_UART <= address <= START_ADDRESS_OF_UART + 8:
+            reg_address = address - START_ADDRESS_OF_UART
+            return self.device_UART.read_register(reg_address)
+
         else:
             print(f"[ERROR] RAM: trying to read to unimplemented address: 0x{address:08x}")
             quit()
 
     def write_1_byte(self, address, value):
-        if address >= START_ADDRESS_OF_RAM:
+        if START_ADDRESS_OF_RAM <= address <= START_ADDRESS_OF_RAM + RAM_SIZE:
             RAM_addr = address - START_ADDRESS_OF_RAM
             self.RAM[RAM_addr] = value
+
+        elif START_ADDRESS_OF_UART <= address <= START_ADDRESS_OF_UART + 8:
+            reg_address = address - START_ADDRESS_OF_UART
+            return self.device_UART.write_register(reg_address, value)
+
         else:
             print(f"[ERROR] RAM: trying to write to unimplemented address: 0x{address:08x}")
             quit()

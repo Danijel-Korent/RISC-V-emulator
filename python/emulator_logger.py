@@ -30,13 +30,18 @@ class Emulator_logger:
                 print(f"[{self.instruction_counter}] Executed 50,000 instructions")
         pass
 
-    def register_executed_instruction(self, str):
+    def register_executed_instruction(self, message):
         if self.instruction_counter >= self.start_traceout_at_instruction_no :
             if self.short_report:
-                print(f"   -> {str}")
+                print(f"   -> {message}")
             else:
-                print(f"Executed instruction -> {str} \n")
+                print(f"Executed instruction -> {message} \n")
 
-        if self.instruction_counter == 112072:
-            quit()
+        if self.instruction_counter == 117636 + 1:
+            # quit()
+            # breakpoint()
+            pass
         pass
+
+    def register_device_usage(self, message):
+        print(f"[{self.instruction_counter}] {message}")
