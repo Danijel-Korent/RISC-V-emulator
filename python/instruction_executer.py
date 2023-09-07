@@ -62,6 +62,15 @@ def execute_instruction(registers, memory, instruction, logger):
 
             logger.register_executed_instruction(f"lbu x{destination_reg}, {immediate_val}(x{source_reg})  (Load Byte, 8-bit - Unsigned)")
             pass
+
+        # --- Instruction 'LHU' ---
+        elif instruction_subtype == 5:
+            value = memory.get_2_bytes__little_endian(address)
+
+            registers.integer_regs[destination_reg] = value
+
+            logger.register_executed_instruction(f"lhu x{destination_reg}, {immediate_val}(x{source_reg})  (Load Half-word, 16-bit - Unsigned)")
+            pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
             quit()

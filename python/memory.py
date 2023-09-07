@@ -53,6 +53,14 @@ class Memory:
 
         return value
 
+    def get_2_bytes__little_endian(self, address):
+        byte0 = self.get_1_byte(address)
+        byte1 = self.get_1_byte(address + 1)
+
+        value = (byte1 << 8) + byte0
+
+        return value
+
     def write_4_bytes__little_endian(self, address, value):
         # Break the 32-bit value into individual bytes
         byte0 = value & 0xFF
