@@ -1,34 +1,35 @@
-
+from config import START_ADDRESS_OF_RAM
 
 class Memory:
-    def __init__(self, linux_image_path, RAM_size):
-
-        # Load the content of Linux image file into a bytearray
-        with open(linux_image_path, 'rb') as f:
-            Linux_bytes = bytearray(f.read())
+    def __init__(self, linux_image_binary, device_tree_binary, device_tree_address, RAM_size):
 
         self.RAM = bytearray()
 
         # Beginning of RAM is filled with Linux
-        self.RAM.extend(Linux_bytes)
+        self.RAM.extend(linux_image_binary)
 
         # The rest of RAM is just RAM_size (minus sizeof linux_image) of empty space
-        self.RAM.extend( bytearray(RAM_size - len(Linux_bytes)))
+        self.RAM.extend(bytearray(RAM_size - len(linux_image_binary)))
+
+        # Copy content of the device tree file into the RAM at specified address
+        # TODO: Make this more readable
+        self.RAM[device_tree_address:device_tree_address + len(device_tree_binary)] = device_tree_binary
 
     # Returns a value stored at specified address
     def get_1_byte(self, address):
-        if address >= 0x80000000:
-            RAM_addr = address - 0x80000000
+        if address >= START_ADDRESS_OF_RAM:
+            RAM_addr = address - START_ADDRESS_OF_RAM
             return self.RAM[RAM_addr]
-
-        return 0
+        else:
+            print(f"[ERROR] RAM: trying to read to unimplemented address: 0x{address:08x}")
+            quit()
 
     def write_1_byte(self, address, value):
-        if address >= 0x80000000:
-            RAM_addr = address - 0x80000000
+        if address >= START_ADDRESS_OF_RAM:
+            RAM_addr = address - START_ADDRESS_OF_RAM
             self.RAM[RAM_addr] = value
         else:
-            print("[ERROR] RAM: trying to write to unimplemented address")
+            print(f"[ERROR] RAM: trying to write to unimplemented address: 0x{address:08x}")
             quit()
 
     # Read 32bits/4bytes starting from specified address

@@ -5,15 +5,7 @@ from emulator_logger import Emulator_logger
 from instruction_executer import execute_instruction
 from memory import Memory
 from registers import Registers
-
-
-LINUX_IMAGE_PATH = 'Linux_kernel_image/Linux_image_6_1_14_RV32IMA_NoMMU'
-RAM_SIZE = 100*1024*1024
-
-START_TRACEOUT_AT_INSTRUCTION_NO = 114560
-LOGGER_SHORT_REPORT = False
-#LOGGER_SHORT_REPORT = True
-
+from config import *
 
 def execute_single_CPU_instruction(registers, memory, logger):
 
@@ -44,8 +36,19 @@ def emulate_cpu():
 
     registers = Registers()
 
-    # The emulator will have 64MB of RAM, with the content of the Linux image placed at the beginning of RAM
-    memory = Memory(LINUX_IMAGE_PATH, RAM_SIZE)
+    # Load the content of Linux image file into a bytearray
+    with open(LINUX_IMAGE_PATH, 'rb') as file:
+        Linux_image_binary = bytearray(file.read())
+
+    with open(DEVICE_TREE_PATH, 'rb') as file:
+        device_tree_binary = bytearray(file.read())
+
+    device_tree_address = RAM_SIZE - len(device_tree_binary) - 192  # 192 is implementation detail of the C emulator
+    print(f"Calculated DTB address: {device_tree_address:08x}")
+
+    registers.integer_regs[11] = START_ADDRESS_OF_RAM + device_tree_address
+
+    memory = Memory(Linux_image_binary, device_tree_binary, device_tree_address, RAM_SIZE)
 
     while True:
         execute_single_CPU_instruction(registers, memory, logger)

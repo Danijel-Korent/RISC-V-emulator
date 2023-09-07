@@ -25,9 +25,9 @@ class Emulator_logger:
                 print(f"Instruction pointer: 0x{registers.instruction_pointer:08x}")
                 print(f"Instruction value:   0x{instruction_value:08x} \n")
         else:
-            if self.instruction_counter - self.last_report_at_instruction_no >= 10000:
+            if self.instruction_counter - self.last_report_at_instruction_no >= 50000:
                 self.last_report_at_instruction_no = self.instruction_counter
-                print(f"[{self.instruction_counter}] Executed 10,000 instructions  \n")
+                print(f"[{self.instruction_counter}] Executed 50,000 instructions")
         pass
 
     def register_executed_instruction(self, str):
