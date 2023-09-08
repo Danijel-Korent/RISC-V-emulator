@@ -38,7 +38,7 @@ def emulate_cpu():
 
     ram_memory = RAM_memory(LINUX_IMAGE_PATH, DEVICE_TREE_PATH, RAM_SIZE)
 
-    registers = Registers()
+    registers = Registers(logger)
     registers.integer_regs[11] = START_ADDRESS_OF_RAM + ram_memory.get_device_tree_RAM_address()
 
     device_UART_8250 = Device_UART_8250(logger)

@@ -1,3 +1,4 @@
+from config import LOGGER_PRINT_DEVICE_ACTIVITY, LOGGER_PRINT_CSR_REGISTER_ACTIVITY
 
 
 class Emulator_logger:
@@ -25,9 +26,9 @@ class Emulator_logger:
                 print(f"Instruction pointer: 0x{registers.instruction_pointer:08x}")
                 print(f"Instruction value:   0x{instruction_value:08x} \n")
         else:
-            if self.instruction_counter - self.last_report_at_instruction_no >= 50000:
+            if self.instruction_counter - self.last_report_at_instruction_no >= 300000:
                 self.last_report_at_instruction_no = self.instruction_counter
-                print(f"[{self.instruction_counter}] Executed 50,000 instructions")
+                print(f"[{self.instruction_counter}] Executed 300,000 instructions")
         pass
 
     def register_executed_instruction(self, message):
@@ -38,11 +39,17 @@ class Emulator_logger:
                 print(f"Executed instruction -> {message} \n")
 
         if self.instruction_counter == 345876 + 1:
-            print('[MANAGER] Exited by manager')
-            quit()
+            #print('[MANAGER] Exited by manager')
+            #quit()
             # breakpoint()
             pass
         pass
 
     def register_device_usage(self, message):
-        print(f"[{self.instruction_counter}] {message}")
+        if LOGGER_PRINT_DEVICE_ACTIVITY:
+            print(f"[{self.instruction_counter}] {message}")
+        pass
+
+    def register_CSR_register_usage(self, message):
+        if LOGGER_PRINT_CSR_REGISTER_ACTIVITY:
+            print(f"[{self.instruction_counter}] {message}")

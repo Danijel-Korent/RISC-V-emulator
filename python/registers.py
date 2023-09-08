@@ -1,11 +1,14 @@
+from config import START_ADDRESS_OF_RAM
 
 
 class Registers:
-    def __init__(self):
+    def __init__(self, logger):
         # All CPUs have one register that holds the address of the next instruction to execute
         # Here we also set the initial instruction address. Normal system would have ROM/flash memory (with initial
         # hardcoded bootloader) mapped into this address. We mapped at this address (a small chunk of) Linux kernel
-        self.instruction_pointer = 0x80000000
+        self.instruction_pointer = START_ADDRESS_OF_RAM
+
+        self.logger = logger
 
         # An array of registers
         # RISC-V has 32 integer registers
@@ -80,7 +83,8 @@ class Registers:
             print(f"[ERROR] Tried to read unknown CSR register -> CSR[0x{register_num:x}]")
             exit()
 
-        print(f"Read  CSR[0x{register_num:x}], old value = {ret_val:08x} (register '{register_short_name}': {register_long_name})")
+        message = f"Read  CSR[0x{register_num:x}], old value = {ret_val:08x} (register '{register_short_name}': {register_long_name})"
+        self.logger.register_CSR_register_usage(message)
         return ret_val
 
     def write_to_CSR_register(self, register_num, new_value):
@@ -114,5 +118,6 @@ class Registers:
             print(f"[ERROR] Tried to write unknown CSR register -> CSR[0x{register_num:x}] = 0x{new_value:x} \n")
             exit()
 
-        print(f"Write CSR[0x{register_num:x}], new value = {new_value:08x} (register '{register_short_name}': {register_long_name})\n")
+        message = f"Write CSR[0x{register_num:x}], new value = {new_value:08x} (register '{register_short_name}': {register_long_name})\n"
+        self.logger.register_CSR_register_usage(message)
         pass
