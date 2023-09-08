@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+from address_space import Address_Space
 from device_uart_8250 import Device_UART_8250
 from emulator_logger import Emulator_logger
 # Implementing RISC-V CPU emulator - only RV32IMA instruction set (32-bit integer + multiplication/division + atomics)
@@ -35,26 +36,17 @@ def emulate_cpu():
 
     logger = Emulator_logger(START_TRACEOUT_AT_INSTRUCTION_NO, LOGGER_SHORT_REPORT)
 
+    ram_memory = RAM_memory(LINUX_IMAGE_PATH, DEVICE_TREE_PATH, RAM_SIZE)
+
     registers = Registers()
-
-    # Load the content of Linux image file into a bytearray
-    with open(LINUX_IMAGE_PATH, 'rb') as file:
-        Linux_image_binary = bytearray(file.read())
-
-    with open(DEVICE_TREE_PATH, 'rb') as file:
-        device_tree_binary = bytearray(file.read())
-
-    device_tree_address = RAM_SIZE - len(device_tree_binary) - 192  # 192 is implementation detail of the C emulator
-    print(f"Calculated DTB address: {device_tree_address:08x}")
-
-    registers.integer_regs[11] = START_ADDRESS_OF_RAM + device_tree_address
+    registers.integer_regs[11] = START_ADDRESS_OF_RAM + ram_memory.get_device_tree_RAM_address()
 
     device_UART_8250 = Device_UART_8250(logger)
 
-    memory = RAM_memory(Linux_image_binary, device_tree_binary, device_tree_address, RAM_SIZE, device_UART_8250)
+    address_space = Address_Space(ram_memory, device_UART_8250)
 
     while True:
-        execute_single_CPU_instruction(registers, memory, logger)
+        execute_single_CPU_instruction(registers, address_space, logger)
 
 
 # Main starting point of this program/script
