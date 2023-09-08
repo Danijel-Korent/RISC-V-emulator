@@ -1,6 +1,6 @@
 from config import *
 
-class Memory:
+class RAM_memory:
     # TODO: Separate class Memory and class Address_Space
     #   - linux_image_binary, device_tree_binary, device_tree_address will go into class Memory
     #   - class Memory and devices will be passed into class Address_Space
