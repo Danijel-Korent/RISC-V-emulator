@@ -4,7 +4,7 @@ from emulator_logger import Emulator_logger
 # Implementing RISC-V CPU emulator - only RV32IMA instruction set (32-bit integer + multiplication/division + atomics)
 
 from instruction_executer import execute_instruction
-from memory import RAM_memory
+from RAM_memory import RAM_memory
 from registers import Registers
 from config import *
 
