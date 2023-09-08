@@ -37,7 +37,7 @@ class Emulator_logger:
             else:
                 print(f"Executed instruction -> {message} \n")
 
-        if self.instruction_counter == 340940 + 0:
+        if self.instruction_counter == 345876 + 1:
             print('[MANAGER] Exited by manager')
             quit()
             # breakpoint()
