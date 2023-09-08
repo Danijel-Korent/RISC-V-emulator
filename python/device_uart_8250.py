@@ -13,8 +13,25 @@ class Device_UART_8250:
 
     def read_register(self, address):
         self.logger.register_device_usage(f"[UART] Read at {address}")
+
+        # Line Status Register (LSR)
+        if address == 5:
+            TRANSMIT_BUFFER_IS_EMPTY = 0b00100000
+            TRANSMIT_LINE_IS_IDLE = 0b01000000
+
+            # If software asks about status, we always tell that TX line is ready for transmission
+            return TRANSMIT_BUFFER_IS_EMPTY + TRANSMIT_LINE_IS_IDLE
+
         return 0
 
     def write_register(self, address, value):
         self.logger.register_device_usage(f"[UART] Write at {address}: {value:08x}")
+
+        # transmitter buffer register - THR (if DLAB=0 which we don't check)
+        # Everything that is put into this register should be outputted by UART as data
+        if address == 0:
+            char = chr(value)  # Convert value to ASCII character
+            print(char, end='')
+            pass
+
         pass
