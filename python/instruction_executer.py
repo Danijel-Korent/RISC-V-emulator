@@ -35,15 +35,35 @@ def execute_instruction(registers, memory, instruction, logger):
             # For example:
             #   1111 is -1 as a 4-bit value. But as a 8-bit value 00001111 it is 15 when we interpret it as signed value
             #   If we want to keep -1 when expanding 4-bit value into 8-bit space, we need to add '1's -> 11111111
+            # TODO: Turn into function
             if value & 0b10000000 != 0:
+                print(f'Old value: {value}')
                 value = value | 0xFFFFFF00
                 print("[TEST] Instruction 'LB' - check sign extension")
+                print(f'New value: {value}')
                 quit()
 
             registers.integer_regs[destination_reg] = value
 
             logger.register_executed_instruction(f"lb x{destination_reg}, {immediate_val}(x{source_reg})  (Load Byte, 8-bit - With sign extension)")
             pass
+
+        # --- Instruction 'LH' ---
+        elif instruction_subtype == 1:
+            value = memory.get_2_bytes__little_endian(address)
+
+            # TODO: Turn into function
+            if value & 0x8000 != 0:
+                value = value | 0xFFFF0000
+
+            registers.integer_regs[destination_reg] = value
+
+            if value & 0x8000 != 0:
+                #quit()
+                pass
+            logger.register_executed_instruction(f"lh x{destination_reg}, {immediate_val}(x{source_reg})  (Load Half-word, 16-bit - With sign extension)")
+            pass
+
 
         # --- Instruction 'LW' ---
         elif instruction_subtype == 2:
