@@ -544,6 +544,19 @@ def execute_instruction(registers, memory, instruction, logger):
                 logger.register_executed_instruction(f"rem x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Remainder - Signed)")
                 pass
 
+            # --- instruction "REMU" ---
+            elif instruction_subtype_f3 == 7:
+                dividend = source_reg_1_val
+                divisor  = source_reg_2_val
+
+                # TODO1: Handle division by zero
+                result = dividend % divisor
+
+                registers.integer_regs[destination_reg] = result
+
+                logger.register_executed_instruction(f"remu x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Remainder - Usigned)")
+                pass
+
             else:
                 print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
                 quit()
