@@ -575,6 +575,20 @@ def execute_instruction(registers, memory, instruction, logger):
 
                 logger.register_executed_instruction(f"sub x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Subtraction )")
                 pass
+
+            # --- instruction "SRA" ---
+            elif instruction_subtype_f3 == 5:
+                value_to_be_shifted = source_reg_1_val
+                shift_amount = source_reg_2_val
+
+                # Python's shift operator is arithmetic shift operator so it should automatically sign-extend the value
+                result = value_to_be_shifted >> shift_amount
+
+                registers.integer_regs[destination_reg] = result & 0xFFFFFFFF
+
+                logger.register_executed_instruction(f"sra x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Shift Right Arithmeticly)")
+                pass
+
             else:
                 print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
                 quit()
