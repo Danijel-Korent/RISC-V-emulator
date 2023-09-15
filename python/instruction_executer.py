@@ -756,7 +756,7 @@ def execute_instruction(registers, memory, instruction, logger):
         logger.register_executed_instruction(f"jal x{destination_reg}, {immediate_val}  (Jump and Link)")
         pass
 
-    # --- CSR instructions ---
+    # --- CSR & ECALL/EBREAK instructions ---
     elif opcode == 0x73:
         # Instruction_parser.print_I_type_instruction(instruction)
 
@@ -765,8 +765,22 @@ def execute_instruction(registers, memory, instruction, logger):
         # In immediate field of the instruction an CSR address value is encoded
         CSR_address = immediate_val
 
+        # --- ECALL/EBREAK instructions ---
+        if instruction_subtype == 0x0:
+
+            # --- Instruction "EBREAK" ---
+            if immediate_val == 1:
+                # ebreak is only relevant for debuggers
+                # Used by debuggers to cause control to be transferred back to a debugging environment.
+                logger.register_executed_instruction(f"ebreak (Ignored instruction)")
+                pass
+            else:
+                print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
+                quit()
+            pass
+
         # --- Instruction "CSRRW" ---
-        if instruction_subtype == 0x1:
+        elif instruction_subtype == 0x1:
             registers.integer_regs[destination_reg] = registers.read_from_CSR_register(CSR_address)
             registers.write_to_CSR_register(CSR_address, registers.integer_regs[source_reg])
 
