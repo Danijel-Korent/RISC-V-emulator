@@ -37,11 +37,7 @@ def execute_instruction(registers, memory, instruction, logger):
             #   If we want to keep -1 when expanding 4-bit value into 8-bit space, we need to add '1's -> 11111111
             # TODO: Turn into function
             if value & 0b10000000 != 0:
-                print(f'Old value: {value}')
                 value = value | 0xFFFFFF00
-                print("[TEST] Instruction 'LB' - check sign extension")
-                print(f'New value: {value}')
-                quit()
 
             registers.integer_regs[destination_reg] = value
 

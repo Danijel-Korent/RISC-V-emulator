@@ -40,6 +40,7 @@ def emulate_cpu():
 
     registers = Registers(logger)
     registers.integer_regs[11] = START_ADDRESS_OF_RAM + ram_memory.get_device_tree_RAM_address()
+    print(f"Location of DTB: {registers.integer_regs[11]:08x}") # TODO: Make this less confusing
 
     device_UART_8250 = Device_UART_8250(logger)
 

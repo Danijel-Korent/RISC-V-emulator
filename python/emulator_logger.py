@@ -29,6 +29,7 @@ class Emulator_logger:
             if self.instruction_counter - self.last_report_at_instruction_no >= 300000:
                 self.last_report_at_instruction_no = self.instruction_counter
                 print(f"[{self.instruction_counter}] Executed 300,000 instructions")
+                pass
         pass
 
     def register_executed_instruction(self, message):
