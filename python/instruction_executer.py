@@ -136,7 +136,7 @@ def execute_instruction(registers, memory, instruction, logger):
                 quit()
 
             value_to_be_shifted = source_reg_value
-            shift_amount = immediate_val
+            shift_amount = immediate_val & 0b11111  # Get only the lower 5 bits of the immediate
 
             result = value_to_be_shifted << shift_amount
 
@@ -190,16 +190,16 @@ def execute_instruction(registers, memory, instruction, logger):
             shift_instruction_type = immediate_val >> 5
 
             # Store encoded value into separate variable to be less confusing
-            encoded_value = immediate_val & 0b00000000111111
+            shift_amount = immediate_val & 0b00000000011111
 
             # --- Instruction 'SRLI' ---
             if shift_instruction_type == 0x00:
 
-                result = source_reg_value >> encoded_value
+                result = source_reg_value >> shift_amount
 
                 registers.integer_regs[destination_reg] = result
 
-                logger.register_executed_instruction(f"srli x{destination_reg}, x{source_reg}, {encoded_value}  (Shift Right Logical - Immediate)")
+                logger.register_executed_instruction(f"srli x{destination_reg}, x{source_reg}, {shift_amount}  (Shift Right Logical - Immediate)")
                 pass
 
             # --- Instruction 'SRAI' ---
@@ -207,11 +207,11 @@ def execute_instruction(registers, memory, instruction, logger):
                 source_reg_value = interpret_as_32_bit_signed_value(source_reg_value)
 
                 # Python's shift operator is arithmetic shift operator so it should automatically sign-extend the value
-                result = source_reg_value >> encoded_value
+                result = source_reg_value >> shift_amount
 
                 registers.integer_regs[destination_reg] = result & 0xFFFFFFFF
 
-                logger.register_executed_instruction(f"srai x{destination_reg}, x{source_reg}, {encoded_value}  (Shift Right Arithmeticly - Immediate)")
+                logger.register_executed_instruction(f"srai x{destination_reg}, x{source_reg}, {shift_amount}  (Shift Right Arithmeticly - Immediate)")
                 pass
 
             else:
@@ -400,7 +400,7 @@ def execute_instruction(registers, memory, instruction, logger):
             # --- instruction "SLL" ---
             elif instruction_subtype_f3 == 1:
                 value_to_be_shifted = source_reg_1_val
-                shift_amount = source_reg_2_val
+                shift_amount = source_reg_2_val & 0b11111  # Get only the lower 5 bits of the register rs2
 
                 result = value_to_be_shifted << shift_amount
 
@@ -439,7 +439,7 @@ def execute_instruction(registers, memory, instruction, logger):
             elif instruction_subtype_f3 == 5:
 
                 value_to_be_shifted = source_reg_1_val
-                shift_amount = source_reg_2_val
+                shift_amount = source_reg_2_val & 0b11111  # Get only the lower 5 bits of the register rs2
 
                 result = value_to_be_shifted >> shift_amount
 
@@ -594,7 +594,7 @@ def execute_instruction(registers, memory, instruction, logger):
             # --- instruction "SRA" ---
             elif instruction_subtype_f3 == 5:
                 value_to_be_shifted = source_reg_1_val
-                shift_amount = source_reg_2_val
+                shift_amount = source_reg_2_val & 0b11111  # Get only the lower 5 bits of the register rs2
 
                 # Python's shift operator is arithmetic shift operator so it should automatically sign-extend the value
                 result = value_to_be_shifted >> shift_amount
