@@ -15,7 +15,7 @@ class RAM_memory:
             device_tree_binary = bytearray(file.read())
 
         device_tree_address = RAM_SIZE - len(device_tree_binary) - 192  # 192 is implementation detail of the C emulator
-        print(f"Calculated DTB address: {device_tree_address:08x}")
+        # print(f"Calculated DTB address: {device_tree_address:08x}")
 
         # Beginning of RAM is filled with Linux
         self.RAM.extend(linux_image_binary)

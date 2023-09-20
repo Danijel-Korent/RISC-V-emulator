@@ -34,13 +34,13 @@ def execute_single_CPU_instruction(registers, memory, logger):
 
 def emulate_cpu():
 
-    logger = Emulator_logger(START_TRACEOUT_AT_INSTRUCTION_NO, LOGGER_SHORT_REPORT)
+    logger = Emulator_logger(START_TRACEOUT_AT_INSTRUCTION_NO, LOGGER_REPORT_TYPE)
 
     ram_memory = RAM_memory(LINUX_IMAGE_PATH, DEVICE_TREE_PATH, RAM_SIZE)
 
     registers = Registers(logger)
     registers.integer_regs[11] = START_ADDRESS_OF_RAM + ram_memory.get_device_tree_RAM_address()
-    print(f"Location of DTB: {registers.integer_regs[11]:08x}") # TODO: Make this less confusing
+    # print(f"Location of DTB: {registers.integer_regs[11]:08x}") # TODO: Make this less confusing
 
     device_UART_8250 = Device_UART_8250(logger)
 
