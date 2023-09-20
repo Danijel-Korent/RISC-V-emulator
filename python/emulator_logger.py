@@ -1,4 +1,5 @@
-from config import LOGGER_PRINT_DEVICE_ACTIVITY, LOGGER_PRINT_CSR_REGISTER_ACTIVITY
+from config import LOGGER_PRINT_DEVICE_ACTIVITY, LOGGER_PRINT_CSR_REGISTER_ACTIVITY, EXIT_EMULATOR_AT_INSTRUCTION_NO, \
+    BREAKPOINT_AT_INSTRUCTION_NO
 
 
 class Emulator_logger:
@@ -13,7 +14,7 @@ class Emulator_logger:
     def register_one_CPU_step(self, registers, instruction_value):
         self.instruction_counter += 1
 
-        if self.instruction_counter >= self.start_traceout_at_instruction_no :
+        if self.instruction_counter >= self.start_traceout_at_instruction_no:
             if self.short_report:
                 print(f"({self.instruction_counter})  PC: {registers.instruction_pointer:08x} [{instruction_value:08x}]", end="")
                 pass
@@ -39,10 +40,15 @@ class Emulator_logger:
             else:
                 print(f"Executed instruction -> {message} \n")
 
-        if self.instruction_counter == 345876 + 1:
-            #print('[MANAGER] Exited by manager')
-            #quit()
+        if self.instruction_counter == EXIT_EMULATOR_AT_INSTRUCTION_NO:
+            print('[MANAGER] Exited by manager')
+            quit()
             # breakpoint()
+            pass
+
+        if self.instruction_counter == BREAKPOINT_AT_INSTRUCTION_NO:
+            print('[MANAGER] Breakpoint by manager')
+            breakpoint()
             pass
         pass
 
