@@ -3,14 +3,18 @@ from config import *
 
 class Address_Space:
 
-    def __init__(self, RAM_memory, device_UART):
+    def __init__(self, RAM_memory, device_UART, device_timer_CLINT):
 
         self.RAM_memory = RAM_memory
         self.device_UART = device_UART
-
+        self.device_timer_CLINT = device_timer_CLINT
 
     # Returns a value stored at specified address
     def get_1_byte(self, address):
+
+        # TODO: We just repeat the same code for every device. It would be wise to just make a list of devices with
+        #       common interface and just iterate over the list. Read/write functions are already common, just needs
+        #       variables for starting address and size of memory map
         if START_ADDRESS_OF_RAM <= address <= START_ADDRESS_OF_RAM + RAM_SIZE:
             RAM_addr = address - START_ADDRESS_OF_RAM
             return self.RAM_memory.RAM[RAM_addr]
@@ -18,6 +22,10 @@ class Address_Space:
         elif START_ADDRESS_OF_UART <= address <= START_ADDRESS_OF_UART + 8:
             reg_address = address - START_ADDRESS_OF_UART
             return self.device_UART.read_register(reg_address)
+
+        elif START_ADDRESS_OF_TIMER_CLINT <= address <= START_ADDRESS_OF_TIMER_CLINT + 0xBFFF: # TODO: Hardcoding the map size, again. very noughty.
+            reg_address = address - START_ADDRESS_OF_TIMER_CLINT
+            return self.device_timer_CLINT.read_register(reg_address)
 
         else:
             print(f"[ERROR] Address space: trying to read to unimplemented address: 0x{address:08x}")
@@ -31,6 +39,10 @@ class Address_Space:
         elif START_ADDRESS_OF_UART <= address <= START_ADDRESS_OF_UART + 8:
             reg_address = address - START_ADDRESS_OF_UART
             return self.device_UART.write_register(reg_address, value)
+
+        elif START_ADDRESS_OF_TIMER_CLINT <= address <= START_ADDRESS_OF_TIMER_CLINT + 0xBFFF:
+            reg_address = address - START_ADDRESS_OF_TIMER_CLINT
+            return self.device_timer_CLINT.write_register(reg_address, value)
 
         else:
             print(f"[ERROR] Address space: trying to write to unimplemented address: 0x{address:08x}")

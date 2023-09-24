@@ -27,6 +27,9 @@ class Registers:
         # Internal implementation details, not directly visible/exposed via CPU instructions
         self.atomic_load_reserved__address = 0
 
+        # Just counts the number of instructions executed so far. We need this for implementing deterministic timer
+        self.executed_instruction_counter = 0
+
     def print_register_values(self):
         # just to shorten the variable name
         reg = self.integer_regs

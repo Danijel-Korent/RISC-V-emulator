@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 from address_space import Address_Space
+from device_timer_CLINT import Device_Timer_CLINT
 from device_uart_8250 import Device_UART_8250
 from emulator_logger import Emulator_logger
 # Implementing RISC-V CPU emulator - only RV32IMA instruction set (32-bit integer + multiplication/division + atomics)
@@ -42,9 +43,12 @@ def emulate_cpu():
     registers.integer_regs[11] = START_ADDRESS_OF_RAM + ram_memory.get_device_tree_RAM_address()
     # print(f"Location of DTB: {registers.integer_regs[11]:08x}") # TODO: Make this less confusing
 
+    # TODO: It would probably be smart to make logger a singleton
     device_UART_8250 = Device_UART_8250(logger)
+    device_timer_CLINT = Device_Timer_CLINT(logger, registers)
 
-    address_space = Address_Space(ram_memory, device_UART_8250)
+    # If need for more devices appears, it would probably be smarter to pass a list of objects with a common interface
+    address_space = Address_Space(ram_memory, device_UART_8250, device_timer_CLINT)
 
     while True:
         execute_single_CPU_instruction(registers, address_space, logger)

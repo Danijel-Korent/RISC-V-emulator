@@ -4,6 +4,7 @@ from helper_functions import interpret_as_32_bit_signed_value, interpret_as_12_b
 from instruction_decoder import Instruction_parser
 
 
+# TODO: This function is almost 900 lines long, it desperately needs to be split up into multiple functions
 def execute_instruction(registers, memory, instruction, logger):
 
     # Extract the 'operation/instruction' type
@@ -863,5 +864,7 @@ def execute_instruction(registers, memory, instruction, logger):
     else:
         print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
         quit()
+
+    registers.executed_instruction_counter += 1
 
     return instruction_pointer_updated
