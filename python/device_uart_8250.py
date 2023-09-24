@@ -1,6 +1,8 @@
 # Wikipedia
 #   https://en.wikipedia.org/wiki/8250_UART
 #   https://en.wikipedia.org/wiki/16550_UART
+from config import TTY_OUTPUT_ENABLED
+
 
 # Registers
 #   https://www.lammertbies.nl/comm/info/serial-uart
@@ -29,7 +31,7 @@ class Device_UART_8250:
 
         # transmitter buffer register - THR (if DLAB=0 which we don't check)
         # Everything that is put into this register should be outputted by UART as data
-        if address == 0:
+        if address == 0 and TTY_OUTPUT_ENABLED:
             char = chr(value)  # Convert value to ASCII character
             print(char, end='')
             pass
