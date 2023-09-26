@@ -216,8 +216,7 @@ def execute_instruction(registers, memory, instruction, logger):
                 pass
 
             else:
-                print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-                quit()
+                report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
             pass
 
         # --- Instruction 'ORI' ---
@@ -369,8 +368,7 @@ def execute_instruction(registers, memory, instruction, logger):
                 logger.register_executed_instruction(f"amoor.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Atomic OR)")
                 pass
             else:
-                print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-                quit()
+                report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
@@ -469,8 +467,7 @@ def execute_instruction(registers, memory, instruction, logger):
                 logger.register_executed_instruction(f"and x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Bitwise AND)")
                 pass
             else:
-                print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-                quit()
+                report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
             pass
 
         # --- RV32M Multiply Extension ---
@@ -574,8 +571,7 @@ def execute_instruction(registers, memory, instruction, logger):
                 pass
 
             else:
-                print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-                quit()
+                report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
             pass
 
         elif instruction_subtype_f7 == 0x20:
@@ -606,8 +602,7 @@ def execute_instruction(registers, memory, instruction, logger):
                 pass
 
             else:
-                print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-                quit()
+                report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
             pass
 
         else:
@@ -776,8 +771,7 @@ def execute_instruction(registers, memory, instruction, logger):
                 logger.register_executed_instruction(f"ebreak (Ignored instruction)")
                 pass
             else:
-                print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-                quit()
+                report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
             pass
 
         # --- Instruction "CSRRW" ---
@@ -858,13 +852,16 @@ def execute_instruction(registers, memory, instruction, logger):
             logger.register_executed_instruction(f"csrrci x{destination_reg}, {CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Clear immediate)")
             pass
         else:
-            print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-            quit()
+            report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
         pass
     else:
-        print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-        quit()
+        report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
 
     registers.executed_instruction_counter += 1
 
     return instruction_pointer_updated
+
+
+def report_unimplemented_instruction(instruction, instruction_pointer, executed_instruction_counter):
+    print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} (Address: {instruction_pointer:08x} / Counter: {executed_instruction_counter})")
+    quit()
