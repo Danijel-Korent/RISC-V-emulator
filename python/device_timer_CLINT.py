@@ -2,7 +2,7 @@
 # The module I'm emulating is actually called Core Local Interrupt (CLINT), but since I'll only use it for timer,
 # I've decided not to give the module ambiguous name device_CLINT.py but also name it after the timer functionality
 
-# The CLINT has 3 registers, out of which I suspect I will only use the "mtime":
+# The CLINT has 3 registers, out of which I suspect I will only use the "mtime" and "mtimeCmp":
 #   https://chromitem-soc.readthedocs.io/en/latest/clint.html#register-map
 
 
@@ -11,6 +11,7 @@ class Device_Timer_CLINT:
     def __init__(self, logger, registers):
         self.logger = logger
         self.registers = registers
+        self.timer_compare_value = 0
         pass
 
     def read_register(self, address):
@@ -42,7 +43,31 @@ class Device_Timer_CLINT:
     def write_register(self, address, value):
         self.logger.register_device_usage(f"[CLINT/TIMER] Write at {address}: {value:08x}")
 
-        print(f"[ERROR] CLINT/TIMER: Unknown/unimplemented register write attempt ({address:08x})")
-
-        quit()
+        if address == 0x4000:
+            self.timer_compare_value &= 0xFFFFFFFFFFFFFF00
+            self.timer_compare_value |= value
+        elif address == 0x4001:
+            self.timer_compare_value &= 0xFFFFFFFFFFFF00FF
+            self.timer_compare_value |= value << 8
+        elif address == 0x4002:
+            self.timer_compare_value &= 0xFFFFFFFFFF00FFFF
+            self.timer_compare_value |= value << 16
+        elif address == 0x4003:
+            self.timer_compare_value &= 0xFFFFFFFF00FFFFFF
+            self.timer_compare_value |= value << 24
+        elif address == 0x4004:
+            self.timer_compare_value &= 0xFFFFFF00FFFFFFFF
+            self.timer_compare_value |= value << 32
+        elif address == 0x4005:
+            self.timer_compare_value &= 0xFFFF00FFFFFFFFFF
+            self.timer_compare_value |= value << 40
+        elif address == 0x4006:
+            self.timer_compare_value &= 0xFF00FFFFFFFFFFFF
+            self.timer_compare_value |= value << 48
+        elif address == 0x4007:
+            self.timer_compare_value &= 0x00FFFFFFFFFFFFFF
+            self.timer_compare_value |= value << 56
+        else:
+            print(f"[ERROR] CLINT/TIMER: Unknown/unimplemented register write attempt ({address:08x})")
+            quit()
         pass
