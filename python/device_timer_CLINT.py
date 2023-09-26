@@ -2,8 +2,12 @@
 # The module I'm emulating is actually called Core Local Interrupt (CLINT), but since I'll only use it for timer,
 # I've decided not to give the module ambiguous name device_CLINT.py but also name it after the timer functionality
 
-# The CLINT has 3 registers, out of which I suspect I will only use the "mtime" and "mtimeCmp":
-#   https://chromitem-soc.readthedocs.io/en/latest/clint.html#register-map
+# The CLINT has 3 registers:
+#   mtime - counts time (one tick is one microsecond in our case)
+#   mtimeCmp - OS can set the timer value at/after which interrupt is triggered
+#   msip - generates machine mode software interrupts when set
+#
+#   More info: https://chromitem-soc.readthedocs.io/en/latest/clint.html#register-map
 
 
 class Device_Timer_CLINT:
@@ -12,6 +16,7 @@ class Device_Timer_CLINT:
         self.logger = logger
         self.registers = registers
         self.timer_compare_value = 0
+        self.MSIP_bit = 0
         pass
 
     def read_register(self, address):
@@ -19,7 +24,8 @@ class Device_Timer_CLINT:
 
         timer_val = self.registers.executed_instruction_counter + 1
 
-        if address == 0xBFF8:
+        # TODO: it would be easier to just have functions read/write 32 bit and than per byte access just wraps these functions
+        if address == 0xBFF8:  # mtime register
             return timer_val & 0xFF
         elif address == 0xBFF9:
             return (timer_val >> 8) & 0xFF
@@ -43,7 +49,13 @@ class Device_Timer_CLINT:
     def write_register(self, address, value):
         self.logger.register_device_usage(f"[CLINT/TIMER] Write at {address}: {value:08x}")
 
-        if address == 0x4000:
+        if address == 0:  # MSIP Register
+            bit_value = value & 0b00000001
+            self.MSIP_bit = bit_value
+        elif 1 <= address <= 7:
+            # Only 1 bit of 32-bit MSIP Register is implemented. All other bits are hardwired to zero
+            pass
+        elif address == 0x4000:  # MtimeCmp Register
             self.timer_compare_value &= 0xFFFFFFFFFFFFFF00
             self.timer_compare_value |= value
         elif address == 0x4001:
