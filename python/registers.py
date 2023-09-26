@@ -1,6 +1,8 @@
-from config import START_ADDRESS_OF_RAM
+from config import START_ADDRESS_OF_RAM, TTY_OUTPUT_ENABLED
 
 
+# TODO: Rename "register.py" to "CPU_registers.py".
+# TODO: Move CSR stuff into "CSR_registers.py" if it grows to big after fully implementing CSR registers
 class Registers:
     def __init__(self, logger):
         # All CPUs have one register that holds the address of the next instruction to execute
@@ -55,7 +57,11 @@ class Registers:
     def read_from_CSR_register(self, register_num):
         ret_val = 0
 
-        if register_num == 0x300:
+        if register_num == 0x139:
+            # This name variables should be a table/dict from which we fetch the string
+            register_short_name = "hvc0"
+            register_long_name = "Xen hypervisor console"
+        elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
         elif register_num == 0x304:
@@ -91,7 +97,16 @@ class Registers:
         return ret_val
 
     def write_to_CSR_register(self, register_num, new_value):
-        if register_num == 0x300:
+        if register_num == 0x139:
+            # This is Xen hypervisor console
+            # Because device tree has set "console=hvc0" in Kernel bootargs/cmdargs, the kernel switches
+            # from UART to Xen console
+            register_short_name = "hvc0"
+            register_long_name = "Xen hypervisor console"
+            if TTY_OUTPUT_ENABLED:
+                char = chr(new_value)  # Convert value to ASCII character
+                print(char, end='')
+        elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
         elif register_num == 0x304:
