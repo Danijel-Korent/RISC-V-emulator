@@ -32,9 +32,9 @@ class Emulator_logger:
                 pass
         else:
             if self.report_type != ReportType.C_EMU_REPORT:
-                if self.instruction_counter - self.last_report_at_instruction_no >= 300000:
+                if self.instruction_counter - self.last_report_at_instruction_no >= 250000:
                     self.last_report_at_instruction_no = self.instruction_counter
-                    print(f"[{self.instruction_counter}] Executed 300,000 instructions")
+                    print(f"[{self.instruction_counter}] Executed 250,000 instructions")
                     pass
         pass
 
