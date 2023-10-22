@@ -51,7 +51,9 @@ def emulate_cpu():
     address_space = Address_Space(ram_memory, device_UART_8250, device_timer_CLINT)
 
     while True:
+        device_timer_CLINT.update()
         execute_single_CPU_instruction(registers, address_space, logger)
+        registers.interrupt_controller_update()
 
 
 # Main starting point of this program/script

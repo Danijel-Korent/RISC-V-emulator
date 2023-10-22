@@ -25,6 +25,10 @@ class Registers:
         # CSR registers
         self.CSR_mscratch = 0
         self.CSR_mtvec = 0
+        self.CSR_mstatus = 0
+
+        # Register "Machine Interrupt Pending"
+        self.CSR_mip = 0
 
         # Internal implementation details, not directly visible/exposed via CPU instructions
         self.atomic_load_reserved__address = 0
@@ -64,6 +68,7 @@ class Registers:
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
+            ret_val = self.CSR_mstatus
         elif register_num == 0x304:
             register_short_name = "mie"
             register_long_name = "Machine Interrupt Enable"
@@ -109,6 +114,7 @@ class Registers:
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
+            self.CSR_mstatus = new_value
         elif register_num == 0x304:
             register_short_name = "mie"
             register_long_name = "Machine Interrupt Enable"
@@ -138,4 +144,23 @@ class Registers:
 
         message = f"Write CSR[0x{register_num:x}], new value = {new_value:08x} (register '{register_short_name}': {register_long_name})\n"
         self.logger.register_CSR_register_usage(message)
+        pass
+
+    # TODO: When moving this out of Class Registers, add functions get_MIP(), get_MIE() and similar
+    def signal_timer_interrupt(self):
+        # Machine Timer Interupt bit
+        MTIP_bit_position = 7
+
+        # Set pending interrupt bit for timer
+        self.CSR_mip = (1 << MTIP_bit_position)
+        #print(f"({self.executed_instruction_counter}) Called signal_timer_interrupt: CSR_mip = {self.CSR_mip}")
+        pass
+
+    def interrupt_controller_update(self):
+        # Replace "self.CSR_mstatus & 8 == 8" with are_interrupts_enabled() from Class interrupt_controller
+        if self.CSR_mip != 0 and self.CSR_mstatus & 8 == 8:
+            # Jump to address specified in register "Machine Trap Vector"
+            if 0:
+                self.instruction_pointer = self.CSR_mtvec
+                print(f"({self.executed_instruction_counter}) IRQ triggered: Setting PC to trap vector")
         pass

@@ -19,13 +19,25 @@ class Device_Timer_CLINT:
         self.MSIP_bit = 0
         pass
 
+    def get_mtime(self):
+        return self.registers.executed_instruction_counter + 1
+
+    def update(self):
+        if self.timer_compare_value != 0 and self.get_mtime() > self.timer_compare_value:
+            # self.logger.register_device_usage(f"[CLINT/TIMER] mTime ({self.get_mtime()}) bigger than mTimeCmp ({self.timer_compare_value}) !!!")
+
+            self.registers.signal_timer_interrupt()
+            pass
+        pass
+
     def read_register(self, address):
-        self.logger.register_device_usage(f"[CLINT/TIMER] Read at {address}")
+        # self.logger.register_device_usage(f"[CLINT/TIMER] Read at {address:08x}")
 
         timer_val = self.registers.executed_instruction_counter + 1
 
         # TODO: it would be easier to just have functions read/write 32 bit and than per byte access just wraps these functions
         if address == 0xBFF8:  # mtime register
+            self.logger.register_device_usage(f"[CLINT/TIMER] Read at {address:08x}: {timer_val}")
             return timer_val & 0xFF
         elif address == 0xBFF9:
             return (timer_val >> 8) & 0xFF
@@ -34,6 +46,7 @@ class Device_Timer_CLINT:
         elif address == 0xBFFB:
             return (timer_val >> 24) & 0xFF
         elif address == 0xBFFC:
+            self.logger.register_device_usage(f"[CLINT/TIMER] Read at {address:08x}: {timer_val}")
             return (timer_val >> 32) & 0xFF
         elif address == 0xBFFD:
             return (timer_val >> 40) & 0xFF
@@ -47,11 +60,12 @@ class Device_Timer_CLINT:
         return 0
 
     def write_register(self, address, value):
-        self.logger.register_device_usage(f"[CLINT/TIMER] Write at {address}: {value:08x}")
+        # self.logger.register_device_usage(f"[CLINT/TIMER] Write at {address:08x}: {value:08x}")
 
         if address == 0:  # MSIP Register
             bit_value = value & 0b00000001
             self.MSIP_bit = bit_value
+            self.logger.register_device_usage(f"[CLINT/TIMER] Write at {address:08x}: {value:08x}")
         elif 1 <= address <= 7:
             # Only 1 bit of 32-bit MSIP Register is implemented. All other bits are hardwired to zero
             pass
@@ -79,6 +93,7 @@ class Device_Timer_CLINT:
         elif address == 0x4007:
             self.timer_compare_value &= 0x00FFFFFFFFFFFFFF
             self.timer_compare_value |= value << 56
+            self.logger.register_device_usage(f"[CLINT/TIMER] Write at {address:08x}: {self.timer_compare_value}")
         else:
             print(f"[ERROR] CLINT/TIMER: Unknown/unimplemented register write attempt ({address:08x})")
             quit()
