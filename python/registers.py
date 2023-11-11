@@ -30,6 +30,9 @@ class Registers:
         # Register "Machine Interrupt Pending"
         self.CSR_mip = 0
 
+        # Register "Machine Interrupt Enable"
+        self.CSR_mie = 0
+
         # Internal implementation details, not directly visible/exposed via CPU instructions
         self.atomic_load_reserved__address = 0
 
@@ -72,6 +75,7 @@ class Registers:
         elif register_num == 0x304:
             register_short_name = "mie"
             register_long_name = "Machine Interrupt Enable"
+            ret_val = self.CSR_mie
         elif register_num == 0x305:
             register_short_name = "mtvec"
             register_long_name = "Machine trap-handler base address"
@@ -83,6 +87,7 @@ class Registers:
         elif register_num == 0x344:
             register_short_name = "mip"
             register_long_name = "Machine Interrupt Pending"
+            ret_val = self.CSR_mip
         elif register_num == 0x3a0:
             register_short_name = "pmpcfg0"
             register_long_name = "Physical memory protection configuration"
@@ -118,6 +123,7 @@ class Registers:
         elif register_num == 0x304:
             register_short_name = "mie"
             register_long_name = "Machine Interrupt Enable"
+            self.CSR_mie = new_value
         elif register_num == 0x305:
             register_short_name = "mtvec"
             register_long_name = "Machine trap-handler base address"
@@ -129,6 +135,7 @@ class Registers:
         elif register_num == 0x344:
             register_short_name = "mip"
             register_long_name = "Machine Interrupt Pending"
+            self.CSR_mip = new_value
         elif register_num == 0x3a0:
             register_short_name = "pmpcfg0"
             register_long_name = "Physical memory protection configuration"
@@ -153,14 +160,23 @@ class Registers:
 
         # Set pending interrupt bit for timer
         self.CSR_mip = (1 << MTIP_bit_position)
-        #print(f"({self.executed_instruction_counter}) Called signal_timer_interrupt: CSR_mip = {self.CSR_mip}")
+        #print(f"({self.executed_instruction_counter}) Called signal_timer_interrupt: CSR_mip = {self.CSR_mip:x}, CSR_mie = {self.CSR_mie:x}, CSR_mstatus = {self.CSR_mstatus:x}")
         pass
 
     def interrupt_controller_update(self):
+
+        enabled_pending_interrupts = self.CSR_mip & self.CSR_mie
+
         # Replace "self.CSR_mstatus & 8 == 8" with are_interrupts_enabled() from Class interrupt_controller
-        if self.CSR_mip != 0 and self.CSR_mstatus & 8 == 8:
+        if enabled_pending_interrupts != 0 and self.CSR_mstatus & 8 == 8:
+
+            #print(f"({self.executed_instruction_counter}) IRQ triggered: CSR_mip = {self.CSR_mip:x}, CSR_mie = {self.CSR_mie:x}, CSR_mstatus = {self.CSR_mstatus:x}")
+            #print(f"({self.executed_instruction_counter}) IRQ triggered: enabled_pending_interrupts = {enabled_pending_interrupts:x}")
+
             # Jump to address specified in register "Machine Trap Vector"
-            if 0:
-                self.instruction_pointer = self.CSR_mtvec
-                print(f"({self.executed_instruction_counter}) IRQ triggered: Setting PC to trap vector")
+            self.instruction_pointer = self.CSR_mtvec
+            #print(f"({self.executed_instruction_counter}) IRQ triggered: Setting PC to trap vector")
+
+            # Set MIE to zero
+            self.write_to_CSR_register(0x304, 0)
         pass
