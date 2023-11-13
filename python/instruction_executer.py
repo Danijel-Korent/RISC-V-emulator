@@ -793,10 +793,13 @@ def execute_instruction(registers, memory, instruction, logger):
 
         # --- Instruction "CSRRW" ---
         elif instruction_subtype == 0x1:
-            registers.integer_regs[destination_reg] = registers.read_from_CSR_register(CSR_address)
-            registers.write_to_CSR_register(CSR_address, registers.integer_regs[source_reg])
+            old_value = registers.read_from_CSR_register(CSR_address)
+            new_value = registers.integer_regs[source_reg]
 
-            logger.register_executed_instruction(f"csrrw x{destination_reg}, {CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Write)")
+            registers.write_to_CSR_register(CSR_address, new_value)
+            registers.integer_regs[destination_reg] = old_value
+
+            logger.register_executed_instruction(f"csrrw x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Write)")
             pass
 
         # --- Instruction "CSRRS" ---
