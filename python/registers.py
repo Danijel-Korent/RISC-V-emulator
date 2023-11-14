@@ -33,6 +33,12 @@ class Registers:
         # Register "Machine Interrupt Enable"
         self.CSR_mie = 0
 
+        # Register "Machine exception PC / Instruction pointer"
+        self.CSR_mepc = 0
+
+        # Register "Machine trap cause"
+        self.CSR_mcause = 0
+
         # Internal implementation details, not directly visible/exposed via CPU instructions
         self.atomic_load_reserved__address = 0
 
@@ -84,6 +90,18 @@ class Registers:
             register_short_name = "mscratch"
             register_long_name = "Scratch register"
             ret_val = self.CSR_mscratch
+        elif register_num == 0x341:
+            register_short_name = "mepc"
+            register_long_name = "Machine exception PC / Instruction pointer"
+            ret_val = self.CSR_mepc
+        elif register_num == 0x342:
+            register_short_name = "mcause"
+            register_long_name = "Machine trap cause"
+            ret_val = self.CSR_mcause
+        elif register_num == 0x343:
+            register_short_name = "mtval"
+            register_long_name = "Machine bad address or instruction"
+            ret_val = 0  # Unimplemented at the moment
         elif register_num == 0x344:
             register_short_name = "mip"
             register_long_name = "Machine Interrupt Pending"
@@ -132,6 +150,18 @@ class Registers:
             register_short_name = "mscratch"
             register_long_name = "Scratch register"
             self.CSR_mscratch = new_value
+        elif register_num == 0x341:
+            register_short_name = "mepc"
+            register_long_name = "Machine exception PC / Instruction pointer"
+            self.CSR_mepc = new_value
+        elif register_num == 0x342:
+            register_short_name = "mcause"
+            register_long_name = "Machine trap cause"
+            self.CSR_mcause = new_value
+        elif register_num == 0x343:
+            register_short_name = "mtval"
+            register_long_name = "Machine bad address or instruction"
+            # Unimplemented at the moment
         elif register_num == 0x344:
             register_short_name = "mip"
             register_long_name = "Machine Interrupt Pending"
@@ -173,10 +203,18 @@ class Registers:
             #print(f"({self.executed_instruction_counter}) IRQ triggered: CSR_mip = {self.CSR_mip:x}, CSR_mie = {self.CSR_mie:x}, CSR_mstatus = {self.CSR_mstatus:x}")
             #print(f"({self.executed_instruction_counter}) IRQ triggered: enabled_pending_interrupts = {enabled_pending_interrupts:x}")
 
+            # Set MIE to zero
+            # TODO: Replace this with setting mstatus.mie to zero
+            self.write_to_CSR_register(0x304, 0)
+
+            # Save address of next instruction to CSR register "mepc"
+            # TODO: Replace hardcoded value with a name
+            self.write_to_CSR_register(0x341, self.instruction_pointer + 4)
+
+            # Write the cause of the trap into the register "mcause"
+            self.write_to_CSR_register(0x342, 0x80000000 + self.CSR_mip)
+
             # Jump to address specified in register "Machine Trap Vector"
             self.instruction_pointer = self.CSR_mtvec
             #print(f"({self.executed_instruction_counter}) IRQ triggered: Setting PC to trap vector")
-
-            # Set MIE to zero
-            self.write_to_CSR_register(0x304, 0)
         pass
