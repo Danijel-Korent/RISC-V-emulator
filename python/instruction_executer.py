@@ -799,7 +799,7 @@ def execute_instruction(registers, memory, instruction, logger):
             registers.write_to_CSR_register(CSR_address, new_value)
             registers.integer_regs[destination_reg] = old_value
 
-            logger.register_executed_instruction(f"csrrw x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Write)")
+            logger.register_executed_instruction(f"csr-rw x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Write)")
             pass
 
         # --- Instruction "CSRRS" ---
@@ -812,7 +812,7 @@ def execute_instruction(registers, memory, instruction, logger):
             registers.integer_regs[destination_reg] = old_value
             registers.write_to_CSR_register(CSR_address, new_value)
 
-            logger.register_executed_instruction(f"csrrs x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Set)")
+            logger.register_executed_instruction(f"csr-rs x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Set)")
             pass
 
         # --- Instruction "CSRRC" ---
@@ -825,7 +825,7 @@ def execute_instruction(registers, memory, instruction, logger):
             registers.integer_regs[destination_reg] = old_value
             registers.write_to_CSR_register(CSR_address, new_value)
 
-            logger.register_executed_instruction(f"csrrc x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Clear)")
+            logger.register_executed_instruction(f"csr-rc x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Clear)")
             pass
 
         # --- Instruction "CSRRWI" ---
@@ -837,7 +837,7 @@ def execute_instruction(registers, memory, instruction, logger):
             registers.integer_regs[destination_reg] = registers.read_from_CSR_register(CSR_address)
             registers.write_to_CSR_register(CSR_address, immediate_val)
 
-            logger.register_executed_instruction(f"csrrwi x{destination_reg}, 0x{CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Write Immediate)")
+            logger.register_executed_instruction(f"csr-rwi x{destination_reg}, 0x{CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Write Immediate)")
             pass
 
         # --- Instruction "CSRRSI" ---
@@ -853,7 +853,7 @@ def execute_instruction(registers, memory, instruction, logger):
             registers.integer_regs[destination_reg] = old_value
             registers.write_to_CSR_register(CSR_address, new_value)
 
-            logger.register_executed_instruction(f"csrrsi x{destination_reg}, 0x{CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Set Immediate)")
+            logger.register_executed_instruction(f"csr-rsi x{destination_reg}, 0x{CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Set Immediate)")
             pass
 
         # --- Instruction "CSRRCI" ---
@@ -869,7 +869,7 @@ def execute_instruction(registers, memory, instruction, logger):
             registers.integer_regs[destination_reg] = old_value
             registers.write_to_CSR_register(CSR_address, new_value)
 
-            logger.register_executed_instruction(f"csrrci x{destination_reg}, 0x{CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Clear immediate)")
+            logger.register_executed_instruction(f"csr-rci x{destination_reg}, 0x{CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Clear immediate)")
             pass
         else:
             report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
