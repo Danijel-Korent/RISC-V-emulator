@@ -25,7 +25,7 @@ class Registers:
         # CSR registers
         self.CSR_mscratch = 0
         self.CSR_mtvec = 0
-        self.CSR_mstatus = 0
+        #self.CSR_mstatus = 0
 
         # Register "Machine Interrupt Pending"
         self.CSR_mip = 0
@@ -44,6 +44,9 @@ class Registers:
 
         # Just counts the number of instructions executed so far. We need this for implementing deterministic timer
         self.executed_instruction_counter = 0
+
+        # TEMP: Move out to separate calls
+        self.init_class_CPU_control_and_status()
 
     def print_register_values(self):
         # just to shorten the variable name
@@ -77,7 +80,7 @@ class Registers:
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
-            ret_val = self.CSR_mstatus
+            ret_val = self.get_mstatus()
         elif register_num == 0x304:
             register_short_name = "mie"
             register_long_name = "Machine Interrupt Enable"
@@ -137,7 +140,8 @@ class Registers:
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
-            self.CSR_mstatus = new_value
+            #self.CSR_mstatus = new_value
+            self.set_mstatus(new_value)
         elif register_num == 0x304:
             register_short_name = "mie"
             register_long_name = "Machine Interrupt Enable"
@@ -183,6 +187,8 @@ class Registers:
         self.logger.register_CSR_register_usage(message)
         pass
 
+    ######################### CPU Control and status functionality ##########################
+
     # TODO: When moving this out of Class Registers, add functions get_MIP(), get_MIE() and similar
     def signal_timer_interrupt(self):
         # Machine Timer Interupt bit
@@ -195,17 +201,26 @@ class Registers:
 
     def interrupt_controller_update(self):
 
+        # Check if there are any pending interrupts (MIP), and if the pending interrupts are enabled (MIE)
         enabled_pending_interrupts = self.CSR_mip & self.CSR_mie
 
         # Replace "self.CSR_mstatus & 8 == 8" with are_interrupts_enabled() from Class interrupt_controller
-        if enabled_pending_interrupts != 0 and self.CSR_mstatus & 8 == 8:
+        if enabled_pending_interrupts != 0 and self.get_interrupts_global_enable_state():
 
             #print(f"({self.executed_instruction_counter}) IRQ triggered: CSR_mip = {self.CSR_mip:x}, CSR_mie = {self.CSR_mie:x}, CSR_mstatus = {self.CSR_mstatus:x}")
             #print(f"({self.executed_instruction_counter}) IRQ triggered: enabled_pending_interrupts = {enabled_pending_interrupts:x}")
 
-            # Set MIE to zero
-            # TODO: Replace this with setting mstatus.mie to zero
-            self.write_to_CSR_register(0x304, 0)
+            # Set MPIE to current MIE
+            self.set_MPIE__Previous_Interrupt_Enable(self.get_interrupts_global_enable_state())
+
+            # Set MPP (Machine Previous Priviledge) to current privilage mode
+            self.set_MPP__Previous_Priviledge_Mode(self.get_priviledge_mode())
+
+            # Set mstatus.MIE to zero
+            # setting mstatus.mie to zero
+            self.set_interrupts_global_enable_state(False)
+
+            test = self.read_from_CSR_register(0x300)
 
             # Save address of next instruction to CSR register "mepc"
             # TODO: Replace hardcoded value with a name
@@ -218,3 +233,87 @@ class Registers:
             self.instruction_pointer = self.CSR_mtvec
             #print(f"({self.executed_instruction_counter}) IRQ triggered: Setting PC to trap vector")
         pass
+
+    def init_class_CPU_control_and_status(self):
+
+        self.interrupts_global_enable = False
+        self.MPIE__Previous_Interrupt_Enable = False
+        self.MPP__Previous_Priviledge_Mode = 0
+        pass
+
+    def set_MPIE__Previous_Interrupt_Enable(self, new_value: bool):
+        print(f"  [CPU Control] Setting MPIE__Previous_Interrupt_Enable to {new_value}")
+        self.MPIE__Previous_Interrupt_Enable = new_value
+
+    def set_MPP__Previous_Priviledge_Mode(self, new_value: int):
+
+        if new_value > 3: raise Exception("Trying to set priviledge mode above 3: There are only 0-3 privilage modes")
+
+        print(f"  [CPU Control] Setting MPP__Previous_Priviledge_Mode to {new_value}")
+
+        self.MPP__Previous_Priviledge_Mode = new_value
+
+    def get_priviledge_mode(self):
+        # TODO: Add enum for privilages
+        # TODO: Replace 3 with enum
+
+        # Currently we are always in a "machine" mode
+        return 3
+
+    # TODO: Rename to get_interrupts_globally_enabled ??
+    def get_interrupts_global_enable_state(self) -> bool:
+        return self.interrupts_global_enable
+
+    def set_interrupts_global_enable_state(self, new_state: bool):
+        self.interrupts_global_enable = new_state
+
+    def set_mstatus(self, new_value):
+
+        # TODO: Duplicated
+        mask_mstatus_MIE = 0x8
+        mask_mstatus_MPIE = 0x80
+
+        masked_value = new_value & (mask_mstatus_MIE + mask_mstatus_MPIE)
+
+        #if masked_value != new_value:
+        #    raise Exception("CSR mstatus: Trying to write to non-writable bit")
+
+        # Get changed bits with XOR
+        changed_bits = self.get_mstatus() ^ new_value
+
+        if changed_bits:
+            if changed_bits & mask_mstatus_MIE == mask_mstatus_MIE:
+                new_MIE_value = new_value & mask_mstatus_MIE
+                if new_MIE_value:
+                    self.set_interrupts_global_enable_state(True)
+                else:
+                    self.set_interrupts_global_enable_state(False)
+
+            # TODO: Move to a function to make it more readable and re-usable
+            if changed_bits & mask_mstatus_MPIE == mask_mstatus_MPIE:
+                new_MPIE_value = new_value & mask_mstatus_MPIE
+                if new_MPIE_value:
+                    self.MPIE__Previous_Interrupt_Enable = True
+                else:
+                    self.MPIE__Previous_Interrupt_Enable = False
+        pass
+
+    def get_mstatus(self):
+
+        mstatus_value = 0
+
+        # TODO: Duplicated
+        mask_mstatus_MIE = 0x8
+        mask_mstatus_MPIE = 0x80
+
+        if self.get_interrupts_global_enable_state() == True:
+            mstatus_value |= mask_mstatus_MIE
+
+        if self.MPIE__Previous_Interrupt_Enable == True:
+            mstatus_value |= mask_mstatus_MPIE
+
+        MPP = self.MPP__Previous_Priviledge_Mode << 11
+
+        mstatus_value |= MPP
+
+        return mstatus_value
