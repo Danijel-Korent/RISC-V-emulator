@@ -244,14 +244,14 @@ class Registers:
         pass
 
     def set_MPIE__Previous_Interrupt_Enable(self, new_value: bool):
-        print(f"  [CPU Control] Setting MPIE__Previous_Interrupt_Enable to {new_value}")
+        self.logger.register_CSR_register_usage(f"[CPU Control] Setting MPIE__Previous_Interrupt_Enable to {new_value}")
         self.MPIE__Previous_Interrupt_Enable = new_value
 
     def set_MPP__Previous_Priviledge_Mode(self, new_value: int):
 
         if new_value > 3: raise Exception("Trying to set priviledge mode above 3: There are only 0-3 privilage modes")
 
-        print(f"  [CPU Control] Setting MPP__Previous_Priviledge_Mode to {new_value}")
+        self.logger.register_CSR_register_usage(f"  [CPU Control] Setting MPP__Previous_Priviledge_Mode to {new_value}")
 
         self.MPP__Previous_Priviledge_Mode = new_value
 
