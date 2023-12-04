@@ -224,7 +224,7 @@ class Registers:
 
             # Save address of next instruction to CSR register "mepc"
             # TODO: Replace hardcoded value with a name
-            self.write_to_CSR_register(0x341, self.instruction_pointer + 4)
+            self.write_to_CSR_register(0x341, self.instruction_pointer)
 
             # Write the cause of the trap into the register "mcause"
             self.write_to_CSR_register(0x342, 0x80000000 + self.CSR_mip)
