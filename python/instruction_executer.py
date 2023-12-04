@@ -812,7 +812,7 @@ def execute_instruction(registers, memory, instruction, logger):
             registers.integer_regs[destination_reg] = old_value
             registers.write_to_CSR_register(CSR_address, new_value)
 
-            logger.register_executed_instruction(f"csrrw x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Set)")
+            logger.register_executed_instruction(f"csrrs x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Set)")
             pass
 
         # --- Instruction "CSRRC" ---
