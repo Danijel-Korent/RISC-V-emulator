@@ -227,7 +227,9 @@ class Registers:
             self.write_to_CSR_register(0x341, self.instruction_pointer)
 
             # Write the cause of the trap into the register "mcause"
-            self.write_to_CSR_register(0x342, 0x80000000 + self.CSR_mip)
+            # TODO: Make a enum for EXCCODEs
+            mcause_val = 0x80000000 + 7  # 7 is the "exception code" (EXCCODE) for the "Machine timer interrupt"
+            self.write_to_CSR_register(0x342, mcause_val)
 
             # Jump to address specified in register "Machine Trap Vector"
             self.instruction_pointer = self.CSR_mtvec
