@@ -20,7 +20,7 @@ class Device_Timer_CLINT:
         pass
 
     def get_mtime(self):
-        return self.registers.executed_instruction_counter + 1
+        return self.registers.executed_instruction_counter
 
     def update(self):
         if self.timer_compare_value != 0 and self.get_mtime() > self.timer_compare_value:
@@ -33,7 +33,7 @@ class Device_Timer_CLINT:
     def read_register(self, address):
         # self.logger.register_device_usage(f"[CLINT/TIMER] Read at {address:08x}")
 
-        timer_val = self.registers.executed_instruction_counter + 1
+        timer_val = self.get_mtime()
 
         # TODO: it would be easier to just have functions read/write 32 bit and than per byte access just wraps these functions
         if address == 0xBFF8:  # mtime register
