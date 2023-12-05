@@ -15,7 +15,7 @@ def execute_single_CPU_instruction(registers, memory, logger):
     # Fetch
     instruction = memory.get_4_bytes__little_endian(registers.instruction_pointer)
 
-    logger.register_one_CPU_step(registers, instruction)
+    logger.register_one_CPU_step(registers, instruction, memory)
 
     # Execute
     instruction_pointer_updated = execute_instruction(registers, memory, instruction, logger)
