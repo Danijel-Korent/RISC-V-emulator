@@ -254,7 +254,7 @@ class Registers:
         self.instruction_pointer = self.read_from_CSR_register(CSR_MEPC_REGNUM)
 
         # restoring the interrupt state (mstatus.mie)
-        self.set_interrupts_global_enable_state(self.MPP__Previous_Priviledge_Mode)
+        self.set_interrupts_global_enable_state(self.MPIE__Previous_Interrupt_Enable)
 
         # restore machine privilege mode
         # Currently we are always machine mode (3), will implement that later
