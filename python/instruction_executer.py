@@ -1,6 +1,6 @@
 from helper_functions import interpret_as_32_bit_signed_value, interpret_as_12_bit_signed_value, \
     interpret_as_20_bit_signed_value, interpret_as_21_bit_signed_value, convert_to_32_bit_unsigned_value, \
-    sign_extend_12_bit_value
+    sign_extend_12_bit_value, interpret_as_13_bit_signed_value
 from instruction_decoder import Instruction_parser
 
 
@@ -660,7 +660,8 @@ def execute_instruction(registers, memory, instruction, logger):
 
         # The 12-bit B-immediate encodes SIGNED offsets in MULTIPLES of 2, and is added to the
         # current instruction pointer value. The conditional branch range is ±4 KiB.
-        jump_offset = interpret_as_12_bit_signed_value(immediate_val)
+        # In practice this means that decoded value is 13-bit with last bit set to zero
+        jump_offset = interpret_as_13_bit_signed_value(immediate_val)
 
         # --- instruction "BEQ" ---
         if instruction_subtype == 0:
