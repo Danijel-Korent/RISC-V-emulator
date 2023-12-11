@@ -29,6 +29,16 @@ def interpret_as_21_bit_signed_value(signed_value):
     return ret_val
 
 
+# TODO: A better way is probably to msb-extend the value to 32-bit and cast it to int32 with ctypes
+def interpret_as_13_bit_signed_value(signed_value):
+    ret_val = signed_value
+
+    if signed_value & 0x00001000 != 0:
+        ret_val = -((~signed_value & 0x00000FFF) + 1)
+
+    return ret_val
+
+
 def interpret_as_12_bit_signed_value(signed_value):
     ret_val = signed_value
 
