@@ -28,10 +28,16 @@ class Device_Timer_CLINT:
 
             self.registers.signal_timer_interrupt()
             pass
-        pass
+        else:
+            # TODO: I think this should be call only when timer register is read, but I will leave it here for now
+            self.registers.clear_timer_interrupt()
+            pass
 
     def read_register(self, address):
         # self.logger.register_device_usage(f"[CLINT/TIMER] Read at {address:08x}")
+
+        # Reading the timer clears the interrupt flag
+        # self.registers.clear_timer_interrupt()
 
         timer_val = self.get_mtime()
 

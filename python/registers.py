@@ -195,9 +195,17 @@ class Registers:
         MTIP_bit_position = 7
 
         # Set pending interrupt bit for timer
+        # TODO: The problem is, MIP should be read from the controller if we want to be precise
         self.CSR_mip = (1 << MTIP_bit_position)
         #print(f"({self.executed_instruction_counter}) Called signal_timer_interrupt: CSR_mip = {self.CSR_mip:x}, CSR_mie = {self.CSR_mie:x}, CSR_mstatus = {self.CSR_mstatus:x}")
         pass
+
+    def clear_timer_interrupt(self):
+        # Machine Timer Interupt bit
+        MTIP_bit_position = 7
+
+        # TODO: There are no other interrupts at the moment, so just clear all
+        self.CSR_mip = 0
 
     def interrupt_controller_update(self):
 
@@ -207,6 +215,7 @@ class Registers:
         # Replace "self.CSR_mstatus & 8 == 8" with are_interrupts_enabled() from Class interrupt_controller
         if enabled_pending_interrupts != 0 and self.get_interrupts_global_enable_state():
 
+            # TODO: move all this into function. Names trigger_interrupt()?? enter_interrupt()??
             #print(f"({self.executed_instruction_counter}) IRQ triggered: CSR_mip = {self.CSR_mip:x}, CSR_mie = {self.CSR_mie:x}, CSR_mstatus = {self.CSR_mstatus:x}")
             #print(f"({self.executed_instruction_counter}) IRQ triggered: enabled_pending_interrupts = {enabled_pending_interrupts:x}")
 
@@ -214,6 +223,7 @@ class Registers:
             self.set_MPIE__Previous_Interrupt_Enable(self.get_interrupts_global_enable_state())
 
             # Set MPP (Machine Previous Priviledge) to current privilage mode
+            # TODO: Misspelled "privilege" everywhere. To my defense, google says it's a quite common mistake
             self.set_MPP__Previous_Priviledge_Mode(self.get_priviledge_mode())
 
             # Set mstatus.MIE to zero
@@ -223,8 +233,9 @@ class Registers:
             test = self.read_from_CSR_register(0x300)
 
             # Save address of next instruction to CSR register "mepc"
-            # TODO: Replace hardcoded value with a name
-            self.write_to_CSR_register(0x341, self.instruction_pointer)
+            # TODO: Move CSR names into enum
+            CSR_MEPC_REGNUM = 0x341
+            self.write_to_CSR_register(CSR_MEPC_REGNUM, self.instruction_pointer)
 
             # Write the cause of the trap into the register "mcause"
             # TODO: Make a enum for EXCCODEs
@@ -235,6 +246,18 @@ class Registers:
             self.instruction_pointer = self.CSR_mtvec
             #print(f"({self.executed_instruction_counter}) IRQ triggered: Setting PC to trap vector")
         pass
+
+    def return_from_interrupt(self):
+        # Setting pc to mepc
+        # TODO: Move CSR names into enum
+        CSR_MEPC_REGNUM = 0x341
+        self.instruction_pointer = self.read_from_CSR_register(CSR_MEPC_REGNUM)
+
+        # restoring the interrupt state (mstatus.mie)
+        self.set_interrupts_global_enable_state(self.MPP__Previous_Priviledge_Mode)
+
+        # restore machine privilege mode
+        # Currently we are always machine mode (3), will implement that later
 
     def init_class_CPU_control_and_status(self):
 

@@ -787,6 +787,10 @@ def execute_instruction(registers, memory, instruction, logger):
                 # Used by debuggers to cause control to be transferred back to a debugging environment.
                 logger.register_executed_instruction(f"ebreak (Ignored instruction)")
                 pass
+            # Instruction "MRET"
+            elif immediate_val == 0x302:
+                registers.return_from_interrupt()
+                instruction_pointer_updated = True
             else:
                 report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
             pass
