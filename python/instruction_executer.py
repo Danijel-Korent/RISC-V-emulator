@@ -321,7 +321,7 @@ def execute_instruction(registers, memory, instruction, logger):
 
                 memory.write_4_bytes__little_endian(address=source_reg_1_val, value=new_value_in_memory)
 
-                logger.register_executed_instruction(f"amoadd.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Atomic ADD)")
+                logger.register_executed_instruction(f"amo-add.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Atomic ADD)")
                 pass
 
             # --- instruction "LD.W" ---
@@ -365,7 +365,17 @@ def execute_instruction(registers, memory, instruction, logger):
                 new_value_in_memory = old_value_in_memory | source_reg_2_val
                 memory.write_4_bytes__little_endian(address=source_reg_1_val, value=new_value_in_memory)
 
-                logger.register_executed_instruction(f"amoor.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Atomic OR)")
+                logger.register_executed_instruction(f"amo-or.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Atomic OR)")
+                pass
+
+            # --- instruction "AMO_AND.W" ---
+            elif instruction_subtype_f5 == 0x0C:
+
+                # memory(source_reg_1_val) <-- memory(source_reg_1_val) & source_reg_2_val
+                new_value_in_memory = old_value_in_memory & source_reg_2_val
+                memory.write_4_bytes__little_endian(address=source_reg_1_val, value=new_value_in_memory)
+
+                logger.register_executed_instruction(f"amo-and.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Atomic AND)")
                 pass
 
             else:
