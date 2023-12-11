@@ -23,7 +23,7 @@ class Device_Timer_CLINT:
         return self.registers.executed_instruction_counter
 
     def update(self):
-        if self.timer_compare_value != 0 and self.get_mtime() > self.timer_compare_value:
+        if self.timer_compare_value != 0 and self.get_mtime() >= self.timer_compare_value:
             # self.logger.register_device_usage(f"[CLINT/TIMER] mTime ({self.get_mtime()}) bigger than mTimeCmp ({self.timer_compare_value}) !!!")
 
             self.registers.signal_timer_interrupt()
