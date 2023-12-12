@@ -324,6 +324,15 @@ def execute_instruction(registers, memory, instruction, logger):
                 logger.register_executed_instruction(f"amo-add.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Atomic ADD)")
                 pass
 
+            # --- instruction "AMO_SWAP.W" ---
+            elif instruction_subtype_f5 == 0x01:
+
+                # Old mem. value ends up in reg 'rd' (done before this if statement), then new value is set in memory
+                memory.write_4_bytes__little_endian(address=source_reg_1_val, value=source_reg_2_val)
+
+                logger.register_executed_instruction(f"amo-swap.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Atomic SWAP)")
+                pass
+
             # --- instruction "LD.W" ---
             elif instruction_subtype_f5 == 0x02:
 
