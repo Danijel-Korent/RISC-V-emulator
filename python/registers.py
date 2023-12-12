@@ -77,6 +77,10 @@ class Registers:
             # This name variables should be a table/dict from which we fetch the string
             register_short_name = "hvc0"
             register_long_name = "Xen hypervisor console"
+        elif register_num == 0x140:
+            # TODO: This should probably be implemented as real register
+            register_short_name = "sscratch"
+            register_long_name = "Scratch register for supervisor trap handlers"
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
@@ -115,10 +119,23 @@ class Registers:
         elif register_num == 0x3b0:
             register_short_name = "pmpaddr0"
             register_long_name = "Physical memory protection address register"
+        elif register_num == 0xF11:
+            register_short_name = "mvendorid"
+            register_long_name = "Machine Vendor ID"
+            ret_val = 0xff0ff0ff  # Number returned by original C emulator
+        elif register_num == 0xF11:
+            register_short_name = "mvendorid"
+            register_long_name = "Machine Vendor ID"
+        elif register_num == 0xF12:
+            register_short_name = "marchid"
+            register_long_name = "Machine Architecture ID"
+        elif register_num == 0xF13:
+            register_short_name = "mimpid"
+            register_long_name = "Machine Implementation ID"
         elif register_num == 0xF14:
             register_short_name = "mhartid"
             register_long_name = "Hardware thread ID"
-            ret_val = 0  # Number returned by original C emulator
+            ret_val = 0  # First and only CPU core
         else:
             print(f"[ERROR] Tried to read unknown CSR register -> CSR[0x{register_num:x}]")
             exit()
@@ -137,6 +154,9 @@ class Registers:
             if TTY_OUTPUT_ENABLED:
                 char = chr(new_value)  # Convert value to ASCII character
                 print(char, end='')
+        elif register_num == 0x140:
+            register_short_name = "sscratch"
+            register_long_name = "Scratch register for supervisor trap handlers"
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
@@ -176,6 +196,15 @@ class Registers:
         elif register_num == 0x3b0:
             register_short_name = "pmpaddr0"
             register_long_name = "Physical memory protection address register"
+        elif register_num == 0xF11:
+            register_short_name = "mvendorid"
+            register_long_name = "Machine Vendor ID"
+        elif register_num == 0xF12:
+            register_short_name = "marchid"
+            register_long_name = "Machine Architecture ID"
+        elif register_num == 0xF13:
+            register_short_name = "mimpid"
+            register_long_name = "Machine Implementation ID"
         elif register_num == 0xF14:
             register_short_name = "mhartid"
             register_long_name = "Hardware thread ID"
