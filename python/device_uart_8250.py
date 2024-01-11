@@ -14,7 +14,7 @@ class Device_UART_8250:
         pass
 
     def read_register(self, address):
-        self.logger.register_device_usage(f"[UART] Read at {address}")
+        self.logger.register_device_usage(f"[UART] Read at {address:08x}")
 
         # Line Status Register (LSR)
         if address == 5:
@@ -27,7 +27,7 @@ class Device_UART_8250:
         return 0
 
     def write_register(self, address, value):
-        self.logger.register_device_usage(f"[UART] Write at {address}: {value:08x}")
+        self.logger.register_device_usage(f"[UART] Write at {address:08x}: {value:08x}")
 
         # transmitter buffer register - THR (if DLAB=0 which we don't check)
         # Everything that is put into this register should be outputted by UART as data

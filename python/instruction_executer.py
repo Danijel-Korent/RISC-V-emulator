@@ -367,6 +367,7 @@ def execute_instruction(registers, memory, instruction, logger):
 
                 logger.register_executed_instruction(f"amoor.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Atomic OR)")
                 pass
+
             else:
                 report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
             pass
