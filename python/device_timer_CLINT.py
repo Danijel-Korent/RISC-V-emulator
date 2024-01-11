@@ -19,6 +19,17 @@ class Device_Timer_CLINT:
         self.MSIP_bit = 0
         pass
 
+    def get_mtime(self):
+        return self.registers.executed_instruction_counter + 1
+
+    def update(self):
+        if self.timer_compare_value != 0 and self.get_mtime() > self.timer_compare_value:
+            # self.logger.register_device_usage(f"[CLINT/TIMER] mTime ({self.get_mtime()}) bigger than mTimeCmp ({self.timer_compare_value}) !!!")
+
+            # signal_timer_interrupt()
+            pass
+        pass
+
     def read_register(self, address):
         # self.logger.register_device_usage(f"[CLINT/TIMER] Read at {address:08x}")
 
