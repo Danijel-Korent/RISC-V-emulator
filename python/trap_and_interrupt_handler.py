@@ -50,38 +50,40 @@ class Trap_And_Interrupt_Handler:
 
         # Replace "self.CSR_mstatus & 8 == 8" with are_interrupts_enabled() from Class interrupt_controller
         if enabled_pending_interrupts != 0 and self.get_interrupts_global_enable_state():
-            # TODO: move all this into function. Names trigger_interrupt()?? enter_interrupt()??
-            # print(f"({self.executed_instruction_counter}) IRQ triggered: CSR_mip = {self.CSR_mip:x}, CSR_mie = {self.CSR_mie:x}, CSR_mstatus = {self.CSR_mstatus:x}")
-            # print(f"({self.executed_instruction_counter}) IRQ triggered: enabled_pending_interrupts = {enabled_pending_interrupts:x}")
-
-            # Set MPIE to current MIE
-            self.set_MPIE__Previous_Interrupt_Enable(self.get_interrupts_global_enable_state())
-
-            # Set MPP (Machine Previous Priviledge) to current privilage mode
-            # TODO: Misspelled "privilege" everywhere. To my defense, google says it's a quite common mistake
-            self.set_MPP__Previous_Priviledge_Mode(self.get_priviledge_mode())
-
-            # Set mstatus.MIE to zero
-            # setting mstatus.mie to zero
-            self.set_interrupts_global_enable_state(False)
-
-            # Save address of next instruction to CSR register "mepc"
-            # TODO: Move CSR names into enum
-            # CSR_MEPC_REGNUM = 0x341
-            # self.write_to_CSR_register(CSR_MEPC_REGNUM, self.instruction_pointer)
-            self.CSR_mepc = self.CPU_registers.instruction_pointer  # TODO: Where to keep instruction pointer? Here, trap_handler or registers.py?
-
-            # Write the cause of the trap into the register "mcause"
-            # TODO: Make a enum for EXCCODEs
-            mcause_val = 0x80000000 + 7  # 7 is the "exception code" (EXCCODE) for the "Machine timer interrupt"
-            # self.write_to_CSR_register(0x342, mcause_val)
-            self.CSR_mcause = mcause_val
-
-            # Jump to address specified in register "Machine Trap Vector"
-            self.CPU_registers.instruction_pointer = self.CSR_mtvec
-            # print(f"({self.executed_instruction_counter}) IRQ triggered: Setting PC to trap vector")
+            self.enter_interrupt()
         pass
 
+    def enter_interrupt(self):
+        # print(f"({self.executed_instruction_counter}) IRQ triggered: CSR_mip = {self.CSR_mip:x}, CSR_mie = {self.CSR_mie:x}, CSR_mstatus = {self.CSR_mstatus:x}")
+        # print(f"({self.executed_instruction_counter}) IRQ triggered: enabled_pending_interrupts = {enabled_pending_interrupts:x}")
+
+        # Set MPIE to current MIE
+        self.set_MPIE__Previous_Interrupt_Enable(self.get_interrupts_global_enable_state())
+
+        # Set MPP (Machine Previous Priviledge) to current privilage mode
+        # TODO: Misspelled "privilege" everywhere. To my defense, google says it's a quite common mistake
+        self.set_MPP__Previous_Priviledge_Mode(self.get_priviledge_mode())
+
+        # Set mstatus.MIE to zero
+        # setting mstatus.mie to zero
+        self.set_interrupts_global_enable_state(False)
+
+        # Save address of next instruction to CSR register "mepc"
+        # TODO: Move CSR names into enum
+        # CSR_MEPC_REGNUM = 0x341
+        # self.write_to_CSR_register(CSR_MEPC_REGNUM, self.instruction_pointer)
+        self.CSR_mepc = self.CPU_registers.instruction_pointer  # TODO: Where to keep instruction pointer? Here, trap_handler or registers.py?
+
+        # Write the cause of the trap into the register "mcause"
+        # TODO: Make a enum for EXCCODEs
+        mcause_val = 0x80000000 + 7  # 7 is the "exception code" (EXCCODE) for the "Machine timer interrupt"
+        # self.write_to_CSR_register(0x342, mcause_val)
+        self.CSR_mcause = mcause_val
+
+        # Jump to address specified in register "Machine Trap Vector"
+        self.CPU_registers.instruction_pointer = self.CSR_mtvec
+        # print(f"({self.executed_instruction_counter}) IRQ triggered: Setting PC to trap vector")
+        pass
 
     def return_from_interrupt(self):
         # Setting pc to mepc
