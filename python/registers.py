@@ -1,4 +1,4 @@
-from Trap_and_interruptHandler import Trap_And_Interrupt_Handler
+from Trap_and_interrupt_Handler import Trap_And_Interrupt_Handler
 from config import START_ADDRESS_OF_RAM, TTY_OUTPUT_ENABLED
 
 
