@@ -811,6 +811,7 @@ def execute_instruction(registers, memory, instruction, logger):
             elif immediate_val == 0x302:
                 registers.trap_and_interrupt_handler.return_from_interrupt()
                 instruction_pointer_updated = True
+                logger.register_executed_instruction(f"mret (machine trap/interrupt return)")
             else:
                 report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
             pass
