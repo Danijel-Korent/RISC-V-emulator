@@ -33,9 +33,9 @@ class Registers:
         self.executed_instruction_counter = 0
 
         # TODO: TEMP - Pass as argument
-        # TODO: This is a big problem. "Registers" hold instance to "CPU_control_and_status instance",
-        #       and "CPU_control_and_status" holds instance to "Registers"
-        self.CPU_control_and_status = Trap_And_Interrupt_Handler(self, logger)
+        # TODO: CIRCULAR DEPENDENCY. "Registers" holds instance to "trap_and_interrupt_handler" instance,
+        #       and "trap_and_interrupt_handler" holds instance to "Registers"
+        self.trap_and_interrupt_handler = Trap_And_Interrupt_Handler(self, logger)
 
     def print_register_values(self):
         # just to shorten the variable name
@@ -73,15 +73,15 @@ class Registers:
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
-            ret_val = self.CPU_control_and_status.get_mstatus()
+            ret_val = self.trap_and_interrupt_handler.get_register_mstatus()
         elif register_num == 0x304:
             register_short_name = "mie"
             register_long_name = "Machine Interrupt Enable"
-            ret_val = self.CPU_control_and_status.CSR_mie
+            ret_val = self.trap_and_interrupt_handler.CSR_mie
         elif register_num == 0x305:
             register_short_name = "mtvec"
             register_long_name = "Machine trap-handler base address"
-            ret_val = self.CPU_control_and_status.get_trap_handler_address()
+            ret_val = self.trap_and_interrupt_handler.get_trap_handler_address()
         elif register_num == 0x340:
             register_short_name = "mscratch"
             register_long_name = "Scratch register"
@@ -89,11 +89,11 @@ class Registers:
         elif register_num == 0x341:
             register_short_name = "mepc"
             register_long_name = "Machine exception PC / Instruction pointer"
-            ret_val = self.CPU_control_and_status.CSR_mepc
+            ret_val = self.trap_and_interrupt_handler.CSR_mepc
         elif register_num == 0x342:
             register_short_name = "mcause"
             register_long_name = "Machine trap cause"
-            ret_val = self.CPU_control_and_status.CSR_mcause
+            ret_val = self.trap_and_interrupt_handler.CSR_mcause
         elif register_num == 0x343:
             register_short_name = "mtval"
             register_long_name = "Machine bad address or instruction"
@@ -101,7 +101,7 @@ class Registers:
         elif register_num == 0x344:
             register_short_name = "mip"
             register_long_name = "Machine Interrupt Pending"
-            ret_val = self.CPU_control_and_status.CSR_mip
+            ret_val = self.trap_and_interrupt_handler.CSR_mip
         elif register_num == 0x3a0:
             register_short_name = "pmpcfg0"
             register_long_name = "Physical memory protection configuration"
@@ -149,15 +149,15 @@ class Registers:
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
-            self.CPU_control_and_status.set_mstatus(new_value)
+            self.trap_and_interrupt_handler.set_register_mstatus(new_value)
         elif register_num == 0x304:
             register_short_name = "mie"
             register_long_name = "Machine Interrupt Enable"
-            self.CPU_control_and_status.CSR_mie = new_value
+            self.trap_and_interrupt_handler.CSR_mie = new_value
         elif register_num == 0x305:
             register_short_name = "mtvec"
             register_long_name = "Machine trap-handler base address"
-            self.CPU_control_and_status.set_trap_handler_address(new_value)
+            self.trap_and_interrupt_handler.set_trap_handler_address(new_value)
         elif register_num == 0x340:
             register_short_name = "mscratch"
             register_long_name = "Scratch register"
@@ -165,11 +165,11 @@ class Registers:
         elif register_num == 0x341:
             register_short_name = "mepc"
             register_long_name = "Machine exception PC / Instruction pointer"
-            self.CPU_control_and_status.CSR_mepc = new_value
+            self.trap_and_interrupt_handler.CSR_mepc = new_value
         elif register_num == 0x342:
             register_short_name = "mcause"
             register_long_name = "Machine trap cause"
-            self.CPU_control_and_status.CSR_mcause = new_value # TODO: This probably should not be settable
+            self.trap_and_interrupt_handler.CSR_mcause = new_value # TODO: This probably should not be settable
         elif register_num == 0x343:
             register_short_name = "mtval"
             register_long_name = "Machine bad address or instruction"

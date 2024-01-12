@@ -809,7 +809,7 @@ def execute_instruction(registers, memory, instruction, logger):
                 pass
             # Instruction "MRET"
             elif immediate_val == 0x302:
-                registers.CPU_control_and_status.return_from_interrupt()
+                registers.trap_and_interrupt_handler.return_from_interrupt()
                 instruction_pointer_updated = True
             else:
                 report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)

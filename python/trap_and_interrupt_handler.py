@@ -44,7 +44,7 @@ class Trap_And_Interrupt_Handler:
         self.CSR_mip = 0
 
 
-    def interrupt_controller_update(self):
+    def update(self):
         # Check if there are any pending interrupts (MIP), and if the pending interrupts are enabled (MIE)
         enabled_pending_interrupts = self.CSR_mip & self.CSR_mie
 
@@ -62,7 +62,7 @@ class Trap_And_Interrupt_Handler:
 
         # Set MPP (Machine Previous Priviledge) to current privilage mode
         # TODO: Misspelled "privilege" everywhere. To my defense, google says it's a quite common mistake
-        self.set_MPP__Previous_Priviledge_Mode(self.get_priviledge_mode())
+        self.set_MPP__Previous_Priviledge_Mode(self.get_CPU_priviledge_mode())
 
         # Set mstatus.MIE to zero
         # setting mstatus.mie to zero
@@ -111,7 +111,7 @@ class Trap_And_Interrupt_Handler:
         self.MPP__Previous_Priviledge_Mode = new_value
 
 
-    def get_priviledge_mode(self):
+    def get_CPU_priviledge_mode(self):
         # TODO: Add enum for privilages
         # TODO: Replace 3 with enum
 
@@ -129,7 +129,8 @@ class Trap_And_Interrupt_Handler:
 
 
     ### CSR registers implementation
-    def set_mstatus(self, new_value):
+    # TODO: This doesn't belong to trap_and_interrupt_handler.py
+    def set_register_mstatus(self, new_value):
         # TODO: Duplicated
         mask_mstatus_MIE = 0x8
         mask_mstatus_MPIE = 0x80
@@ -140,7 +141,7 @@ class Trap_And_Interrupt_Handler:
         #    raise Exception("CSR mstatus: Trying to write to non-writable bit")
 
         # Get changed bits with XOR
-        changed_bits = self.get_mstatus() ^ new_value
+        changed_bits = self.get_register_mstatus() ^ new_value
 
         if changed_bits:
             if changed_bits & mask_mstatus_MIE == mask_mstatus_MIE:
@@ -159,8 +160,8 @@ class Trap_And_Interrupt_Handler:
                     self.MPIE__Previous_Interrupt_Enable = False
         pass
 
-
-    def get_mstatus(self):
+    # TODO: This doesn't belong to trap_and_interrupt_handler.py
+    def get_register_mstatus(self):
         mstatus_value = 0
 
         # TODO: Duplicated
