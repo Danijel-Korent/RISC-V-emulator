@@ -1,4 +1,4 @@
-from CPU_control_and_status import CPU_Control_And_Status
+from Trap_and_interruptHandler import Trap_And_Interrupt_Handler
 from config import START_ADDRESS_OF_RAM, TTY_OUTPUT_ENABLED
 
 
@@ -35,7 +35,7 @@ class Registers:
         # TODO: TEMP - Pass as argument
         # TODO: This is a big problem. "Registers" hold instance to "CPU_control_and_status instance",
         #       and "CPU_control_and_status" holds instance to "Registers"
-        self.CPU_control_and_status = CPU_Control_And_Status(self, logger)
+        self.CPU_control_and_status = Trap_And_Interrupt_Handler(self, logger)
 
     def print_register_values(self):
         # just to shorten the variable name

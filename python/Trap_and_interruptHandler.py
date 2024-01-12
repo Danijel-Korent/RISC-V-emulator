@@ -1,5 +1,5 @@
 
-class CPU_Control_And_Status:
+class Trap_And_Interrupt_Handler:
 
     def __init__(self, registers, logger):
         self.logger = logger  # TODO: Just make it singleton
