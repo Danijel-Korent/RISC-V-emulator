@@ -53,7 +53,7 @@ def emulate_cpu():
     while True:
         device_timer_CLINT.update()
         execute_single_CPU_instruction(registers, address_space, logger)
-        registers.interrupt_controller_update()
+        registers.CPU_control_and_status.interrupt_controller_update()
 
 
 # Main starting point of this program/script
