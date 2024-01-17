@@ -11,8 +11,6 @@ class Registers:
         # hardcoded bootloader) mapped into this address. We mapped at this address (a small chunk of) Linux kernel
         self.instruction_pointer = START_ADDRESS_OF_RAM
 
-        self.logger = logger
-
         # An array of registers
         # RISC-V has 32 integer registers
         # https://en.wikipedia.org/wiki/RISC-V#Register_sets
@@ -23,9 +21,6 @@ class Registers:
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                  ]
 
-        # CSR registers
-        self.CSR_mscratch = 0
-
         # Internal implementation details, not directly visible/exposed via CPU instructions
         self.atomic_load_reserved__address = 0
 
@@ -35,7 +30,7 @@ class Registers:
         # TODO: TEMP - Pass as argument
         # TODO: CIRCULAR DEPENDENCY. "Registers" holds instance to "trap_and_interrupt_handler" instance,
         #       and "trap_and_interrupt_handler" holds instance to "Registers"
-        self.trap_and_interrupt_handler = Trap_And_Interrupt_Handler(self, logger)
+        self.logger = logger
 
     def print_register_values(self):
         # just to shorten the variable name
@@ -56,10 +51,19 @@ class Registers:
             print("")
 
         # Print CSR registers
-        print(f"CSR_mscratch: {self.CSR_mscratch:08x}")
-        print(f"CSR_mtvec: {self.CSR_mtvec:08x}")
+        print(f"CSR_mscratch: {self.CSR.CSR_mscratch:08x}")
+        print(f"CSR_mtvec: {self.CSR.CSR_mtvec:08x}")
 
-    def read_from_CSR_register(self, register_num):
+
+class CSR_Registers:
+    def __init__(self, trap_and_interrupt_handler, logger):
+        self.trap_and_interrupt_handler = trap_and_interrupt_handler
+        self.logger = logger
+
+        # CSR registers
+        self.CSR_mscratch = 0
+
+    def read_from_register(self, register_num):
         ret_val = 0
 
         if register_num == 0x139:
@@ -133,7 +137,7 @@ class Registers:
         self.logger.register_CSR_register_usage(message)
         return ret_val
 
-    def write_to_CSR_register(self, register_num, new_value):
+    def write_to_register(self, register_num, new_value):
         if register_num == 0x139:
             # This is Xen hypervisor console
             # Because device tree has set "console=hvc0" in Kernel bootargs/cmdargs, the kernel switches

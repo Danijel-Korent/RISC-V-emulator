@@ -5,7 +5,7 @@ from instruction_decoder import Instruction_parser
 
 
 # TODO: This function is almost 900 lines long, it desperately needs to be split up into multiple functions
-def execute_instruction(registers, memory, instruction, logger):
+def execute_instruction(instruction, registers, CSR_registers, trap_and_interrupt_handler, memory, logger):
 
     # Extract the 'operation/instruction' type
     opcode = instruction & 0b01111111
@@ -809,7 +809,7 @@ def execute_instruction(registers, memory, instruction, logger):
                 pass
             # Instruction "MRET"
             elif immediate_val == 0x302:
-                registers.trap_and_interrupt_handler.return_from_interrupt()
+                trap_and_interrupt_handler.return_from_interrupt()
                 instruction_pointer_updated = True
                 logger.register_executed_instruction(f"mret (machine trap/interrupt return)")
             else:
@@ -818,10 +818,10 @@ def execute_instruction(registers, memory, instruction, logger):
 
         # --- Instruction "CSRRW" ---
         elif instruction_subtype == 0x1:
-            old_value = registers.read_from_CSR_register(CSR_address)
+            old_value = CSR_registers.read_from_register(CSR_address)
             new_value = registers.integer_regs[source_reg]
 
-            registers.write_to_CSR_register(CSR_address, new_value)
+            CSR_registers.write_to_register(CSR_address, new_value)
             registers.integer_regs[destination_reg] = old_value
 
             logger.register_executed_instruction(f"csr-rw x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Write)")
@@ -829,26 +829,26 @@ def execute_instruction(registers, memory, instruction, logger):
 
         # --- Instruction "CSRRS" ---
         elif instruction_subtype == 0x2:
-            old_value = registers.read_from_CSR_register(CSR_address)
+            old_value = CSR_registers.read_from_register(CSR_address)
             source_reg_value = registers.integer_regs[source_reg]
 
             new_value = old_value | source_reg_value
 
             registers.integer_regs[destination_reg] = old_value
-            registers.write_to_CSR_register(CSR_address, new_value)
+            CSR_registers.write_to_register(CSR_address, new_value)
 
             logger.register_executed_instruction(f"csr-rs x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Set)")
             pass
 
         # --- Instruction "CSRRC" ---
         elif instruction_subtype == 0x3:
-            old_value = registers.read_from_CSR_register(CSR_address)
+            old_value = CSR_registers.read_from_register(CSR_address)
             source_reg_value = registers.integer_regs[source_reg]
 
             new_value = old_value & (~source_reg_value)
 
             registers.integer_regs[destination_reg] = old_value
-            registers.write_to_CSR_register(CSR_address, new_value)
+            CSR_registers.write_to_register(CSR_address, new_value)
 
             logger.register_executed_instruction(f"csr-rc x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Clear)")
             pass
@@ -859,8 +859,8 @@ def execute_instruction(registers, memory, instruction, logger):
             # usually holds source register number (RS bit field)
             immediate_val = source_reg
 
-            registers.integer_regs[destination_reg] = registers.read_from_CSR_register(CSR_address)
-            registers.write_to_CSR_register(CSR_address, immediate_val)
+            registers.integer_regs[destination_reg] = CSR_registers.read_from_register(CSR_address)
+            CSR_registers.write_to_register(CSR_address, immediate_val)
 
             logger.register_executed_instruction(f"csr-rwi x{destination_reg}, 0x{CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Write Immediate)")
             pass
@@ -871,12 +871,12 @@ def execute_instruction(registers, memory, instruction, logger):
             # usually holds source register number (RS bit field)
             immediate_val = source_reg
 
-            old_value = registers.read_from_CSR_register(CSR_address)
+            old_value = CSR_registers.read_from_register(CSR_address)
 
             new_value = old_value | immediate_val
 
             registers.integer_regs[destination_reg] = old_value
-            registers.write_to_CSR_register(CSR_address, new_value)
+            CSR_registers.write_to_register(CSR_address, new_value)
 
             logger.register_executed_instruction(f"csr-rsi x{destination_reg}, 0x{CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Set Immediate)")
             pass
@@ -887,12 +887,12 @@ def execute_instruction(registers, memory, instruction, logger):
             # usually holds source register number (RS bit field)
             immediate_val = source_reg
 
-            old_value = registers.read_from_CSR_register(CSR_address)
+            old_value = CSR_registers.read_from_register(CSR_address)
 
             new_value = old_value & (~immediate_val)
 
             registers.integer_regs[destination_reg] = old_value
-            registers.write_to_CSR_register(CSR_address, new_value)
+            CSR_registers.write_to_register(CSR_address, new_value)
 
             logger.register_executed_instruction(f"csr-rci x{destination_reg}, 0x{CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Clear immediate)")
             pass

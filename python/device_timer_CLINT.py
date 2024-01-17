@@ -12,9 +12,14 @@
 
 class Device_Timer_CLINT:
 
-    def __init__(self, logger, registers):
+    def __init__(self, logger, registers, trap_and_interrupt_handler):
         self.logger = logger
         self.registers = registers
+
+        # TODO: I don't like this one bit. Device_Timer_CLINT just need a
+        #       function to notify a timer interrupt line change
+        self.trap_and_interrupt_handler = trap_and_interrupt_handler
+
         self.timer_compare_value = 0
         self.MSIP_bit = 0
         pass
@@ -26,18 +31,18 @@ class Device_Timer_CLINT:
         if self.timer_compare_value != 0 and self.get_mtime() >= self.timer_compare_value:
             # self.logger.register_device_usage(f"[CLINT/TIMER] mTime ({self.get_mtime()}) bigger than mTimeCmp ({self.timer_compare_value}) !!!")
 
-            self.registers.trap_and_interrupt_handler.signal_timer_interrupt()
+            self.trap_and_interrupt_handler.signal_timer_interrupt()
             pass
         else:
             # TODO: I think this should be call only when timer register is read, but I will leave it here for now
-            self.registers.trap_and_interrupt_handler.clear_timer_interrupt()
+            self.trap_and_interrupt_handler.clear_timer_interrupt()
             pass
 
     def read_register(self, address):
         # self.logger.register_device_usage(f"[CLINT/TIMER] Read at {address:08x}")
 
         # Reading the timer clears the interrupt flag
-        # self.registers.clear_timer_interrupt()
+        # self.trap_and_interrupt_handler.clear_timer_interrupt()
 
         timer_val = self.get_mtime()
 
