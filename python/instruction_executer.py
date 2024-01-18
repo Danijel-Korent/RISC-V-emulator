@@ -5,7 +5,7 @@ from instruction_decoder import Instruction_parser
 
 
 # TODO: This function is almost 900 lines long, it desperately needs to be split up into multiple functions
-def execute_instruction(instruction, registers, CSR_registers, memory, logger):
+def execute_instruction(instruction, registers, CSR_registers, trap_and_interrupt_handler, memory, logger):
 
     # Extract the 'operation/instruction' type
     opcode = instruction & 0b01111111
@@ -807,6 +807,11 @@ def execute_instruction(instruction, registers, CSR_registers, memory, logger):
                 # Used by debuggers to cause control to be transferred back to a debugging environment.
                 logger.register_executed_instruction(f"ebreak (Ignored instruction)")
                 pass
+            # Instruction "MRET"
+            elif immediate_val == 0x302:
+                trap_and_interrupt_handler.return_from_interrupt()
+                instruction_pointer_updated = True
+                logger.register_executed_instruction(f"mret (machine trap/interrupt return)")
             else:
                 report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
             pass

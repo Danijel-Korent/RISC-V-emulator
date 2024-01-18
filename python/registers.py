@@ -1,3 +1,4 @@
+from trap_and_interrupt_handler import Trap_And_Interrupt_Handler
 from config import START_ADDRESS_OF_RAM, TTY_OUTPUT_ENABLED
 
 
@@ -54,12 +55,12 @@ class Registers:
 
 
 class CSR_Registers:
-    def __init__(self, logger):
+    def __init__(self, trap_and_interrupt_handler, logger):
+        self.trap_and_interrupt_handler = trap_and_interrupt_handler
         self.logger = logger
 
         # CSR registers
         self.CSR_mscratch = 0
-        self.CSR_mtvec = 0
 
     def read_from_register(self, register_num):
         ret_val = 0
@@ -75,20 +76,35 @@ class CSR_Registers:
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
+            ret_val = self.trap_and_interrupt_handler.get_register_mstatus()
         elif register_num == 0x304:
             register_short_name = "mie"
             register_long_name = "Machine Interrupt Enable"
+            ret_val = self.trap_and_interrupt_handler.CSR_mie
         elif register_num == 0x305:
             register_short_name = "mtvec"
             register_long_name = "Machine trap-handler base address"
-            ret_val = self.CSR_mtvec
+            ret_val = self.trap_and_interrupt_handler.get_trap_handler_address()
         elif register_num == 0x340:
             register_short_name = "mscratch"
             register_long_name = "Scratch register"
             ret_val = self.CSR_mscratch
+        elif register_num == 0x341:
+            register_short_name = "mepc"
+            register_long_name = "Machine exception PC / Instruction pointer"
+            ret_val = self.trap_and_interrupt_handler.CSR_mepc
+        elif register_num == 0x342:
+            register_short_name = "mcause"
+            register_long_name = "Machine trap cause"
+            ret_val = self.trap_and_interrupt_handler.CSR_mcause
+        elif register_num == 0x343:
+            register_short_name = "mtval"
+            register_long_name = "Machine bad address or instruction"
+            ret_val = 0  # Unimplemented at the moment
         elif register_num == 0x344:
             register_short_name = "mip"
             register_long_name = "Machine Interrupt Pending"
+            ret_val = self.trap_and_interrupt_handler.CSR_mip
         elif register_num == 0x3a0:
             register_short_name = "pmpcfg0"
             register_long_name = "Physical memory protection configuration"
@@ -136,20 +152,35 @@ class CSR_Registers:
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
+            self.trap_and_interrupt_handler.set_register_mstatus(new_value)
         elif register_num == 0x304:
             register_short_name = "mie"
             register_long_name = "Machine Interrupt Enable"
+            self.trap_and_interrupt_handler.CSR_mie = new_value
         elif register_num == 0x305:
             register_short_name = "mtvec"
             register_long_name = "Machine trap-handler base address"
-            self.CSR_mtvec = new_value
+            self.trap_and_interrupt_handler.set_trap_handler_address(new_value)
         elif register_num == 0x340:
             register_short_name = "mscratch"
             register_long_name = "Scratch register"
             self.CSR_mscratch = new_value
+        elif register_num == 0x341:
+            register_short_name = "mepc"
+            register_long_name = "Machine exception PC / Instruction pointer"
+            self.trap_and_interrupt_handler.CSR_mepc = new_value
+        elif register_num == 0x342:
+            register_short_name = "mcause"
+            register_long_name = "Machine trap cause"
+            self.trap_and_interrupt_handler.CSR_mcause = new_value # TODO: This probably should not be settable
+        elif register_num == 0x343:
+            register_short_name = "mtval"
+            register_long_name = "Machine bad address or instruction"
+            # Unimplemented at the moment
         elif register_num == 0x344:
             register_short_name = "mip"
             register_long_name = "Machine Interrupt Pending"
+            self.CSR_mip = new_value
         elif register_num == 0x3a0:
             register_short_name = "pmpcfg0"
             register_long_name = "Physical memory protection configuration"
