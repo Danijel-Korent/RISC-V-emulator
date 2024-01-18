@@ -34,7 +34,7 @@ class Device_Timer_CLINT:
             self.trap_and_interrupt_handler.signal_timer_interrupt()
             pass
         else:
-            # TODO: I think this should be call only when timer register is read, but I will leave it here for now
+            # TODO: I think this should be called only when timer register is read, but I will leave it here for now
             self.trap_and_interrupt_handler.clear_timer_interrupt()
             pass
 

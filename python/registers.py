@@ -6,6 +6,8 @@ from config import START_ADDRESS_OF_RAM, TTY_OUTPUT_ENABLED
 # TODO: Move CSR stuff into "CSR_registers.py" if it grows to big after fully implementing CSR registers
 class Registers:
     def __init__(self, logger):
+        self.logger = logger
+
         # All CPUs have one register that holds the address of the next instruction to execute
         # Here we also set the initial instruction address. Normal system would have ROM/flash memory (with initial
         # hardcoded bootloader) mapped into this address. We mapped at this address (a small chunk of) Linux kernel
@@ -27,10 +29,6 @@ class Registers:
         # Just counts the number of instructions executed so far. We need this for implementing deterministic timer
         self.executed_instruction_counter = 0
 
-        # TODO: TEMP - Pass as argument
-        # TODO: CIRCULAR DEPENDENCY. "Registers" holds instance to "trap_and_interrupt_handler" instance,
-        #       and "trap_and_interrupt_handler" holds instance to "Registers"
-        self.logger = logger
 
     def print_register_values(self):
         # just to shorten the variable name
@@ -50,9 +48,10 @@ class Registers:
             # just for new line
             print("")
 
+        # TODO: This will have to be moved to class CSR_Registers
         # Print CSR registers
-        print(f"CSR_mscratch: {self.CSR.CSR_mscratch:08x}")
-        print(f"CSR_mtvec: {self.CSR.CSR_mtvec:08x}")
+        # print(f"CSR_mscratch: {self.CSR_mscratch:08x}")
+        # print(f"CSR_mtvec: {self.CSR_mtvec:08x}")
 
 
 class CSR_Registers:
