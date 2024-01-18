@@ -7,18 +7,22 @@ from emulator_logger import Emulator_logger
 
 from instruction_executer import execute_instruction
 from RAM_memory import RAM_memory
-from registers import Registers
+from registers import Registers, CSR_Registers
 from config import *
 
-def execute_single_CPU_instruction(registers, memory, logger):
+
+# TODO: rename to execute_next_CPU_instruction
+def execute_single_CPU_instruction(registers, CSR_registers, memory, logger):
 
     # Fetch
     instruction = memory.get_4_bytes__little_endian(registers.instruction_pointer)
 
+    # TODO: Move this into the execute_instruction()
     logger.register_one_CPU_step(registers, instruction, memory)
 
     # Execute
-    instruction_pointer_updated = execute_instruction(registers, memory, instruction, logger)
+    # TODO: To many arguments. Group somo of them into "CPU_state" or maybe just "CPU"
+    instruction_pointer_updated = execute_instruction(instruction, registers, CSR_registers, memory, logger)
 
     # Move "instruction pointer" to the next instruction IF NOT already moved by "jump" or "branch" instruction
     if not instruction_pointer_updated:
@@ -43,6 +47,8 @@ def emulate_cpu():
     registers.integer_regs[11] = START_ADDRESS_OF_RAM + ram_memory.get_device_tree_RAM_address()
     # print(f"Location of DTB: {registers.integer_regs[11]:08x}") # TODO: Make this less confusing
 
+    CSR_registers = CSR_Registers(logger)
+
     # TODO: It would probably be smart to make logger a singleton
     device_UART_8250 = Device_UART_8250(logger)
     device_timer_CLINT = Device_Timer_CLINT(logger, registers)
@@ -52,7 +58,7 @@ def emulate_cpu():
 
     while True:
         device_timer_CLINT.update()
-        execute_single_CPU_instruction(registers, address_space, logger)
+        execute_single_CPU_instruction(registers, CSR_registers, address_space, logger)
 
 
 # Main starting point of this program/script

@@ -5,12 +5,12 @@ from config import START_ADDRESS_OF_RAM, TTY_OUTPUT_ENABLED
 # TODO: Move CSR stuff into "CSR_registers.py" if it grows to big after fully implementing CSR registers
 class Registers:
     def __init__(self, logger):
+        self.logger = logger
+
         # All CPUs have one register that holds the address of the next instruction to execute
         # Here we also set the initial instruction address. Normal system would have ROM/flash memory (with initial
         # hardcoded bootloader) mapped into this address. We mapped at this address (a small chunk of) Linux kernel
         self.instruction_pointer = START_ADDRESS_OF_RAM
-
-        self.logger = logger
 
         # An array of registers
         # RISC-V has 32 integer registers
@@ -22,15 +22,12 @@ class Registers:
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                  ]
 
-        # CSR registers
-        self.CSR_mscratch = 0
-        self.CSR_mtvec = 0
-
         # Internal implementation details, not directly visible/exposed via CPU instructions
         self.atomic_load_reserved__address = 0
 
         # Just counts the number of instructions executed so far. We need this for implementing deterministic timer
         self.executed_instruction_counter = 0
+
 
     def print_register_values(self):
         # just to shorten the variable name
@@ -50,11 +47,21 @@ class Registers:
             # just for new line
             print("")
 
+        # TODO: This will have to be moved to class CSR_Registers
         # Print CSR registers
-        print(f"CSR_mscratch: {self.CSR_mscratch:08x}")
-        print(f"CSR_mtvec: {self.CSR_mtvec:08x}")
+        # print(f"CSR_mscratch: {self.CSR_mscratch:08x}")
+        # print(f"CSR_mtvec: {self.CSR_mtvec:08x}")
 
-    def read_from_CSR_register(self, register_num):
+
+class CSR_Registers:
+    def __init__(self, logger):
+        self.logger = logger
+
+        # CSR registers
+        self.CSR_mscratch = 0
+        self.CSR_mtvec = 0
+
+    def read_from_register(self, register_num):
         ret_val = 0
 
         if register_num == 0x139:
@@ -113,7 +120,7 @@ class Registers:
         self.logger.register_CSR_register_usage(message)
         return ret_val
 
-    def write_to_CSR_register(self, register_num, new_value):
+    def write_to_register(self, register_num, new_value):
         if register_num == 0x139:
             # This is Xen hypervisor console
             # Because device tree has set "console=hvc0" in Kernel bootargs/cmdargs, the kernel switches
