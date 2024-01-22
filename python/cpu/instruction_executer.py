@@ -1,4 +1,4 @@
-from helper_functions import interpret_as_32_bit_signed_value, interpret_as_12_bit_signed_value, \
+from utils.helper_functions import interpret_as_32_bit_signed_value, interpret_as_12_bit_signed_value, \
     interpret_as_20_bit_signed_value, interpret_as_21_bit_signed_value, convert_to_32_bit_unsigned_value, \
     sign_extend_12_bit_value, interpret_as_13_bit_signed_value
 from cpu.instruction_decoder import Instruction_parser
