@@ -5,11 +5,11 @@ from device_uart_8250 import Device_UART_8250
 from emulator_logger import Emulator_logger
 # Implementing RISC-V CPU emulator - only RV32IMA instruction set (32-bit integer + multiplication/division + atomics)
 
-from instruction_executer import execute_instruction
+from cpu.instruction_executer import execute_instruction
 from RAM_memory import RAM_memory
-from registers import Registers, CSR_Registers
+from cpu.registers import Registers, CSR_Registers
 from config import *
-from trap_and_interrupt_handler import Trap_And_Interrupt_Handler
+from cpu.trap_and_interrupt_handler import Trap_And_Interrupt_Handler
 
 
 # TODO: rename to execute_next_CPU_instruction

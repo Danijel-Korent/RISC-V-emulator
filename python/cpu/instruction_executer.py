@@ -1,7 +1,7 @@
 from helper_functions import interpret_as_32_bit_signed_value, interpret_as_12_bit_signed_value, \
     interpret_as_20_bit_signed_value, interpret_as_21_bit_signed_value, convert_to_32_bit_unsigned_value, \
     sign_extend_12_bit_value, interpret_as_13_bit_signed_value
-from instruction_decoder import Instruction_parser
+from cpu.instruction_decoder import Instruction_parser
 
 
 # TODO: This function is almost 900 lines long, it desperately needs to be split up into multiple functions
