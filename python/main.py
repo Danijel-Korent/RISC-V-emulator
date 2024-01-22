@@ -1,12 +1,12 @@
 #! /usr/bin/env python3
-from address_space import Address_Space
+from memory.address_space import Address_Space
 from device_timer_CLINT import Device_Timer_CLINT
 from device_uart_8250 import Device_UART_8250
 from emulator_logger import Emulator_logger
 # Implementing RISC-V CPU emulator - only RV32IMA instruction set (32-bit integer + multiplication/division + atomics)
 
 from cpu.instruction_executer import execute_instruction
-from RAM_memory import RAM_memory
+from memory.RAM_memory import RAM_memory
 from cpu.registers import Registers, CSR_Registers
 from config import *
 from cpu.trap_and_interrupt_handler import Trap_And_Interrupt_Handler
