@@ -9,6 +9,7 @@ class ReportType(Enum):
 # System configuration
 LINUX_IMAGE_PATH = 'Linux_kernel_image/Linux_image_6_1_14_RV32IMA_NoMMU'
 DEVICE_TREE_PATH = 'Linux_kernel_image/device_tree_binary.dtb'
+LINKER_MAP_FILE_PATH = 'Linux_kernel_image/debug_info/System.map'
 
 RAM_SIZE = 64*1024*1024
 START_ADDRESS_OF_RAM  = 0x80000000
