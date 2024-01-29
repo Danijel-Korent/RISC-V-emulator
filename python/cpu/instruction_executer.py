@@ -798,20 +798,32 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
         # In immediate field of the instruction an CSR address value is encoded
         CSR_address = immediate_val
 
-        # --- ECALL/EBREAK instructions ---
+        # --- ECALL/EBREAK/RET instructions ---
         if instruction_subtype == 0x0:
 
+            # --- Instruction "ECALL" ---
+            if immediate_val == 0:
+                cause = 8  # Environment call from U-mode #TODO: Convert into enum
+                trap_and_interrupt_handler.enter_interrupt(cause)
+
+                instruction_pointer_updated = True  # enter_interrupt() updates the instruction pointer
+
+                logger.register_executed_instruction(f"ecall (Environment/System Call)")
+                pass
+
             # --- Instruction "EBREAK" ---
-            if immediate_val == 1:
+            elif immediate_val == 1:
                 # ebreak is only relevant for debuggers
                 # Used by debuggers to cause control to be transferred back to a debugging environment.
                 logger.register_executed_instruction(f"ebreak (Ignored instruction)")
                 pass
+
             # Instruction "MRET"
             elif immediate_val == 0x302:
                 trap_and_interrupt_handler.return_from_interrupt()
                 instruction_pointer_updated = True
                 logger.register_executed_instruction(f"mret (machine trap/interrupt return)")
+
             else:
                 report_unimplemented_instruction(instruction, registers.instruction_pointer, registers.executed_instruction_counter)
             pass

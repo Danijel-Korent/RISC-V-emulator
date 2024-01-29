@@ -17,7 +17,7 @@ class Device_Timer_CLINT:
         self.registers = registers
 
         # TODO: I don't like this one bit. Device_Timer_CLINT just need a
-        #       function to notify a timer interrupt line change
+        #       function to notify a timer interrupt /bit change
         self.trap_and_interrupt_handler = trap_and_interrupt_handler
 
         self.timer_compare_value = 0
@@ -38,6 +38,8 @@ class Device_Timer_CLINT:
             self.trap_and_interrupt_handler.clear_timer_interrupt()
             pass
 
+    # Implements register "mtime"
+    # TODO: Replace hardcoded address with const/enum
     def read_register(self, address):
         # self.logger.register_device_usage(f"[CLINT/TIMER] Read at {address:08x}")
 
@@ -47,7 +49,7 @@ class Device_Timer_CLINT:
         timer_val = self.get_mtime()
 
         # TODO: it would be easier to just have functions read/write 32 bit and than per byte access just wraps these functions
-        if address == 0xBFF8:  # mtime register
+        if address == 0xBFF8:  # Register "mtime"
             self.logger.register_device_usage(f"[CLINT/TIMER] Read at {address:08x}: {timer_val}")
             return timer_val & 0xFF
         elif address == 0xBFF9:
@@ -70,17 +72,19 @@ class Device_Timer_CLINT:
             quit()
         return 0
 
+    # Implements registers "msip" and "mtimecmp"
+    # TODO: Replace hardcoded addresses with const/enum
     def write_register(self, address, value):
         # self.logger.register_device_usage(f"[CLINT/TIMER] Write at {address:08x}: {value:08x}")
 
-        if address == 0:  # MSIP Register
+        if address == 0:  # Register "msip"
             bit_value = value & 0b00000001
             self.MSIP_bit = bit_value
             self.logger.register_device_usage(f"[CLINT/TIMER] Write at {address:08x}: {value:08x}")
         elif 1 <= address <= 7:
             # Only 1 bit of 32-bit MSIP Register is implemented. All other bits are hardwired to zero
             pass
-        elif address == 0x4000:  # MtimeCmp Register
+        elif address == 0x4000:  # Register "MtimeCmp"
             self.timer_compare_value &= 0xFFFFFFFFFFFFFF00
             self.timer_compare_value |= value
         elif address == 0x4001:

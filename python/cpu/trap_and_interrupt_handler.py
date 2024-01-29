@@ -56,16 +56,23 @@ class Trap_And_Interrupt_Handler:
 
         # Replace "self.CSR_mstatus & 8 == 8" with are_interrupts_enabled() from Class interrupt_controller
         if enabled_pending_interrupts != 0 and self.get_interrupts_global_enable_state():
-            self.enter_interrupt()
+            # TODO: Make a enum for EXCCODEs
+            # 7 is the "exception code" (EXCCODE) for the "Machine timer interrupt"
+            # 0x8.. is a bit that denotes that the trap was caused by an interrupt
+            cause = 0x80000000 + 7
+            self.enter_interrupt(cause)
         pass
 
-    def enter_interrupt(self):
+    # TODO: Rename this to enter_trap() ??
+    def enter_interrupt(self, cause):
         # Set MPIE to current MIE
         self.set_MPIE__Previous_Interrupt_Enable(self.get_interrupts_global_enable_state())
 
         # Set MPP (Machine Previous Priviledge) to current privilage mode
         # TODO: Misspelled "privilege" everywhere. To my defense, google says it's a quite common mistake
         self.set_MPP__Previous_Priviledge_Mode(self.get_CPU_priviledge_mode())
+
+        # TODO: interrupt/trap the privilege mode must be set to "machine mode" (3)
 
         # Set mstatus.MIE to zero
         self.set_interrupts_global_enable_state(False)
@@ -74,9 +81,7 @@ class Trap_And_Interrupt_Handler:
         self.CSR_mepc = self.CPU_registers.instruction_pointer  # TODO: Where to keep instruction pointer? trap_handler or registers.py?
 
         # Write the cause of the trap into the register "mcause"
-        # TODO: Make a enum for EXCCODEs
-        mcause_val = 0x80000000 + 7  # 7 is the "exception code" (EXCCODE) for the "Machine timer interrupt"
-        self.CSR_mcause = mcause_val
+        self.CSR_mcause = cause
 
         # Jump to address specified in register "Machine Trap Vector"
         self.CPU_registers.instruction_pointer = self.CSR_mtvec
