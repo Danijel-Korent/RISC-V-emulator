@@ -1,4 +1,10 @@
 
+# RISC-V privilege levels
+MACHINE_MODE = 3
+SUPERVISOR_MODE = 1
+USER_MODE = 0
+
+
 class Trap_And_Interrupt_Handler:
 
     def __init__(self, registers, logger):
@@ -6,11 +12,10 @@ class Trap_And_Interrupt_Handler:
         self.CPU_registers = registers
         self.interrupts_global_enable = False
         self.MPIE__Previous_Interrupt_Enable = False
-        self.MPP__Previous_Privilege_Mode = 0
+        self.MPP__Previous_Privilege_Mode = USER_MODE  # TODO: Check if this is the correct initial value
 
         # CSR registers
         self.CSR_mtvec = 0
-        #self.CSR_mstatus = 0
 
         # Register "Machine Interrupt Pending"
         self.CSR_mip = 0
@@ -23,6 +28,8 @@ class Trap_And_Interrupt_Handler:
 
         # Register "Machine trap cause"
         self.CSR_mcause = 0
+
+        self.CPU_privilege_mode = MACHINE_MODE
         pass
 
     def set_trap_handler_address(self, address):
@@ -68,11 +75,11 @@ class Trap_And_Interrupt_Handler:
         # Set MPIE to current MIE
         self.set_MPIE__Previous_Interrupt_Enable(self.get_interrupts_global_enable_state())
 
-        # Set MPP (Machine Previous Privilege) to current privilage mode
-        # TODO: Misspelled "privilege" everywhere. To my defense, google says it's a quite common mistake
+        # Set MPP (Machine Previous Privilege) to current privilege mode
         self.set_MPP__Previous_Privilege_Mode(self.get_CPU_Privilege_mode())
 
-        # TODO: interrupt/trap the privilege mode must be set to "machine mode" (3)
+        # On interrupt/trap the privilege mode must be set to "machine mode" (3)
+        self.set_CPU_privilege_mode(MACHINE_MODE)
 
         # Set mstatus.MIE to zero
         self.set_interrupts_global_enable_state(False)
@@ -107,25 +114,25 @@ class Trap_And_Interrupt_Handler:
 
 
     def set_MPP__Previous_Privilege_Mode(self, new_value: int):
-        if new_value > 3: raise Exception("Trying to set Privilege mode above 3: There are only 0-3 privilage modes")
+        if new_value > 3:
+            raise Exception("Trying to set Privilege mode above 3: There are only 0-3 privilage modes")
 
         self.logger.register_CSR_register_usage(f"  [CPU Control] Setting MPP__Previous_Privilege_Mode to {new_value}")
 
         self.MPP__Previous_Privilege_Mode = new_value
 
-
     def get_CPU_Privilege_mode(self):
-        # TODO: Add enum for privilages
-        # TODO: Replace 3 with enum
+        return self.CPU_privilege_mode
 
-        # Currently we are always in a "machine" mode
-        return 3
+    def set_CPU_privilege_mode(self, value):
+        if value > 3:
+            raise Exception("Trying to set privilege mode above 3: There are only 0-3 privilage modes")
 
+        self.CPU_privilege_mode = value
 
     # TODO: Rename to get_interrupts_globally_enabled ??
     def get_interrupts_global_enable_state(self) -> bool:
         return self.interrupts_global_enable
-
 
     def set_interrupts_global_enable_state(self, new_state: bool):
         self.interrupts_global_enable = new_state
@@ -137,8 +144,9 @@ class Trap_And_Interrupt_Handler:
         # TODO: Duplicated
         mask_mstatus_MIE = 0x8
         mask_mstatus_MPIE = 0x80
+        mask_mstatus_MPP = 0x1800
 
-        masked_value = new_value & (mask_mstatus_MIE + mask_mstatus_MPIE)
+        masked_value = new_value & (mask_mstatus_MIE + mask_mstatus_MPIE + mask_mstatus_MPP)
 
         # if masked_value != new_value:
         #    raise Exception("CSR mstatus: Trying to write to non-writable bit")
@@ -161,6 +169,12 @@ class Trap_And_Interrupt_Handler:
                     self.MPIE__Previous_Interrupt_Enable = True
                 else:
                     self.MPIE__Previous_Interrupt_Enable = False
+
+            # TODO: Move to a function to make it more readable and re-usable
+            if changed_bits & mask_mstatus_MPP == mask_mstatus_MPP:
+                new_MPP_value = (new_value & mask_mstatus_MPP) >> 11
+
+                self.set_MPP__Previous_Privilege_Mode(new_MPP_value)
         pass
 
     # TODO: This doesn't belong to trap_and_interrupt_handler.py

@@ -148,6 +148,9 @@ class CSR_Registers:
         elif register_num == 0x140:
             register_short_name = "sscratch"
             register_long_name = "Scratch register for supervisor trap handlers"
+            if new_value != 0:
+                print(f"Trying to set 'sscratch' to {new_value}")
+                exit(-1)
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
