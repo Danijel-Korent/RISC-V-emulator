@@ -6,7 +6,7 @@ class Trap_And_Interrupt_Handler:
         self.CPU_registers = registers
         self.interrupts_global_enable = False
         self.MPIE__Previous_Interrupt_Enable = False
-        self.MPP__Previous_Priviledge_Mode = 0
+        self.MPP__Previous_Privilege_Mode = 0
 
         # CSR registers
         self.CSR_mtvec = 0
@@ -68,9 +68,9 @@ class Trap_And_Interrupt_Handler:
         # Set MPIE to current MIE
         self.set_MPIE__Previous_Interrupt_Enable(self.get_interrupts_global_enable_state())
 
-        # Set MPP (Machine Previous Priviledge) to current privilage mode
+        # Set MPP (Machine Previous Privilege) to current privilage mode
         # TODO: Misspelled "privilege" everywhere. To my defense, google says it's a quite common mistake
-        self.set_MPP__Previous_Priviledge_Mode(self.get_CPU_priviledge_mode())
+        self.set_MPP__Previous_Privilege_Mode(self.get_CPU_Privilege_mode())
 
         # TODO: interrupt/trap the privilege mode must be set to "machine mode" (3)
 
@@ -106,15 +106,15 @@ class Trap_And_Interrupt_Handler:
         self.MPIE__Previous_Interrupt_Enable = new_value
 
 
-    def set_MPP__Previous_Priviledge_Mode(self, new_value: int):
-        if new_value > 3: raise Exception("Trying to set priviledge mode above 3: There are only 0-3 privilage modes")
+    def set_MPP__Previous_Privilege_Mode(self, new_value: int):
+        if new_value > 3: raise Exception("Trying to set Privilege mode above 3: There are only 0-3 privilage modes")
 
-        self.logger.register_CSR_register_usage(f"  [CPU Control] Setting MPP__Previous_Priviledge_Mode to {new_value}")
+        self.logger.register_CSR_register_usage(f"  [CPU Control] Setting MPP__Previous_Privilege_Mode to {new_value}")
 
-        self.MPP__Previous_Priviledge_Mode = new_value
+        self.MPP__Previous_Privilege_Mode = new_value
 
 
-    def get_CPU_priviledge_mode(self):
+    def get_CPU_Privilege_mode(self):
         # TODO: Add enum for privilages
         # TODO: Replace 3 with enum
 
@@ -177,7 +177,7 @@ class Trap_And_Interrupt_Handler:
         if self.MPIE__Previous_Interrupt_Enable == True:
             mstatus_value |= mask_mstatus_MPIE
 
-        MPP = self.MPP__Previous_Priviledge_Mode << 11
+        MPP = self.MPP__Previous_Privilege_Mode << 11
 
         mstatus_value |= MPP
 
