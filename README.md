@@ -7,7 +7,12 @@ I'm also writing a blog post about each implemented instruction, and will put li
 
 ## Current status
 
-The emulator successfully loads the kernel and device tree from the OS image, boots the Linux kernel, executes it up to the start of PID 1, and executes user-space code up to until the first syscall (for the curious: it's ioctl). I'm currently working on fully implementing the instruction "ecall" and privilege mechanics of the RISC-V CPU.
+The emulator successfully:
+* loads the device tree from .dtb file, and loads the kernel image from the OS image
+* boots the Linux kernel, executes it up to the start of PID 1
+* executes user-space code up to until the first syscall (for the curious: it's an "ioctl").
+
+I'm currently working on fully implementing the instruction "ecall" and privilege mechanics of the RISC-V CPU.
 
 ## Running the emulator
 
