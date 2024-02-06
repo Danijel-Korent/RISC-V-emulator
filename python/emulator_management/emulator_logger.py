@@ -12,9 +12,9 @@ class Emulator_logger:
 
         # Map file parsing
         self.symbols = []
-        self.current_function = None
+        self.last_instruction_address = None
 
-        # TODO: Handle no file exception
+        # TODO: Handle "no file" exception
         with open(LINKER_MAP_FILE_PATH, 'r') as file:
             file_content = file.read()
             self.symbols = parse_linker_map_file(file_content)
@@ -24,7 +24,7 @@ class Emulator_logger:
         self.instruction_counter += 1
 
         if self.instruction_counter >= self.start_traceout_at_instruction_no:
-            self.current_function = get_symbol_name(registers.instruction_pointer, self.symbols)
+            self.last_instruction_address = registers.instruction_pointer
 
             if self.report_type == ReportType.SHORT_REPORT:
                 print(f"({self.instruction_counter})  PC: {registers.instruction_pointer:08x} [{instruction_value:08x}]", end="")
@@ -45,15 +45,17 @@ class Emulator_logger:
             if self.report_type != ReportType.C_EMU_REPORT:
                 if self.instruction_counter - self.last_report_at_instruction_no >= 250000:
                     self.last_report_at_instruction_no = self.instruction_counter
-                    self.current_function = get_symbol_name(registers.instruction_pointer, self.symbols)
-                    print(f"({self.instruction_counter}) Executed 250,000 instructions [CPU currently executing: {self.current_function}]")
+                    current_function = get_symbol_name(registers.instruction_pointer, self.symbols)
+                    print(f"({self.instruction_counter}) Executed 250,000 instructions [CPU currently executing: {current_function}]")
                     pass
         pass
 
+    # TODO: Currently ordinary string is passed, should be replaced with something structured
     def register_executed_instruction(self, message):
         if self.instruction_counter >= self.start_traceout_at_instruction_no :
             if self.report_type == ReportType.SHORT_REPORT:
-                print(f"   -> {message}   \t\t  [{self.current_function}]")
+                current_function = get_symbol_name(self.last_instruction_address, self.symbols)
+                print(f"   -> {message}   \t\t  [{current_function}]")
             elif self.report_type == ReportType.LONG_REPORT:
                 print(f"Executed instruction -> {message} \n")
             else:
@@ -65,7 +67,7 @@ class Emulator_logger:
             # breakpoint()
             pass
 
-        if self.instruction_counter == BREAKPOINT_AT_INSTRUCTION_NO:
+        if self.instruction_counter - 1 == BREAKPOINT_AT_INSTRUCTION_NO:
             print('[MANAGER] Breakpoint by manager')
             breakpoint()
             pass
