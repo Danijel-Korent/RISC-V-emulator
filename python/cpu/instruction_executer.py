@@ -336,7 +336,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
             # --- instruction "LD.W" ---
             elif instruction_subtype_f5 == 0x02:
 
-                address_to_load = registers.integer_regs[source_reg_1]
+                address_to_load = source_reg_1_val
 
                 value_at_address = memory.get_4_bytes__little_endian(address_to_load)
 
@@ -350,12 +350,12 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
             # --- instruction "SC.W" ---
             elif instruction_subtype_f5 == 0x03:
 
-                address_to_store = registers.integer_regs[source_reg_1]
+                address_to_store = source_reg_1_val
+
+                value_to_store = source_reg_2_val
 
                 if address_to_store == registers.atomic_load_reserved__address:
                     condition_result = 0
-
-                    value_to_store = registers.integer_regs[source_reg_2]
 
                     memory.write_4_bytes__little_endian(address_to_store, value_to_store)
                 else:
