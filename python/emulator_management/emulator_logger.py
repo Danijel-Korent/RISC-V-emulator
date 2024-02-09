@@ -20,7 +20,7 @@ class Emulator_logger:
             self.symbols = parse_linker_map_file(file_content)
         pass
 
-    def register_one_CPU_step(self, registers, instruction_value, memory):
+    def register_one_CPU_step(self, instruction_value, registers, CSR_registers, memory, trap_and_interrupt_handler):
         self.instruction_counter += 1
 
         if self.instruction_counter >= self.start_traceout_at_instruction_no:
@@ -38,7 +38,7 @@ class Emulator_logger:
                 print(f"Instruction pointer: 0x{registers.instruction_pointer:08x}")
                 print(f"Instruction value:   0x{instruction_value:08x} \n")
             elif self.report_type == ReportType.C_EMU_REPORT:
-                print(f"Timer:{memory.get_4_bytes__little_endian(0x1100bff8):08x} PC: {registers.instruction_pointer:08x} [0x{instruction_value:08x}] Z:{registers.integer_regs[0]:08x} ra:{registers.integer_regs[1]:08x} sp:{registers.integer_regs[2]:08x} gp:{registers.integer_regs[3]:08x} tp:{registers.integer_regs[4]:08x} t0:{registers.integer_regs[5]:08x} t1:{registers.integer_regs[6]:08x} t2:{registers.integer_regs[7]:08x} s0:{registers.integer_regs[8]:08x} s1:{registers.integer_regs[9]:08x} a0:{registers.integer_regs[10]:08x} a1:{registers.integer_regs[11]:08x} a2:{registers.integer_regs[12]:08x} a3:{registers.integer_regs[13]:08x} a4:{registers.integer_regs[14]:08x} a5:{registers.integer_regs[15]:08x} a6:{registers.integer_regs[16]:08x} a7:{registers.integer_regs[17]:08x} s2:{registers.integer_regs[18]:08x} s3:{registers.integer_regs[19]:08x} s4:{registers.integer_regs[20]:08x} s5:{registers.integer_regs[21]:08x} s6:{registers.integer_regs[22]:08x} s7:{registers.integer_regs[23]:08x} s8:{registers.integer_regs[24]:08x} s9:{registers.integer_regs[25]:08x} s10:{registers.integer_regs[26]:08x} s11:{registers.integer_regs[27]:08x} t3:{registers.integer_regs[28]:08x} t4:{registers.integer_regs[29]:08x} t5:{registers.integer_regs[30]:08x} t6:{registers.integer_regs[31]:08x}")
+                print(f"Timer:{memory.get_4_bytes__little_endian(0x1100bff8):08x} PC: {registers.instruction_pointer:08x} [0x{instruction_value:08x}] Z:{registers.x[0]:08x} ra:{registers.x[1]:08x} sp:{registers.x[2]:08x} gp:{registers.x[3]:08x} tp:{registers.x[4]:08x} t0:{registers.x[5]:08x} t1:{registers.x[6]:08x} t2:{registers.x[7]:08x} s0:{registers.x[8]:08x} s1:{registers.x[9]:08x} a0:{registers.x[10]:08x} a1:{registers.x[11]:08x} a2:{registers.x[12]:08x} a3:{registers.x[13]:08x} a4:{registers.x[14]:08x} a5:{registers.x[15]:08x} a6:{registers.x[16]:08x} a7:{registers.x[17]:08x} s2:{registers.x[18]:08x} s3:{registers.x[19]:08x} s4:{registers.x[20]:08x} s5:{registers.x[21]:08x} s6:{registers.x[22]:08x} s7:{registers.x[23]:08x} s8:{registers.x[24]:08x} s9:{registers.x[25]:08x} s10:{registers.x[26]:08x} s11:{registers.x[27]:08x} t3:{registers.x[28]:08x} t4:{registers.x[29]:08x} t5:{registers.x[30]:08x} t6:{registers.x[31]:08x}")
             else:
                 pass
         else:

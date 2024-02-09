@@ -7,6 +7,8 @@ from cpu.instruction_decoder import Instruction_parser
 # TODO: This function is almost 900 lines long, it desperately needs to be split up into multiple functions
 def execute_instruction(instruction, registers, CSR_registers, trap_and_interrupt_handler, memory, logger):
 
+    logger.register_one_CPU_step(instruction, registers, CSR_registers, memory, trap_and_interrupt_handler)
+
     # Extract the 'operation/instruction' type
     opcode = instruction & 0b01111111
 
@@ -19,7 +21,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
         # Immediate is a signed value for all 'load' instructions
         immediate_val = interpret_as_12_bit_signed_value(immediate_val)
 
-        base_address = registers.integer_regs[source_reg]
+        base_address = registers.x[source_reg]
         offset = immediate_val
 
         address = base_address + offset
@@ -40,7 +42,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
             if value & 0b10000000 != 0:
                 value = value | 0xFFFFFF00
 
-            registers.integer_regs[destination_reg] = value
+            registers.x[destination_reg] = value
 
             logger.register_executed_instruction(f"lb x{destination_reg}, {immediate_val}(x{source_reg})  (Load Byte, 8-bit - With sign extension)")
             pass
@@ -53,7 +55,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
             if value & 0x8000 != 0:
                 value = value | 0xFFFF0000
 
-            registers.integer_regs[destination_reg] = value
+            registers.x[destination_reg] = value
 
             if value & 0x8000 != 0:
                 #quit()
@@ -66,7 +68,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
         elif instruction_subtype == 2:
             value = memory.get_4_bytes__little_endian(address)
 
-            registers.integer_regs[destination_reg] = value
+            registers.x[destination_reg] = value
 
             logger.register_executed_instruction(f"lw x{destination_reg}, {immediate_val}(x{source_reg})  (Load Word, 32-bit)")
             pass
@@ -75,7 +77,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
         elif instruction_subtype == 4:
             value = memory.get_1_byte(address)
 
-            registers.integer_regs[destination_reg] = value
+            registers.x[destination_reg] = value
 
             logger.register_executed_instruction(f"lbu x{destination_reg}, {immediate_val}(x{source_reg})  (Load Byte, 8-bit - Unsigned)")
             pass
@@ -84,7 +86,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
         elif instruction_subtype == 5:
             value = memory.get_2_bytes__little_endian(address)
 
-            registers.integer_regs[destination_reg] = value
+            registers.x[destination_reg] = value
 
             logger.register_executed_instruction(f"lhu x{destination_reg}, {immediate_val}(x{source_reg})  (Load Half-word, 16-bit - Unsigned)")
             pass
@@ -106,7 +108,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
         instruction_subtype, destination_reg, source_reg, immediate_val = Instruction_parser.decode_I_type(instruction)
 
-        source_reg_value = registers.integer_regs[source_reg]
+        source_reg_value = registers.x[source_reg]
 
         # --- Instruction 'ADDI' ---
         if instruction_subtype == 0:
@@ -117,14 +119,14 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
             # https://en.wikipedia.org/wiki/Two's_complement
             # TODO: Just replace with helper functions
             if (immediate_val & 0b100000000000) == 0:
-                registers.integer_regs[destination_reg] = source_reg_value + immediate_val
+                registers.x[destination_reg] = source_reg_value + immediate_val
             else:
                 immediate_val = (~immediate_val & 0xFFF) + 1
-                registers.integer_regs[destination_reg] = source_reg_value - immediate_val
+                registers.x[destination_reg] = source_reg_value - immediate_val
                 sign = "-"
 
             # Shorten the register value to 32 bits if it's longer than that after add/sub
-            registers.integer_regs[destination_reg] = registers.integer_regs[destination_reg] & 0xFFFFFFFF
+            registers.x[destination_reg] = registers.x[destination_reg] & 0xFFFFFFFF
 
             logger.register_executed_instruction(f"addi x{destination_reg}, x{source_reg}, {sign}{immediate_val}  (Add immediate)")
             pass
@@ -141,7 +143,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
             result = value_to_be_shifted << shift_amount
 
-            registers.integer_regs[destination_reg] = result & 0xFFFFFFFF  # Shorten to 32 bits
+            registers.x[destination_reg] = result & 0xFFFFFFFF  # Shorten to 32 bits
 
             logger.register_executed_instruction(f"slli x{destination_reg}, x{source_reg}, {immediate_val}  (Shift Left Logical - Immediate)")
             pass
@@ -154,7 +156,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
             else:
                 result = 0
 
-            registers.integer_regs[destination_reg] = result
+            registers.x[destination_reg] = result
 
             logger.register_executed_instruction(f"sltiu x{destination_reg}, x{source_reg}, {immediate_val}  (Set Less Than - Immediate Unsigned)")
             pass
@@ -174,7 +176,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
             result = source_reg_value ^ immediate_val
 
-            registers.integer_regs[destination_reg] = result
+            registers.x[destination_reg] = result
 
             logger.register_executed_instruction(f"xori x{destination_reg}, x{source_reg}, {immediate_val}  (bitwise XOR - Immediate)")
             pass
@@ -198,7 +200,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
                 result = source_reg_value >> shift_amount
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"srli x{destination_reg}, x{source_reg}, {shift_amount}  (Shift Right Logical - Immediate)")
                 pass
@@ -210,7 +212,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 # Python's shift operator is arithmetic shift operator so it should automatically sign-extend the value
                 result = source_reg_value >> shift_amount
 
-                registers.integer_regs[destination_reg] = result & 0xFFFFFFFF
+                registers.x[destination_reg] = result & 0xFFFFFFFF
 
                 logger.register_executed_instruction(f"srai x{destination_reg}, x{source_reg}, {shift_amount}  (Shift Right Arithmeticly - Immediate)")
                 pass
@@ -228,7 +230,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
             result = source_reg_value | immediate_val
 
-            registers.integer_regs[destination_reg] = result
+            registers.x[destination_reg] = result
 
             logger.register_executed_instruction(f"ori x{destination_reg}, x{source_reg}, {immediate_val}  (bitwise OR - Immediate)")
             pass
@@ -242,7 +244,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
             result = source_reg_value & immediate_val
 
-            registers.integer_regs[destination_reg] = result
+            registers.x[destination_reg] = result
 
             logger.register_executed_instruction(f"andi x{destination_reg}, x{source_reg}, {immediate_val}  (bitwise AND - Immediate)")
             pass
@@ -259,7 +261,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
         immediate_val = interpret_as_20_bit_signed_value(immediate_val)
 
-        registers.integer_regs[destination_reg] = registers.instruction_pointer + (immediate_val << 12)
+        registers.x[destination_reg] = registers.instruction_pointer + (immediate_val << 12)
 
         logger.register_executed_instruction(f"auipc x{destination_reg}, {immediate_val}  (Add Upper Immediate to PC)")
         pass
@@ -272,8 +274,8 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
         # Immediate is a signed value for all 'store' instructions
         immediate_val = interpret_as_12_bit_signed_value(immediate_val)
 
-        address = registers.integer_regs[source_reg_1] + immediate_val
-        value_to_write = registers.integer_regs[source_reg_2]
+        address = registers.x[source_reg_1] + immediate_val
+        value_to_write = registers.x[source_reg_2]
 
         # --- instruction "SB" ---
         if instruction_subtype == 0x0:
@@ -304,14 +306,14 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
     elif opcode == 0x2f:
         instruction_subtype_f3, instruction_subtype_f5, source_reg_1, source_reg_2, destination_reg = Instruction_parser.decode_R_type_atomic(instruction)
 
-        source_reg_1_val = registers.integer_regs[source_reg_1]
-        source_reg_2_val = registers.integer_regs[source_reg_2]
+        source_reg_1_val = registers.x[source_reg_1]
+        source_reg_2_val = registers.x[source_reg_2]
 
         if instruction_subtype_f3 == 0x2:
 
             # destination_reg <-- memory(source_reg_1_val)
             old_value_in_memory = memory.get_4_bytes__little_endian(address=source_reg_1_val)
-            registers.integer_regs[destination_reg] = old_value_in_memory
+            registers.x[destination_reg] = old_value_in_memory
 
             # --- instruction "AMO_ADD.W" ---
             if instruction_subtype_f5 == 0x00:
@@ -342,7 +344,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
                 registers.atomic_load_reserved__address = address_to_load
 
-                registers.integer_regs[destination_reg] = value_at_address
+                registers.x[destination_reg] = value_at_address
 
                 logger.register_executed_instruction(f"ld.w x{destination_reg}, x{source_reg_1}  (Load Reserved - Atomic)")
                 pass
@@ -362,7 +364,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                     condition_result = 1
 
                 registers.atomic_load_reserved__address = -1
-                registers.integer_regs[destination_reg] = condition_result
+                registers.x[destination_reg] = condition_result
 
                 logger.register_executed_instruction(f"sc.w x{destination_reg}, x{source_reg_2}, (x{source_reg_1})  (Store Conditional - Atomic)")
                 pass
@@ -399,8 +401,8 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
     elif opcode == 0x33:
         instruction_subtype_f3, instruction_subtype_f7, source_reg_1, source_reg_2, destination_reg = Instruction_parser.decode_R_type(instruction)
 
-        source_reg_1_val = registers.integer_regs[source_reg_1]
-        source_reg_2_val = registers.integer_regs[source_reg_2]
+        source_reg_1_val = registers.x[source_reg_1]
+        source_reg_2_val = registers.x[source_reg_2]
 
         if instruction_subtype_f7 == 0x0:
 
@@ -411,7 +413,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 # Make sure that the result is limited to only first 32 bits of the value
                 result = result & 0xFFFFFFFF
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"add x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Addition)")
                 pass
@@ -426,7 +428,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 # Make sure that the result is limited to only first 32 bits of the value
                 result = result & 0xFFFFFFFF
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"sll x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Shift Left Logical)")
                 pass
@@ -442,7 +444,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 else:
                     result = 0
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"slt x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Set Less Than - Signed)")
                 pass
@@ -455,7 +457,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 else:
                     result = 0
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"sltu x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Set Less Than - Unsigned)")
                 pass
@@ -465,7 +467,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
                 result = source_reg_1_val ^ source_reg_2_val
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"xor x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Bitwise XOR)")
                 pass
@@ -478,7 +480,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
                 result = value_to_be_shifted >> shift_amount
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"srl x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Shift Right Logical)")
                 pass
@@ -488,7 +490,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
                 result = source_reg_1_val | source_reg_2_val
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"or x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Bitwise OR)")
                 pass
@@ -498,7 +500,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
                 result = source_reg_1_val & source_reg_2_val
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"and x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Bitwise AND)")
                 pass
@@ -519,7 +521,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 # Shorten the result to 32-bits
                 result = result & 0xFFFFFFFF
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"mul x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Signed Multiplication )")
 
@@ -534,7 +536,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 # Get only the bits higher than 32 bits (0xFFFFFFFF00000000)
                 result = (result >> 32) & 0xFFFFFFFF
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"mulh x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Signed Multiplication - Higher-order bits)")
 
@@ -546,7 +548,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 # Get only the bits higher than 32 bits (0xFFFFFFFF00000000)
                 result = (result >> 32) & 0xFFFFFFFF
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"mulhu x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Unsigned Multiplication - Higher-order bits)")
 
@@ -560,7 +562,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 result = dividend // divisor
 
                 # TODO: Could I just replace convert_to_32_bit_unsigned_value() with (result & 0xFFFFFFFF)??
-                registers.integer_regs[destination_reg] = convert_to_32_bit_unsigned_value(result)
+                registers.x[destination_reg] = convert_to_32_bit_unsigned_value(result)
 
                 logger.register_executed_instruction(f"div x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Division - Signed)")
                 pass
@@ -573,7 +575,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 # TODO1: Handle division by zero
                 result = dividend // divisor
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"divu x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Division - Usigned)")
                 pass
@@ -588,7 +590,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 result = dividend % divisor
 
                 # TODO: Could I just replace convert_to_32_bit_unsigned_value() with (result & 0xFFFFFFFF)??
-                registers.integer_regs[destination_reg] = convert_to_32_bit_unsigned_value(result)
+                registers.x[destination_reg] = convert_to_32_bit_unsigned_value(result)
 
                 logger.register_executed_instruction(f"rem x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Remainder - Signed)")
                 pass
@@ -601,7 +603,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 # TODO1: Handle division by zero
                 result = dividend % divisor
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"remu x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Remainder - Usigned)")
                 pass
@@ -619,7 +621,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 # Make sure that the result is limited to only first 32 bits of the value
                 result = result & 0xFFFFFFFF
 
-                registers.integer_regs[destination_reg] = result
+                registers.x[destination_reg] = result
 
                 logger.register_executed_instruction(f"sub x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Subtraction )")
                 pass
@@ -632,7 +634,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 # Python's shift operator is arithmetic shift operator so it should automatically sign-extend the value
                 result = value_to_be_shifted >> shift_amount
 
-                registers.integer_regs[destination_reg] = result & 0xFFFFFFFF
+                registers.x[destination_reg] = result & 0xFFFFFFFF
 
                 logger.register_executed_instruction(f"sra x{destination_reg}, x{source_reg_1}, x{source_reg_2}  (Shift Right Arithmeticly)")
                 pass
@@ -651,7 +653,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
         destination_reg, immediate_val = Instruction_parser.decode_U_type(instruction)
 
-        registers.integer_regs[destination_reg] = (immediate_val << 12)
+        registers.x[destination_reg] = (immediate_val << 12)
 
         logger.register_executed_instruction(f"lui x{destination_reg}, {interpret_as_20_bit_signed_value(immediate_val)}  (Load Upper Immediate)")
         pass
@@ -661,8 +663,8 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
         instruction_subtype, source_reg_1, source_reg_2, immediate_val = Instruction_parser.decode_B_type(instruction)
 
-        source_reg_1_value = registers.integer_regs[source_reg_1]
-        source_reg_2_value = registers.integer_regs[source_reg_2]
+        source_reg_1_value = registers.x[source_reg_1]
+        source_reg_2_value = registers.x[source_reg_2]
 
         source_reg_1_value_signed = interpret_as_32_bit_signed_value(source_reg_1_value)
         source_reg_2_value_signed = interpret_as_32_bit_signed_value(source_reg_2_value)
@@ -749,12 +751,12 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
         # This is the "jump" part of the instruction
         # jalr instruction calculates new instruction address by adding together
         # immediate value and value from source register
-        jump_address = registers.integer_regs[source_reg] + immediate_val
+        jump_address = registers.x[source_reg] + immediate_val
 
         registers.instruction_pointer = jump_address
 
         # Destination register must be updated last, in case the instruction uses the same reg as source and destination
-        registers.integer_regs[destination_reg] = address_of_next_instruction
+        registers.x[destination_reg] = address_of_next_instruction
 
         instruction_pointer_updated = True
 
@@ -782,7 +784,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
         jump_address = registers.instruction_pointer + immediate_val
 
         registers.instruction_pointer = jump_address
-        registers.integer_regs[destination_reg] = address_of_next_instruction
+        registers.x[destination_reg] = address_of_next_instruction
 
         instruction_pointer_updated = True
 
@@ -831,10 +833,10 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
         # --- Instruction "CSRRW" ---
         elif instruction_subtype == 0x1:
             old_value = CSR_registers.read_from_register(CSR_address)
-            new_value = registers.integer_regs[source_reg]
+            new_value = registers.x[source_reg]
 
             CSR_registers.write_to_register(CSR_address, new_value)
-            registers.integer_regs[destination_reg] = old_value
+            registers.x[destination_reg] = old_value
 
             logger.register_executed_instruction(f"csr-rw x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Write)")
             pass
@@ -842,11 +844,11 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
         # --- Instruction "CSRRS" ---
         elif instruction_subtype == 0x2:
             old_value = CSR_registers.read_from_register(CSR_address)
-            source_reg_value = registers.integer_regs[source_reg]
+            source_reg_value = registers.x[source_reg]
 
             new_value = old_value | source_reg_value
 
-            registers.integer_regs[destination_reg] = old_value
+            registers.x[destination_reg] = old_value
             CSR_registers.write_to_register(CSR_address, new_value)
 
             logger.register_executed_instruction(f"csr-rs x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Set)")
@@ -855,11 +857,11 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
         # --- Instruction "CSRRC" ---
         elif instruction_subtype == 0x3:
             old_value = CSR_registers.read_from_register(CSR_address)
-            source_reg_value = registers.integer_regs[source_reg]
+            source_reg_value = registers.x[source_reg]
 
             new_value = old_value & (~source_reg_value)
 
-            registers.integer_regs[destination_reg] = old_value
+            registers.x[destination_reg] = old_value
             CSR_registers.write_to_register(CSR_address, new_value)
 
             logger.register_executed_instruction(f"csr-rc x{destination_reg}, 0x{CSR_address:03x}, x{source_reg}  (Control and Status Register Read-Clear)")
@@ -871,7 +873,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
             # usually holds source register number (RS bit field)
             immediate_val = source_reg
 
-            registers.integer_regs[destination_reg] = CSR_registers.read_from_register(CSR_address)
+            registers.x[destination_reg] = CSR_registers.read_from_register(CSR_address)
             CSR_registers.write_to_register(CSR_address, immediate_val)
 
             logger.register_executed_instruction(f"csr-rwi x{destination_reg}, 0x{CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Write Immediate)")
@@ -887,7 +889,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
             new_value = old_value | immediate_val
 
-            registers.integer_regs[destination_reg] = old_value
+            registers.x[destination_reg] = old_value
             CSR_registers.write_to_register(CSR_address, new_value)
 
             logger.register_executed_instruction(f"csr-rsi x{destination_reg}, 0x{CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Set Immediate)")
@@ -903,7 +905,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
             new_value = old_value & (~immediate_val)
 
-            registers.integer_regs[destination_reg] = old_value
+            registers.x[destination_reg] = old_value
             CSR_registers.write_to_register(CSR_address, new_value)
 
             logger.register_executed_instruction(f"csr-rci x{destination_reg}, 0x{CSR_address:03x}, {immediate_val}  (Control and Status Register Read-Clear immediate)")

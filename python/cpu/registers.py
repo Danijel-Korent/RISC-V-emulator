@@ -12,10 +12,10 @@ class Registers:
         # hardcoded bootloader) mapped into this address. We mapped at this address (a small chunk of) Linux kernel
         self.instruction_pointer = START_ADDRESS_OF_RAM
 
-        # An array of registers
+        # An array of integer registers
         # RISC-V has 32 integer registers
         # https://en.wikipedia.org/wiki/RISC-V#Register_sets
-        self.integer_regs = [
+        self.x = [
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                     0, 0, 0, 0, 0, 0, 0, 0,
                                     0, 0, 0, 0, 0, 0, 0, 0,
@@ -31,7 +31,7 @@ class Registers:
 
     def print_register_values(self):
         # just to shorten the variable name
-        reg = self.integer_regs
+        reg = self.x
 
         register_ABI_name = ["000", "ra ", "sp ", "gp ", "tp ", "t00", "t01", "t02",
                              "fp ", "s01", "a00", "a01", "a02", "a03", "a04", "a05",
