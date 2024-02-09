@@ -67,11 +67,12 @@ class CSR_Registers:
         if register_num == 0x139:
             # This name variables should be a table/dict from which we fetch the string
             register_short_name = "hvc0"
-            register_long_name = "Xen hypervisor console"
+            register_long_name = "Xen hypervisor console out"
         elif register_num == 0x140:
-            # TODO: This should probably be implemented as real register
-            register_short_name = "sscratch"
+            # TODO: Looks like this is a part of Xen console implementation (to read keypress)
+            register_short_name = "sscratch / Xen input"
             register_long_name = "Scratch register for supervisor trap handlers"
+            ret_val = 0xffffffff  # Just return "no keypress" for now
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
@@ -146,11 +147,12 @@ class CSR_Registers:
                 char = chr(new_value)  # Convert value to ASCII character
                 print(char, end='')
         elif register_num == 0x140:
-            register_short_name = "sscratch"
+            register_short_name = "sscratch / Xen input"
             register_long_name = "Scratch register for supervisor trap handlers"
-            if new_value != 0:
+            if new_value != 0xffffffff:
                 print(f"Trying to set 'sscratch' to {new_value}")
                 exit(-1)
+                pass
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
