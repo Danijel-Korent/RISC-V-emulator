@@ -626,7 +626,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
             # --- instruction "SRA" ---
             elif instruction_subtype_f3 == 5:
-                value_to_be_shifted = source_reg_1_val
+                value_to_be_shifted = interpret_as_32_bit_signed_value(source_reg_1_val)
                 shift_amount = source_reg_2_val & 0b11111  # Get only the lower 5 bits of the register rs2
 
                 # Python's shift operator is arithmetic shift operator so it should automatically sign-extend the value
