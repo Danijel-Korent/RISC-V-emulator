@@ -922,5 +922,5 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
 
 def report_unimplemented_instruction(instruction, instruction_pointer, executed_instruction_counter):
-    print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} (Address: {instruction_pointer:08x} / Counter: {executed_instruction_counter})")
+    print(f"\n[ERROR] Instruction not implemented: 0x{instruction:08x} (Address: {instruction_pointer:08x} / Counter: {executed_instruction_counter})")
     quit()
