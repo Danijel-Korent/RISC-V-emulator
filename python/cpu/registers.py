@@ -100,7 +100,7 @@ class CSR_Registers:
         elif register_num == 0x343:
             register_short_name = "mtval"
             register_long_name = "Machine bad address or instruction"
-            ret_val = 0  # Unimplemented at the moment
+            ret_val = self.trap_and_interrupt_handler.CSR_mtval
         elif register_num == 0x344:
             register_short_name = "mip"
             register_long_name = "Machine Interrupt Pending"
@@ -176,11 +176,11 @@ class CSR_Registers:
         elif register_num == 0x342:
             register_short_name = "mcause"
             register_long_name = "Machine trap cause"
-            self.trap_and_interrupt_handler.CSR_mcause = new_value # TODO: This probably should not be settable
+            self.trap_and_interrupt_handler.CSR_mcause = new_value  # TODO: This probably should not be settable
         elif register_num == 0x343:
             register_short_name = "mtval"
             register_long_name = "Machine bad address or instruction"
-            # Unimplemented at the moment
+            self.trap_and_interrupt_handler.CSR_mtval = new_value  # Specs say this can be set by software
         elif register_num == 0x344:
             register_short_name = "mip"
             register_long_name = "Machine Interrupt Pending"

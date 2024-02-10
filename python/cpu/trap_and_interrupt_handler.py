@@ -29,6 +29,9 @@ class Trap_And_Interrupt_Handler:
         # Register "Machine trap cause"
         self.CSR_mcause = 0
 
+        # Register "Machine Trap Value"
+        self.CSR_mtval = 0
+
         self.CPU_privilege_mode = MACHINE_MODE
         pass
 
@@ -85,10 +88,17 @@ class Trap_And_Interrupt_Handler:
         self.set_interrupts_global_enable_state(False)
 
         # Save address of next instruction to CSR register "mepc"
-        self.CSR_mepc = self.CPU_registers.instruction_pointer  # TODO: Where to keep instruction pointer? trap_handler or registers.py?
+        self.CSR_mepc = self.CPU_registers.instruction_pointer
 
         # Write the cause of the trap into the register "mcause"
         self.CSR_mcause = cause
+
+        if cause & 0x80000000 == 0:
+            # If the cause is not an interrupt, set mtval to PC
+            # Not sure if this is correct in all cases
+            self.CSR_mtval = self.CPU_registers.instruction_pointer
+        else:
+            self.CSR_mtval = 0
 
         # Jump to address specified in register "Machine Trap Vector"
         self.CPU_registers.instruction_pointer = self.CSR_mtvec
