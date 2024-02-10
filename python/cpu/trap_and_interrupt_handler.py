@@ -76,7 +76,7 @@ class Trap_And_Interrupt_Handler:
         self.set_MPIE__Previous_Interrupt_Enable(self.get_interrupts_global_enable_state())
 
         # Set MPP (Machine Previous Privilege) to current privilege mode
-        self.set_MPP__Previous_Privilege_Mode(self.get_CPU_Privilege_mode())
+        self.set_MPP__Previous_Privilege_Mode(self.CPU_privilege_mode)
 
         # On interrupt/trap the privilege mode must be set to "machine mode" (3)
         self.set_CPU_privilege_mode(MACHINE_MODE)
@@ -105,8 +105,13 @@ class Trap_And_Interrupt_Handler:
         # restoring the interrupt state (mstatus.mie)
         self.set_interrupts_global_enable_state(self.MPIE__Previous_Interrupt_Enable)
 
+        old_privilege = self.CPU_privilege_mode
+
         # restore machine privilege mode
-        # Currently we are always machine mode (3), will implement that later
+        self.set_CPU_privilege_mode(self.MPP__Previous_Privilege_Mode)
+
+        # Save previous privilege mode
+        self.set_MPP__Previous_Privilege_Mode(old_privilege)
 
     def set_MPIE__Previous_Interrupt_Enable(self, new_value: bool):
         self.logger.register_CSR_register_usage(f"[CPU Control] Setting MPIE__Previous_Interrupt_Enable to {new_value}")
@@ -120,9 +125,6 @@ class Trap_And_Interrupt_Handler:
         self.logger.register_CSR_register_usage(f"  [CPU Control] Setting MPP__Previous_Privilege_Mode to {new_value}")
 
         self.MPP__Previous_Privilege_Mode = new_value
-
-    def get_CPU_Privilege_mode(self):
-        return self.CPU_privilege_mode
 
     def set_CPU_privilege_mode(self, value):
         if value > 3:
