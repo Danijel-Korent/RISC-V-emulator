@@ -56,6 +56,7 @@ class Emulator_logger:
             if self.report_type != ReportType.C_EMU_REPORT:
                 if self.instruction_counter - self.last_report_at_instruction_no >= 250000:
                     self.last_report_at_instruction_no = self.instruction_counter
+                    # This could in some cases return symbol that is not a function, but I'll deal with that later
                     current_function = get_symbol_name(registers.instruction_pointer, self.symbols)
                     print(f"({self.instruction_counter}) Executed 250,000 instructions [CPU currently executing: {current_function}]")
                     pass
@@ -119,5 +120,7 @@ def get_symbol_name(address, symbols):
 
     if closest_symbol == '_end':
         closest_symbol = 'Address outside of the kernel'
+    else:
+        closest_symbol += "()"
 
     return closest_symbol
