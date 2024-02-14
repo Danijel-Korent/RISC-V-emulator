@@ -557,9 +557,13 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 dividend = interpret_as_32_bit_signed_value(source_reg_1_val)
                 divisor  = interpret_as_32_bit_signed_value(source_reg_2_val)
 
-                # TODO1: Handle division by zero
-                # TODO2: Handle signed overflow
-                result = dividend // divisor
+                # TODO: Handle division by zero
+                # TODO: Handle signed overflow
+                if dividend == -1:
+                    # To make output more aligned with implementations writen in C
+                    result = 0
+                else:
+                    result = dividend // divisor
 
                 # TODO: Could I just replace convert_to_32_bit_unsigned_value() with (result & 0xFFFFFFFF)??
                 registers.x[destination_reg] = convert_to_32_bit_unsigned_value(result)
@@ -572,7 +576,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 dividend = source_reg_1_val
                 divisor  = source_reg_2_val
 
-                # TODO1: Handle division by zero
+                # TODO: Handle division by zero
                 result = dividend // divisor
 
                 registers.x[destination_reg] = result
@@ -585,9 +589,13 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 dividend = interpret_as_32_bit_signed_value(source_reg_1_val)
                 divisor  = interpret_as_32_bit_signed_value(source_reg_2_val)
 
-                # TODO1: Handle division by zero
-                # TODO2: Handle signed overflow
-                result = dividend % divisor
+                # TODO: Handle division by zero
+                # TODO: Handle signed overflow
+                if dividend == -1:
+                    # To make output more aligned with implementations writen in C
+                    result = -1
+                else:
+                    result = dividend % divisor
 
                 # TODO: Could I just replace convert_to_32_bit_unsigned_value() with (result & 0xFFFFFFFF)??
                 registers.x[destination_reg] = convert_to_32_bit_unsigned_value(result)
@@ -600,7 +608,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 dividend = source_reg_1_val
                 divisor  = source_reg_2_val
 
-                # TODO1: Handle division by zero
+                # TODO: Handle division by zero
                 result = dividend % divisor
 
                 registers.x[destination_reg] = result
