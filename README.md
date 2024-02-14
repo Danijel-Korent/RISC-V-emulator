@@ -1,18 +1,16 @@
 # RISC-V-emulator
-A small exercise to learn RISC-V instruction set. The end goal is to boot an MMU-less version of the Linux Kernel.
+A small exercise to learn the RISC-V instruction set. The end goal is to boot an MMU-less version of the Linux Kernel.
 
-I'm writing it in Python to explore the "problem space" i.e. understand the RISC-V platform. After I Finish the project in Python, I will use it to learn Rust by rewriting this project in Rust. So in the end there will be two versions of the emulator - one written in Python and the other in Rust
+I'm writing it in Python to explore the "problem space" i.e. understand the RISC-V platform. After I finish the project in Python, I will use it to learn Rust by rewriting this project in Rust. So in the end there will be two versions of the emulator - one written in Python and the other in Rust
 
 I'm also writing a blog post about each implemented instruction, and will put links here when the blog is ready.
 
 ## Current status
 
-The emulator successfully:
-* loads the device tree from .dtb file, and loads the kernel image from the OS image
-* boots the Linux kernel, executes it up to the start of PID 1
-* executes user-space code up to until the first syscall (for the curious: it's an "ioctl").
+The emulator successfully loads kernel image and device tree binary, and boots Linux up to the shell prompt. Since the input is not yet implemented, the emulator exits after the shell prompt gets outputted.
 
-I'm currently working on fully implementing the instruction "ecall" and privilege mechanics of the RISC-V CPU.
+TODO:
+ * UART Input
 
 ## Running the emulator
 
