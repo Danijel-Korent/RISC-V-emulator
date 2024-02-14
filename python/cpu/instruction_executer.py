@@ -828,6 +828,13 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
                 logger.register_executed_instruction(f"ebreak (Ignored instruction)")
                 pass
 
+            # --- Instruction "WFI" ---
+            elif immediate_val == 0x105:
+
+                # TODO: For now it is just ignored, needs full implementation
+                logger.register_executed_instruction(f"wfi (Wait For Interrupt)")
+                pass
+
             # Instruction "MRET"
             elif immediate_val == 0x302:
                 trap_and_interrupt_handler.return_from_interrupt()
