@@ -7,10 +7,11 @@ I'm also writing a blog post about each implemented instruction, and will put li
 
 ## Current status
 
-The emulator successfully loads kernel image and device tree binary, and boots Linux up to the shell prompt. Since the input is not yet implemented, the emulator exits after the shell prompt gets outputted.
+The emulator successfully loads the kernel image and device tree binary, and boots Linux up to the shell prompt. It executes 63 million RISC-V instructions to reach the shell prompt.
 
-TODO:
- * UART Input
+Since the input is not implemented, the emulator stops after the shell prompt gets outputted. 
+
+The emulator can also print which kernel function the CPU is currently executing by comparing the current PC with entries in a .map file
 
 ## Running the emulator
 
