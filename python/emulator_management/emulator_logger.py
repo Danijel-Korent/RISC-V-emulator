@@ -58,7 +58,7 @@ class Emulator_logger:
                     self.last_report_at_instruction_no = self.instruction_counter
                     # This could in some cases return symbol that is not a function, but I'll deal with that later
                     current_function = get_symbol_name(registers.instruction_pointer, self.symbols)
-                    print(f"({self.instruction_counter}) Executed 250,000 instructions [CPU currently executing: {current_function}]")
+                    print(f"EMULATOR: executed {self.instruction_counter} instructions, CPU executing: {current_function}")
                     pass
         pass
 
