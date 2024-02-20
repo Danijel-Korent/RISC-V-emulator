@@ -7,7 +7,7 @@ I'm also writing a blog post about each implemented instruction, and will put li
 
 ## Current status
 
-The emulator successfully loads the kernel image and device tree binary, and boots Linux up to the shell prompt. It executes 63 million RISC-V instructions to reach the shell prompt.
+The emulator successfully loads the kernel image and device tree binary, and boots Linux up to the shell prompt. It emulates rv32ima instruction set and executes 63 million RISC-V instructions to reach the shell prompt.
 
 Since the input is not implemented, the emulator stops after the shell prompt gets outputted. 
 
