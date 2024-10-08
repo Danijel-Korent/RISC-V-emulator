@@ -16,6 +16,12 @@ class Device_UART_8250:
     def read_register(self, address):
         self.logger.register_device_usage(f"[UART] Read at {address:08x}")
 
+        # TODO:
+        #   - add "if address == 0" for reading the RBR receiver buffer
+        #   - As a test, just add hardcoded "uname -a" triggered at specific instruction count
+        #     - this is also a nice excuse to play with py generators
+        #     - don't forget to tell Linux to read the RX (return 0x61 from reg 5)
+
         # Line Status Register (LSR)
         if address == 5:
             TRANSMIT_BUFFER_IS_EMPTY = 0b00100000

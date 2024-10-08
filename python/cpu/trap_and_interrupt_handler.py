@@ -140,6 +140,18 @@ class Trap_And_Interrupt_Handler:
         if value > 3:
             raise Exception("Trying to set privilege mode above 3: There are only 0-3 privilage modes")
 
+        # TODO: Move this to the logger so it can be dynamicaly disabled
+        if 0:
+            if self.CPU_privilege_mode != value:
+                if value == 0:
+                    print('[EMULATOR] CPU privilege mode = USER')
+                elif value == 1:
+                    print('[EMULATOR] CPU privilege mode = SUPERVISOR')
+                elif value == 2:
+                    print('[EMULATOR] CPU privilege mode = HYPERVISOR')
+                elif value == 3:
+                    print('[EMULATOR] CPU privilege mode = MACHINE')
+
         self.CPU_privilege_mode = value
 
     # TODO: Rename to get_interrupts_globally_enabled ??

@@ -58,7 +58,7 @@ class Emulator_logger:
                     self.last_report_at_instruction_no = self.instruction_counter
                     # This could in some cases return symbol that is not a function, but I'll deal with that later
                     current_function = get_symbol_name(registers.instruction_pointer, self.symbols)
-                    print(f"EMULATOR: executed {self.instruction_counter} instructions, CPU executing: {current_function}")
+                    print(f"[EMULATOR] Executed {self.instruction_counter} instructions / CPU executing: {current_function}")
                     pass
         pass
 
@@ -74,13 +74,13 @@ class Emulator_logger:
                 pass
 
         if self.instruction_counter == EXIT_EMULATOR_AT_INSTRUCTION_NO:
-            print('[MANAGER] Exited by manager')
+            print('[EMULATOR] Exited by emulator')
             quit()
             # breakpoint()
             pass
 
         if self.instruction_counter - 1 == BREAKPOINT_AT_INSTRUCTION_NO:
-            print('[MANAGER] Breakpoint by manager')
+            print('[EMULATOR] Breakpoint by emulator')
             breakpoint()
             pass
         pass
