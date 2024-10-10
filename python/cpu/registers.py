@@ -61,6 +61,9 @@ class CSR_Registers:
         # CSR registers
         self.CSR_mscratch = 0
 
+        self.test_UART_input = "uname -a\r\n"
+        self.test_UART_input = "ls -lah /\r\n"
+
     def read_from_register(self, register_num):
         ret_val = 0
 
@@ -72,7 +75,13 @@ class CSR_Registers:
             # TODO: Looks like this is a part of Xen console implementation (to read keypress)
             register_short_name = "sscratch / Xen input"
             register_long_name = "Scratch register for supervisor trap handlers"
-            ret_val = 0xffffffff  # Just return "no keypress" for now
+            if len(self.test_UART_input) > 0 and self.logger.instruction_counter > 62700000:
+                char = self.test_UART_input[0]
+                self.test_UART_input = self.test_UART_input[1:] # remove first char
+                ret_val = ord(char)
+            else:
+                ret_val = 0xffffffff
+            #ret_val = 0xffffffff  # Just return "no keypress" for now
         elif register_num == 0x300:
             register_short_name = "mstatus"
             register_long_name = "Machine status register"
@@ -150,8 +159,8 @@ class CSR_Registers:
             register_short_name = "sscratch / Xen input"
             register_long_name = "Scratch register for supervisor trap handlers"
             if new_value != 0xffffffff:
-                print(f"Trying to set 'sscratch' to {new_value}")
-                exit(-1)
+                #print(f"Trying to set 'sscratch' to {new_value}")
+                #exit(-1)
                 pass
         elif register_num == 0x300:
             register_short_name = "mstatus"
