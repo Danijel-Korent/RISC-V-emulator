@@ -13,6 +13,11 @@ Since the input is not implemented, the emulator stops after the shell prompt ge
 
 The emulator can also print which kernel function the CPU is currently executing by comparing the current PC with entries in a .map file
 
+**TODO:**
+  * I will try to add input handling without using external libraries
+    * On the Windows platform, it should be fairly easy by using msvcrt
+    * On Linux, I have mistakenly thought that "termios" is an external module, but it looks like it is part of the standard library
+
 ## Running the emulator
 
 `cd RISC-V-emulator/python/`
