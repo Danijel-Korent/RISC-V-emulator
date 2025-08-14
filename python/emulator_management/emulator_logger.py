@@ -23,7 +23,7 @@ class Emulator_logger:
     def register_one_CPU_step(self, instruction_value, registers, CSR_registers, memory, trap_and_interrupt_handler):
         self.instruction_counter += 1
 
-        if self.instruction_counter >= self.start_traceout_at_instruction_no:
+        if ( self.start_traceout_at_instruction_no) and self.instruction_counter >= self.start_traceout_at_instruction_no:
             self.last_instruction_address = registers.instruction_pointer
 
             if self.report_type == ReportType.SHORT_REPORT:
@@ -37,7 +37,7 @@ class Emulator_logger:
                 print("===============================")
                 print(f"Instruction pointer: 0x{registers.instruction_pointer:08x}")
                 print(f"Instruction value:   0x{instruction_value:08x} \n")
-            elif self.report_type == ReportType.C_EMU_REPORT:
+            elif self.report_type == ReportType.ONELINE_LONG_REPORT:
                 print(f"Timer:{memory.get_4_bytes__little_endian(0x1100bff8):08x} PC: {registers.instruction_pointer:08x}"
                       f" [0x{instruction_value:08x}] Z:{registers.x[0]:08x} ra:{registers.x[1]:08x} sp:{registers.x[2]:08x}"
                       f" gp:{registers.x[3]:08x} tp:{registers.x[4]:08x} t0:{registers.x[5]:08x} t1:{registers.x[6]:08x}"
@@ -53,7 +53,7 @@ class Emulator_logger:
             else:
                 pass
         else:
-            if self.report_type != ReportType.C_EMU_REPORT:
+            if self.report_type != ReportType.ONELINE_LONG_REPORT:
                 if self.instruction_counter - self.last_report_at_instruction_no >= 250000:
                     self.last_report_at_instruction_no = self.instruction_counter
                     # This could in some cases return symbol that is not a function, but I'll deal with that later
@@ -64,7 +64,7 @@ class Emulator_logger:
 
     # TODO: Currently ordinary string is passed, should be replaced with something structured
     def register_executed_instruction(self, message):
-        if self.instruction_counter >= self.start_traceout_at_instruction_no :
+        if (self.start_traceout_at_instruction_no) and self.instruction_counter >= self.start_traceout_at_instruction_no:
             if self.report_type == ReportType.SHORT_REPORT:
                 current_function = get_symbol_name(self.last_instruction_address, self.symbols)
                 print(f"   -> {message}   \t\t  [{current_function}]")
