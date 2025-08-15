@@ -23,6 +23,8 @@ class Emulator_logger:
     def register_one_CPU_step(self, instruction_value, registers, CSR_registers, memory, trap_and_interrupt_handler):
         self.instruction_counter += 1
 
+        if self.report_type == ReportType.NONE: return
+
         if ( self.start_traceout_at_instruction_no) and self.instruction_counter >= self.start_traceout_at_instruction_no:
             self.last_instruction_address = registers.instruction_pointer
 
@@ -53,7 +55,7 @@ class Emulator_logger:
             else:
                 pass
         else:
-            if self.report_type != ReportType.ONELINE_LONG_REPORT:
+            if self.report_type == ReportType.ONLY_PROGRESS_REPORT:
                 if self.instruction_counter - self.last_report_at_instruction_no >= 250000:
                     self.last_report_at_instruction_no = self.instruction_counter
                     # This could in some cases return symbol that is not a function, but I'll deal with that later
