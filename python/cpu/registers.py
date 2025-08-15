@@ -1,4 +1,4 @@
-from config import START_ADDRESS_OF_RAM, TTY_OUTPUT_ENABLED
+from config import START_ADDRESS_OF_RAM, TTY_OUTPUT_ENABLED, TEST_UART_INPUT
 
 
 # TODO: Rename "register.py" to "CPU_registers.py".
@@ -61,8 +61,7 @@ class CSR_Registers:
         # CSR registers
         self.CSR_mscratch = 0
 
-        self.test_UART_input = "uname -a\r\n"
-        self.test_UART_input = "ls -lah /\r\n"
+        self.test_UART_input = TEST_UART_INPUT
 
     def read_from_register(self, register_num):
         ret_val = 0
