@@ -44,8 +44,8 @@ def emulate_cpu():
     registers = Registers(logger)
 
     # Set the address of Device Tree binary in the memory
+    # https://docs.kernel.org/arch/riscv/boot.html
     registers.x[11] = START_ADDRESS_OF_RAM + ram_memory.get_device_tree_RAM_address()  # TODO: Make this less confusing
-    # print(f"Location of DTB: {registers.integer_regs[11]:08x}")
 
     trap_and_interrupt_handler = Trap_And_Interrupt_Handler(registers, logger)
     CSR_registers = CSR_Registers(trap_and_interrupt_handler, logger)
@@ -57,6 +57,11 @@ def emulate_cpu():
     # If need for more devices appears, it would probably be smarter to pass a list of objects with a common interface
     address_space = Address_Space(ram_memory, device_UART_8250, device_timer_CLINT)
 
+    print(f" [EMULATOR] Location of Linux image: 0x{START_ADDRESS_OF_RAM:08x}")
+    print(f" [EMULATOR] Location of DeviceTree:  0x{registers.x[11]:08x}")
+    print(f" [EMULATOR] CPU start address:       0x{registers.instruction_pointer:08x}")
+
+    print(" [EMULATOR] Starting CPU... \n")
     while True:
         device_timer_CLINT.update()
         execute_single_CPU_instruction(registers, CSR_registers, trap_and_interrupt_handler, address_space, logger)

@@ -14,6 +14,8 @@ class Emulator_logger:
         self.symbols = []
         self.last_instruction_address = None
 
+        print(" [EMULATOR] Kernel memory map file: ", LINKER_MAP_FILE_PATH)
+
         # TODO: Handle "no file" exception
         with open(LINKER_MAP_FILE_PATH, 'r') as file:
             file_content = file.read()

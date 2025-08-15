@@ -14,6 +14,11 @@ class Device_UART_8250:
         self.test_UART_input = "uname -a\13"
         pass
 
+    # Size in address space
+    @staticmethod
+    def get_mmio_size():
+        return 8
+
     def read_register(self, address):
         self.logger.register_device_usage(f"[UART] Read at {address:08x}")
 

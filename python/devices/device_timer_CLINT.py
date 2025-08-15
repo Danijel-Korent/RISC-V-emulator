@@ -24,6 +24,11 @@ class Device_Timer_CLINT:
         self.MSIP_bit = 0
         pass
 
+    # Size in address space
+    @staticmethod
+    def get_mmio_size():
+        return 0xBFFF
+
     def get_mtime(self):
         return self.registers.executed_instruction_counter
 

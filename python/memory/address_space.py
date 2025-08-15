@@ -9,6 +9,12 @@ class Address_Space:
         self.device_UART = device_UART
         self.device_timer_CLINT = device_timer_CLINT
 
+        print(f" [EMULATOR] CPU address space: ")
+        print(f" [EMULATOR]     {START_ADDRESS_OF_UART:08X}-{START_ADDRESS_OF_UART+device_UART.get_mmio_size():08X} : UART")
+        print(f" [EMULATOR]     {START_ADDRESS_OF_TIMER_CLINT:08X}-{START_ADDRESS_OF_TIMER_CLINT+device_timer_CLINT.get_mmio_size():08X} : CLINT")
+        print(f" [EMULATOR]     {START_ADDRESS_OF_RAM:08X}-{START_ADDRESS_OF_RAM+RAM_SIZE:08X} : RAM")
+
+
     # Returns a value stored at specified address
     def get_1_byte(self, address):
 
@@ -19,11 +25,11 @@ class Address_Space:
             RAM_addr = address - START_ADDRESS_OF_RAM
             return self.RAM_memory.RAM[RAM_addr]
 
-        elif START_ADDRESS_OF_UART <= address <= START_ADDRESS_OF_UART + 8:
+        elif START_ADDRESS_OF_UART <= address <= START_ADDRESS_OF_UART + self.device_UART.get_mmio_size():
             reg_address = address - START_ADDRESS_OF_UART
             return self.device_UART.read_register(reg_address)
 
-        elif START_ADDRESS_OF_TIMER_CLINT <= address <= START_ADDRESS_OF_TIMER_CLINT + 0xBFFF: # TODO: Hardcoding the map size, again. very noughty.
+        elif START_ADDRESS_OF_TIMER_CLINT <= address <= START_ADDRESS_OF_TIMER_CLINT + self.device_timer_CLINT.get_mmio_size():
             reg_address = address - START_ADDRESS_OF_TIMER_CLINT
             return self.device_timer_CLINT.read_register(reg_address)
 

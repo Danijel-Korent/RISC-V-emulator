@@ -8,8 +8,12 @@ class Registers:
         self.logger = logger
 
         # All CPUs have one register that holds the address of the next instruction to execute
-        # Here we also set the initial instruction address. Normal system would have ROM/flash memory (with initial
-        # hardcoded bootloader) mapped into this address. We mapped at this address (a small chunk of) Linux kernel
+        # At the same line we also set the address of the first instruction to be executed by CPU.
+        # Normal system would have ROM/flash memory (with initial bootloader/firmware), but we
+        # have simply copied Linux image into the RAM, and the first instruction will be the address
+        # the Linux kernel image in the RAM. Image starts with a jump instruction that jumps over some
+        # header fields:
+        # https://elixir.bootlin.com/linux/v6.1.14/source/Documentation/riscv/boot-image-header.rst
         self.instruction_pointer = START_ADDRESS_OF_RAM
 
         # An array of integer registers
