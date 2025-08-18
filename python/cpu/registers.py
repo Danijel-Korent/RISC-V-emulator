@@ -1,9 +1,6 @@
 from config import START_ADDRESS_OF_RAM, TTY_OUTPUT_ENABLED, TEST_UART_INPUT
 
-from platform import system
-if system() == 'Windows':
-    #from msvcrt import getch
-    import msvcrt
+from utils.read_keyboard import read_key
 
 # TODO: Rename "register.py" to "CPU_registers.py".
 # TODO: Move CSR stuff into "CSR_registers.py" if it grows to big after fully implementing CSR registers
@@ -87,10 +84,7 @@ class CSR_Registers:
                 self.test_UART_input = self.test_UART_input[1:] # remove first char
                 ret_val = ord(char)
             else:
-                if msvcrt.kbhit():
-                    ret_val = ord(msvcrt.getch())
-                else:
-                    ret_val = 0xffffffff
+                ret_val = read_key()
             #ret_val = 0xffffffff  # Just return "no keypress" for now
         elif register_num == 0x300:
             register_short_name = "mstatus"

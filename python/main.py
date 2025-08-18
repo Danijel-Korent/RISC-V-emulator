@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+from platform import system
+
 from memory.address_space import Address_Space
 from devices.device_timer_CLINT import Device_Timer_CLINT
 from devices.device_uart_8250 import Device_UART_8250
@@ -71,4 +73,11 @@ def emulate_cpu():
 
 # Main starting point of this program/script
 if __name__ == '__main__':
+
+    if system() == 'Windows':
+        import os
+        # Apparently this is how to put "cmd" interpreter into VT100 mode
+        # Otherwise we will see VT100 escape sequences when running from cmd
+        os.system("")
+
     emulate_cpu()
