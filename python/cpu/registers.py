@@ -164,7 +164,7 @@ class CSR_Registers:
             register_long_name = "Xen hypervisor console"
             if TTY_OUTPUT_ENABLED:
                 char = chr(new_value)  # Convert value to ASCII character
-                print(char, end='')
+                print(char, end='', flush=True)
         elif register_num == 0x140:
             register_short_name = "sscratch / Xen input"
             register_long_name = "Scratch register for supervisor trap handlers"
