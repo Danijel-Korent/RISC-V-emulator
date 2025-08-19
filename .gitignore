@@ -1,3 +1,5 @@
+Linux_kernel_image/
+
 # Python stuff
 .idea/
-*/__pycache__/
+__pycache__/
