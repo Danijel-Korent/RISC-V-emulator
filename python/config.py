@@ -13,7 +13,7 @@ LINUX_IMAGE_PATH = 'Linux_kernel_image/Linux_image_6_1_14_RV32IMA_NoMMU'
 DEVICE_TREE_PATH = 'Linux_kernel_image/device_tree_binary.dtb'
 LINKER_MAP_FILE_PATH = 'Linux_kernel_image/debug_info/System.map'
 
-TEST_UART_INPUT = "ls -lah / \r\n"
+TEST_UART_INPUT = ""
 
 RAM_SIZE = 64*1024*1024
 START_ADDRESS_OF_RAM  = 0x80000000
@@ -32,6 +32,15 @@ START_TRACEOUT_AT_INSTRUCTION_NO = None
 EXIT_EMULATOR_AT_INSTRUCTION_NO  = 67750000
 BREAKPOINT_AT_INSTRUCTION_NO = None
 
+from platform import system
+
+if system() == 'Windows':
+    TEST_UART_INPUT = ""
+    EXIT_EMULATOR_AT_INSTRUCTION_NO = None
+    LOGGER_REPORT_TYPE = ReportType.NONE
+else:
+    TEST_UART_INPUT = "ls -lah / \r\n"
+    EXIT_EMULATOR_AT_INSTRUCTION_NO = 67750000
 
 # Generate CPU state output for all instructions
 if 0:

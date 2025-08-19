@@ -1,5 +1,6 @@
 from config import START_ADDRESS_OF_RAM, TTY_OUTPUT_ENABLED, TEST_UART_INPUT
 
+from utils.read_keyboard import read_key
 
 # TODO: Rename "register.py" to "CPU_registers.py".
 # TODO: Move CSR stuff into "CSR_registers.py" if it grows to big after fully implementing CSR registers
@@ -83,7 +84,7 @@ class CSR_Registers:
                 self.test_UART_input = self.test_UART_input[1:] # remove first char
                 ret_val = ord(char)
             else:
-                ret_val = 0xffffffff
+                ret_val = read_key()
             #ret_val = 0xffffffff  # Just return "no keypress" for now
         elif register_num == 0x300:
             register_short_name = "mstatus"
@@ -157,7 +158,7 @@ class CSR_Registers:
             register_long_name = "Xen hypervisor console"
             if TTY_OUTPUT_ENABLED:
                 char = chr(new_value)  # Convert value to ASCII character
-                print(char, end='')
+                print(char, end='', flush=True)
         elif register_num == 0x140:
             register_short_name = "sscratch / Xen input"
             register_long_name = "Scratch register for supervisor trap handlers"
