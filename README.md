@@ -14,7 +14,7 @@ I'm also writing a blog post about each implemented instruction, and will put li
 The emulator successfully loads the kernel image and device tree binary, and boots Linux into the Busybox's Ash shell. It executes around 63 million instructions to reach the shell prompt. It supports most instructions of the rv32ima instruction set 
 (only implemented what is needed to boot the kernel and run ls/cat)
 
-Currently, input only works on Windows. On Linux, the emulator stops after the shell prompt gets output. 
+Currently, input only works when running on Windows. On Linux, the emulator stops after the shell prompt gets output (currently working on Linux input support that doesn't require an external Python library)
 
 The emulator can also print which kernel function the CPU is currently executing by comparing the current PC with entries in a .map file
 
