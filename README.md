@@ -1,14 +1,18 @@
 # RISC-V-emulator
-A small exercise to learn the RISC-V instruction set. The end goal is to boot an MMU-less version of the Linux Kernel.
+A small exercise to learn the RISC-V instruction set. The end goal was to boot an MMU-less version of the Linux Kernel, which is achieved now.
 
 I'm writing it to explore the "problem space", i.e. to understand the RISC-V architecture. I also plan to use it to learn Rust. After I finish the project in Python, I will rewrite it in Rust.
 
 I'm also writing a blog post about each implemented instruction, and will put links here when the blog is ready (UPDATE: this turned out to be a lie so far :) )
 
+## Running the emulator
+
+`python3 main.py`
+
 ## Current status
 
 The emulator successfully loads the kernel image and device tree binary, and boots Linux into the Busybox's Ash shell. It executes around 63 million instructions to reach the shell prompt. It supports most instructions of the rv32ima instruction set 
-(only implemented what is needed to boot the kernel and run ls/cat. Need to check what is still left to implement)
+(only implemented what is needed to boot the kernel and run ls/cat)
 
 Currently, input only works on Windows. On Linux, the emulator stops after the shell prompt gets output. 
 
@@ -19,10 +23,28 @@ You may think that the emulator is unreasonably slow, but if you take a look at 
 **TODO:**
   * I will try to add input handling on Linux without using external libraries 
     * I have mistakenly thought that "termios" is an external module, but it looks like it is part of the standard library
+## Technical details
 
-## Running the emulator
+CPU emulates:
+  * All RV32I instructions except for "slti"
+  * All RV32M instructions except for "mulhsu"
+  * All RV32A instructions except for xor, max, min
+  * All Zicsr instructions
+  * Interrupts and ecall/ebreak
+  * CSR registers for flags, interrupts, privilege, and Xen console
+  * Privilege levels are only emulated at the interface level; Didn't add code for checking if an instruction is allowed to be executed
 
-`python3 main.py`
+Devices:
+  * CLINT -> implements "mtime" and "mtimeCmp". Software interrupts not implemented
+  * UART -> It only implements bare minimum: registers RBR, THR and LSR
+  * RAM -> only 64M as RAM is currently expensive ;)
+
+CPU address space:
+```
+    10000000-10000008 : UART
+    11000000-1100BFFF : CLINT
+    80000000-84000000 : RAM
+```
 
 ## Running the Linux kernel image in QEMU
 
