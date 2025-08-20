@@ -38,6 +38,7 @@ Devices:
   * CLINT -> implements "mtime" and "mtimeCmp". Software interrupts not implemented
   * UART -> It only implements bare minimum: registers RBR, THR and LSR
   * RAM -> only 64M as RAM is currently expensive ;)
+  * Xen hvc0 console via CSR registers
 
 CPU address space:
 ```
@@ -45,6 +46,11 @@ CPU address space:
     11000000-1100BFFF : CLINT
     80000000-84000000 : RAM
 ```
+
+Other:
+  * No MMU support
+  * Supports Linux boot protocol for RISC-V
+    
 
 ## Running the Linux kernel image in QEMU
 
