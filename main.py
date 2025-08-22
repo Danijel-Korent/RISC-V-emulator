@@ -13,6 +13,8 @@ from cpu.registers import Registers, CSR_Registers
 from config import *
 from cpu.trap_and_interrupt_handler import Trap_And_Interrupt_Handler
 
+from utils.read_keyboard import tty_prepare, tty_release
+
 
 # TODO: rename to execute_next_CPU_instruction
 def execute_single_CPU_instruction(registers, CSR_registers, trap_and_interrupt_handler, memory, logger):
@@ -48,7 +50,7 @@ def emulate_cpu():
 
     # Set the address of Device Tree binary in the memory
     # https://docs.kernel.org/arch/riscv/boot.html
-    registers.x[11] = START_ADDRESS_OF_RAM + ram_memory.get_device_tree_RAM_address()  # TODO: Make this less confusing
+    registers.x[11] = START_ADDRESS_OF_RAM + ram_memory.get_device_tree_RAM_address() # absolute address of RAM in CPU's address space + relative address of DTB in RAM space
 
     trap_and_interrupt_handler = Trap_And_Interrupt_Handler(registers, logger)
     CSR_registers = CSR_Registers(trap_and_interrupt_handler, logger)
@@ -74,10 +76,13 @@ def emulate_cpu():
 # Main starting point of this program/script
 if __name__ == '__main__':
 
-    if system() == 'Windows':
-        import os
-        # Apparently this is how to put "cmd" interpreter into VT100 mode
-        # Otherwise we will see VT100 escape sequences when running from cmd
-        os.system("")
+    tty_prepare()
 
-    emulate_cpu()
+    try:
+        emulate_cpu()
+
+    except Exception as e:
+        print(f"Got exception: {e}")
+
+    finally:
+        tty_release()

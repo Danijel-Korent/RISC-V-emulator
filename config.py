@@ -1,4 +1,5 @@
 from enum import Enum
+from platform import system
 
 class ReportType(Enum):
     NONE = 0
@@ -8,43 +9,46 @@ class ReportType(Enum):
     ONLY_PROGRESS_REPORT = 4
 
 
-# System configuration
+# File paths
 LINUX_IMAGE_PATH = 'Linux_kernel_image/Linux_image_6_1_14_RV32IMA_NoMMU'
 DEVICE_TREE_PATH = 'Linux_kernel_image/device_tree_binary.dtb'
 LINKER_MAP_FILE_PATH = 'Linux_kernel_image/debug_info/System.map'
 
-TEST_UART_INPUT = ""
 
+# VM/Emulator address space
 RAM_SIZE = 64*1024*1024
 START_ADDRESS_OF_RAM  = 0x80000000
 START_ADDRESS_OF_UART = 0x10000000
 START_ADDRESS_OF_TIMER_CLINT = 0x11000000
 
-# Debug options configuration
-TTY_OUTPUT_ENABLED = True
 
+# Options for easier debugging
+TTY_OUTPUT_ENABLED = True
 LOGGER_PRINT_DEVICE_ACTIVITY = False
 LOGGER_PRINT_CSR_REGISTER_ACTIVITY = False
 
+TEST_UART_INPUT = ""
 LOGGER_REPORT_TYPE = ReportType.ONLY_PROGRESS_REPORT
-
 START_TRACEOUT_AT_INSTRUCTION_NO = None
-EXIT_EMULATOR_AT_INSTRUCTION_NO  = 67750000
+EXIT_EMULATOR_AT_INSTRUCTION_NO  = None
 BREAKPOINT_AT_INSTRUCTION_NO = None
 
-from platform import system
 
-if system() == 'Windows':
+# Default settings for Windows and Linux
+if system() == 'Windows' or system() == "Linux":
     TEST_UART_INPUT = ""
     EXIT_EMULATOR_AT_INSTRUCTION_NO = None
     LOGGER_REPORT_TYPE = ReportType.NONE
 else:
     TEST_UART_INPUT = "ls -lah / \r\n"
+    START_TRACEOUT_AT_INSTRUCTION_NO = 0
     EXIT_EMULATOR_AT_INSTRUCTION_NO = 67750000
+    LOGGER_REPORT_TYPE = ReportType.ONLY_PROGRESS_REPORT
 
-# Generate CPU state output for all instructions
+
+# Easy on/off switch for debugging (outputs first 70 instructions by default)
 if 0:
     START_TRACEOUT_AT_INSTRUCTION_NO = 0
-    EXIT_EMULATOR_AT_INSTRUCTION_NO  = 63000000
-    LOGGER_REPORT_TYPE = ReportType.ONELINE_LONG_REPORT
+    EXIT_EMULATOR_AT_INSTRUCTION_NO  = 70
+    LOGGER_REPORT_TYPE = ReportType.SHORT_REPORT
     TTY_OUTPUT_ENABLED = False
