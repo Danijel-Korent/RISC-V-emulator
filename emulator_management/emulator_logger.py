@@ -4,7 +4,7 @@ from config import LOGGER_PRINT_DEVICE_ACTIVITY, LOGGER_PRINT_CSR_REGISTER_ACTIV
 
 class Emulator_logger:
 
-    def __init__(self, start_traceout_at_instruction_no=0, report_type=ReportType.SHORT_REPORT):
+    def __init__(self, start_traceout_at_instruction_no=None, report_type=ReportType.SHORT_REPORT):
         self.instruction_counter = 0
         self.start_traceout_at_instruction_no = start_traceout_at_instruction_no
         self.last_report_at_instruction_no = 0
@@ -27,7 +27,7 @@ class Emulator_logger:
 
         if self.report_type == ReportType.NONE: return
 
-        if ( self.start_traceout_at_instruction_no) and self.instruction_counter >= self.start_traceout_at_instruction_no:
+        if (self.start_traceout_at_instruction_no != None) and self.instruction_counter >= self.start_traceout_at_instruction_no:
             self.last_instruction_address = registers.instruction_pointer
 
             if self.report_type == ReportType.SHORT_REPORT:
@@ -68,7 +68,7 @@ class Emulator_logger:
 
     # TODO: Currently ordinary string is passed, should be replaced with something structured
     def register_executed_instruction(self, message):
-        if (self.start_traceout_at_instruction_no) and self.instruction_counter >= self.start_traceout_at_instruction_no:
+        if (self.start_traceout_at_instruction_no != None) and self.instruction_counter >= self.start_traceout_at_instruction_no:
             if self.report_type == ReportType.SHORT_REPORT:
                 current_function = get_symbol_name(self.last_instruction_address, self.symbols)
                 print(f"   -> {message}   \t\t  [{current_function}]")
@@ -79,7 +79,7 @@ class Emulator_logger:
 
         if self.instruction_counter == EXIT_EMULATOR_AT_INSTRUCTION_NO:
             print('[EMULATOR] Exited by emulator')
-            quit()
+            raise Exception("Exited by emulator")
             # breakpoint()
             pass
 
