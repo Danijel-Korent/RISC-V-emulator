@@ -35,7 +35,7 @@ class Address_Space:
 
         else:
             print(f"[ERROR] Address space: trying to read to unimplemented address: 0x{address:08x}")
-            quit()
+            raise Exception("Address space: trying to read to unimplemented address")
 
     def write_1_byte(self, address, value):
         if START_ADDRESS_OF_RAM <= address <= START_ADDRESS_OF_RAM + RAM_SIZE:
@@ -52,7 +52,7 @@ class Address_Space:
 
         else:
             print(f"[ERROR] Address space: trying to write to unimplemented address: 0x{address:08x}")
-            quit()
+            raise Exception("Address space: trying to write to unimplemented address")
 
     # Read 32bits/4bytes starting from specified address
     # RISC-V starts in little endian mode, therefor we need to read data as little endian order

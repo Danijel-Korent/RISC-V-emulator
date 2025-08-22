@@ -38,7 +38,6 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
             # For example:
             #   1111 is -1 as a 4-bit value. But as a 8-bit value 00001111 it is 15 when we interpret it as signed value
             #   If we want to keep -1 when expanding 4-bit value into 8-bit space, we need to add '1's -> 11111111
-            # TODO: Turn into function
             if value & 0b10000000 != 0:
                 value = value | 0xFFFFFF00
 
@@ -51,15 +50,12 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
         elif instruction_subtype == 1:
             value = memory.get_2_bytes__little_endian(address)
 
-            # TODO: Turn into function
+            # Sign-extend it (For explanation see handling for instruction 'LB')
             if value & 0x8000 != 0:
                 value = value | 0xFFFF0000
 
             registers.x[destination_reg] = value
 
-            if value & 0x8000 != 0:
-                #quit()
-                pass
             logger.register_executed_instruction(f"lh x{destination_reg}, {immediate_val}(x{source_reg})  (Load Half-word, 16-bit - With sign extension)")
             pass
 
@@ -92,7 +88,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-            quit()
+            raise Exception("Unimplemented instruction")
         pass
 
     # --- Instruction 'FENCE' ---
@@ -136,7 +132,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
             # There are only 32 bits in registers so the valid immediate values are up to 2**5
             if immediate_val & 0x111111100000 != 0:
                 print(f"[ERROR] SLLI: Invalid instruction encoding !!")
-                quit()
+                raise Exception("Invalid instruction")
 
             value_to_be_shifted = source_reg_value
             shift_amount = immediate_val & 0b11111  # Get only the lower 5 bits of the immediate
@@ -251,7 +247,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-            quit()
+            raise Exception("Unimplemented instruction")
         pass
 
     # --- instruction "AUIPC" ---
@@ -299,7 +295,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-            quit()
+            raise Exception("Unimplemented instruction")
         pass
 
     # --- RV32A Atomic instructions ---
@@ -394,7 +390,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
             pass
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-            quit()
+            raise Exception("Unimplemented instruction")
         pass
 
     # --- Arithmetic/Logic instructions - registers only ---
@@ -653,7 +649,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-            quit()
+            raise Exception("Unimplemented instruction")
         pass
 
     # --- instruction "LUI" ---
@@ -738,7 +734,7 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
         else:
             print(f"[ERROR] Instruction not implemented: 0x{instruction:08x} !!")
-            quit()
+            raise Exception("Unimplemented instruction")
         pass
 
     # --- instruction "JALR" ---
@@ -938,4 +934,4 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
 
 def report_unimplemented_instruction(instruction, instruction_pointer, executed_instruction_counter):
     print(f"\n[ERROR] Instruction not implemented: 0x{instruction:08x} (Address: {instruction_pointer:08x} / Counter: {executed_instruction_counter})")
-    quit()
+    raise Exception("Unimplemented instruction")

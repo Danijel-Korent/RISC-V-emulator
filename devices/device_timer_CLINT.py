@@ -74,7 +74,7 @@ class Device_Timer_CLINT:
             return (timer_val >> 56) & 0xFF
         else:
             print(f"[ERROR] CLINT/TIMER: Unknown/unimplemented register read attempt ({address:08x})")
-            quit()
+            raise Exception("CLINT/TIMER: Unknown/unimplemented register read attempt")
         return 0
 
     # Implements registers "msip" and "mtimecmp"
@@ -116,5 +116,5 @@ class Device_Timer_CLINT:
             self.logger.register_device_usage(f"[CLINT/TIMER] Write at {address:08x}: {self.timer_compare_value}")
         else:
             print(f"[ERROR] CLINT/TIMER: Unknown/unimplemented register write attempt ({address:08x})")
-            quit()
+            raise Exception("CLINT/TIMER: Unknown/unimplemented register write attempt")
         pass
