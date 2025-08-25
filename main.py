@@ -42,7 +42,7 @@ def execute_single_CPU_instruction(registers, CSR_registers, trap_and_interrupt_
 def emulate_cpu():
     print("") # Just for newline
 
-    logger = Emulator_logger(START_TRACEOUT_AT_INSTRUCTION_NO, LOGGER_REPORT_TYPE)
+    logger = Emulator_logger(START_TRACEOUT_AT_INSTRUCTION_NO, STOP_TRACEOUT_AT_INSTRUCTION_NO, LOGGER_REPORT_TYPE)
 
     ram_memory = RAM_memory(LINUX_IMAGE_PATH, DEVICE_TREE_PATH, RAM_SIZE)
 
