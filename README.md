@@ -11,18 +11,14 @@ I'm also writing a blog post about each implemented instruction, and will put li
 
 ## Current status
 
-The emulator successfully loads the kernel image and device tree binary, and boots Linux into the Busybox's Ash shell. It executes around 63 million instructions to reach the shell prompt. It supports most instructions of the rv32ima instruction set 
-(only implemented what is needed to boot the kernel and run ls/cat)
+The emulator successfully loads the kernel image and device tree binary, and boots Linux into the Busybox's Ash shell. It executes around 63 million instructions to reach the shell prompt. Terminal input now works when running on both Windows and Linux. 
 
-Currently, input only works when running on Windows. On Linux, the emulator stops after the shell prompt gets output (currently working on Linux input support that doesn't require an external Python library)
+Emulated CPU supports most instructions of the rv32ima instruction set. I only implemented what is needed to boot the kernel and run ls/cat; basically just kept implementing instructions until the emulator stopped reporting unknown instructions.
 
 The emulator can also print which kernel function the CPU is currently executing by comparing the current PC with entries in a .map file
 
 You may think that the emulator is unreasonably slow, but if you take a look at that code, you will see that it is quite reasonable to be this slow. There are around 10 function calls per single instruction, which is a death on Python for a program of this type. But this is how I wanted to write it. If I put most of this function into a single big loop, it will probably be 5-10x faster. I will try it when I have time for it. So far, I spent some 20 min to disable logging function calls and execute multiple instructions (1000x) before updating peripherals, and that yielded 50% increase (didn't commit it)
 
-**TODO:**
-  * I will try to add input handling on Linux without using external libraries 
-    * I have mistakenly thought that "termios" is an external module, but it looks like it is part of the standard library
 ## Technical details
 
 CPU emulates:
@@ -51,6 +47,16 @@ Other:
   * No MMU support
   * Supports Linux boot protocol for RISC-V
     
+## Special Thanks
+
+  * To @cnlohr and his [mini-rv32ima emulator](https://github.com/cnlohr/mini-rv32ima). Had used his project to:
+    * to generate mmu-less rv32 Linux image
+    * to debug/trace where CPU execution started to deviate by tracing differences in CPU state between my emulator and mini-rv32ima. Saved me a huge amount of time!
+  * @d0iasm and section ["Control and Status Registers"](https://book.rvemu.app/hardware-components/03-csrs.html) in her book that very nicely summarizes important CSR registers 
+  * [rvcodecjs](https://luplab.gitlab.io/rvcodecjs/) for checking opcodes of unimplemented instructions
+  * This [instruction cheat sheet](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/notebooks/RISCV/RISCV_CARD.pdf) was very helpful!
+
+
 
 ## Running the Linux kernel image in QEMU
 
