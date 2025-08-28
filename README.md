@@ -22,7 +22,7 @@ You may think that the emulator is unreasonably slow, but if you take a look at 
 ## Technical details
 
 CPU emulates:
-  * All RV32I instructions except for "slti"
+  * All RV32I instructions
   * All RV32M instructions except for "mulhsu"
   * All RV32A instructions except for xor, max, min
   * All Zicsr instructions

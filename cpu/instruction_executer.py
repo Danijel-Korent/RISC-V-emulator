@@ -144,6 +144,19 @@ def execute_instruction(instruction, registers, CSR_registers, trap_and_interrup
             logger.register_executed_instruction(f"slli x{destination_reg}, x{source_reg}, {immediate_val}  (Shift Left Logical - Immediate)")
             pass
 
+        # --- instruction "SLTI" ---
+        elif instruction_subtype == 2:
+            
+            if (source_reg_value & ((1 << 32) - 1)) - ((source_reg_value & (1 << (32 - 1))) << 1) < immediate_val:
+                result = 1
+            else:
+                result = 0
+
+            registers.x[destination_reg] = result
+
+            logger.register_executed_instruction(f"slti x{destination_reg}, x{source_reg}, {immediate_val}  (Set Less Than - Immediate)")
+            pass
+
         # --- instruction "SLTIU" ---
         elif instruction_subtype == 3:
 
